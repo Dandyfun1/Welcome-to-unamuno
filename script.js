@@ -212,4 +212,44 @@ document.getElementById("new-item-btn").onclick = async () => {
 
   document.addEventListener("mouseup", () => dragging = false);
 })();
+// Background image upload
+document.getElementById("upload-bg").addEventListener("change", async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const filePath = `backgrounds/${Date.now()}_${file.name}`;
+
+  // Upload to Supabase Storage
+  const { data, error } = await supabaseClient.storage
+    .from("images")
+    .upload(filePath, file, { upsert: true });
+
+  if (error) {
+    alert("Upload failed: " + error.message);
+    return;
+  }
+
+  // Get public URL
+  const { data: publicData } = supabaseClient.storage
+    .from("images")
+    .getPublicUrl(filePath);
+
+  const publicUrl = publicData.publicUrl;
+
+  // Save to input + apply background immediately
+  document.getElementById("edit-bg").value = publicUrl;
+  document.body.style.backgroundImage = `url(${publicUrl})`;
+  document.body.style.backgroundSize = "cover";
+});
+document.getElementById("save-changes").onclick = async () => {
+  const title = document.getElementById("edit-title").value;
+  const desc = document.getElementById("edit-desc").value;
+  const accent = document.getElementById("edit-accent").value;
+  const background_url = document.getElementById("edit-bg").value;
+
+  await supabaseClient.from("site_settings").upsert([
+    { id: 1, title, description: desc, accent, background_url }
+  ]);
+  loadData();
+};
 
