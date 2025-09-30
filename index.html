@@ -5,25 +5,25 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>UNAMUNO</title>
   <style>
-    :root { --bg:#f9fafb; --card:#fff; --accent:#4f46e5; --text:#111827; }
+    :root { --bg:#fdfdfd; --card:#fff; --accent:#16a34a; --text:#111827; }
     * { box-sizing:border-box }
-    body { font-family:Inter,system-ui,sans-serif; margin:0; background:var(--bg); color:var(--text) }
-    header { background:linear-gradient(90deg,#4f46e5,#6366f1); padding:20px; color:#fff }
+    body { font-family:Inter,system-ui,sans-serif; margin:0; background:var(--bg); color:var(--text); }
+    header { background:var(--accent); padding:20px; color:#fff }
     .wrap { max-width:980px; margin:0 auto }
     h1 { margin:0; font-size:1.6rem }
-    .sub { opacity:.9; margin-top:6px }
+    .sub { opacity:.9; margin-top:4px }
     .controls { display:flex; gap:10px; margin-top:12px; align-items:center }
-    .btn { background:var(--accent); color:#fff; border:0; padding:8px 12px; border-radius:8px; cursor:pointer }
-    .ghost { background:#fff; color:var(--accent); border:1px solid rgba(255,255,255,0.15); padding:8px 12px; border-radius:8px; cursor:pointer }
-    input[type="text"] { padding:8px; border-radius:8px; border:1px solid rgba(0,0,0,0.08); min-width:160px }
+    .btn { background:var(--accent); color:#fff; border:0; padding:8px 12px; border-radius:8px; cursor:pointer; font-weight:500 }
+    .ghost { background:#fff; color:var(--accent); border:1px solid var(--accent); padding:8px 12px; border-radius:8px; cursor:pointer; font-weight:500 }
+    input[type="text"] { padding:8px; border-radius:8px; border:1px solid rgba(0,0,0,0.1); min-width:160px }
     .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:16px; padding:24px 0 }
-    .card { background:var(--card); padding:16px; border-radius:12px; box-shadow:0 6px 18px rgba(0,0,0,0.04) }
+    .card { background:var(--card); padding:16px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.05) }
     .card img { width:100%; border-radius:8px; margin-bottom:10px; object-fit:cover }
-    .danger { background:#ef4444; color:#fff; border:0; padding:6px 10px; border-radius:8px; cursor:pointer; }
+    .danger { background:#dc2626; color:#fff; border:0; padding:6px 10px; border-radius:8px; cursor:pointer; font-weight:500 }
     footer { padding:18px; text-align:center; color:#6b7280 }
     /* admin panel */
     .admin-panel { position:fixed; display:none; width:380px; max-width:calc(100% - 40px); top:120px; right:20px; background:#fff; border-radius:12px; box-shadow:0 12px 36px rgba(0,0,0,0.18); z-index:2000; }
-    .admin-header { padding:12px 14px; background:var(--accent); color:#fff; cursor:move; border-radius:12px 12px 0 0; display:flex; justify-content:space-between; align-items:center }
+    .admin-header { padding:12px 14px; background:var(--accent); color:#fff; cursor:move; border-radius:12px 12px 0 0; display:flex; justify-content:space-between; align-items:center; font-weight:600 }
     .admin-body { padding:14px; max-height:70vh; overflow:auto }
     label { display:block; margin-top:10px; font-weight:600 }
     input[type="file"] { margin-top:8px }
@@ -40,7 +40,7 @@
           <div class="sub" id="site-desc">Editable site connected to Supabase.</div>
         </div>
         <div style="display:flex;gap:12px;align-items:center">
-          <div class="pill small" id="status-pill" style="background:#fff;padding:6px 10px;border-radius:999px;color:var(--accent)">Public</div>
+          <div id="status-pill" style="background:#fff;padding:6px 10px;border-radius:999px;color:var(--accent);font-size:0.9rem;font-weight:500">Public</div>
           <button class="ghost" id="admin-toggle">Admin</button>
         </div>
       </div>
@@ -56,15 +56,13 @@
     <div id="items-grid" class="grid"></div>
   </main>
 
-  <footer>© UNAMUNO • Built with Supabase</footer>
+  <footer>© UNAMUNO • Powered by Supabase</footer>
 
   <!-- Admin Panel -->
   <div class="admin-panel" id="admin-panel" aria-hidden="true">
     <div class="admin-header" id="admin-header">
       <div>Admin Panel</div>
-      <div style="display:flex;gap:8px;align-items:center">
-        <button id="admin-close" class="ghost" style="background:transparent;color:#fff;border:1px solid rgba(255,255,255,0.18)">Close</button>
-      </div>
+      <button id="admin-close" class="ghost" style="background:transparent;color:#fff;border:1px solid rgba(255,255,255,0.25)">✕</button>
     </div>
 
     <div class="admin-body">
@@ -73,20 +71,22 @@
         <label>Email</label>
         <input type="text" id="pw-input" placeholder="admin@example.com" />
         <button class="btn" id="login-btn" style="margin-top:10px">Login</button>
-        <div class="small">After clicking Login you'll be prompted for the password (keeps UI simple).</div>
+        <div class="small">Enter your email, then you’ll be prompted for password.</div>
       </div>
 
-      <!-- controls (hidden until logged in) -->
+      <!-- controls -->
       <div id="controls-area" class="hidden">
         <label>Site title</label>
         <input type="text" id="edit-title" />
         <label>Site description</label>
         <input type="text" id="edit-desc" />
-        <label>Accent color (hex)</label>
-        <input type="text" id="edit-accent" placeholder="#4f46e5" />
-        <label>Background (URL or upload)</label>
+        <label>Accent color</label>
+        <input type="text" id="edit-accent" placeholder="#16a34a" />
+        <label>Background image</label>
         <input type="text" id="edit-bg" placeholder="Paste image URL" />
-        <input type="file" id="upload-bg" accept="image/*" />
+        <button class="ghost" id="bg-upload-btn" style="margin-top:6px;">Upload Background</button>
+        <input type="file" id="bg-file-input" accept="image/*" class="hidden" />
+
         <div style="margin-top:12px;display:flex;gap:8px">
           <button class="btn" id="save-changes">Save</button>
           <button class="ghost" id="new-item-btn">+ New Post</button>
@@ -97,7 +97,6 @@
     </div>
   </div>
 
-  <!-- load supabase then our script -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="script.js"></script>
 </body>
