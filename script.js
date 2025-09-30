@@ -5,7 +5,7 @@ const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let loggedIn = false;
 
-// Load site settings + items
+// Load site data from Supabase
 async function loadData() {
   // Site settings
   let { data: settings } = await supabaseClient
@@ -33,7 +33,7 @@ async function loadData() {
   renderItems(items || []);
 }
 
-// Render items into cards
+// Render cards
 function renderItems(items) {
   const grid = document.getElementById("items-grid");
   grid.innerHTML = "";
@@ -45,34 +45,22 @@ function renderItems(items) {
   });
 }
 
-// Search
-document.getElementById("search-btn").onclick = async () => {
-  const q = document.getElementById("search-input").value;
-  let { data: items } = await supabaseClient
-    .from("items")
-    .select("*")
-    .ilike("title", `%${q}%`);
-  renderItems(items || []);
-};
-
-// Admin toggle
+// Show Admin panel on click
 document.getElementById("admin-toggle").onclick = () => {
   document.getElementById("admin-panel").classList.remove("hidden");
 
   if (!loggedIn) {
-    // Show login form
     document.getElementById("login-area").classList.remove("hidden");
     document.getElementById("controls-area").classList.add("hidden");
   } else {
-    // Show admin controls
     document.getElementById("login-area").classList.add("hidden");
     document.getElementById("controls-area").classList.remove("hidden");
   }
 };
 
-// Login with Supabase
+// Login with Supabase Auth
 document.getElementById("login-btn").onclick = async () => {
-  const email = document.getElementById("pw-input").value; // reuse input as email
+  const email = document.getElementById("pw-input").value; // enter email here
   const password = prompt("Enter your Supabase password:");
 
   const { data, error } = await supabaseClient.auth.signInWithPassword({
@@ -118,6 +106,16 @@ document.getElementById("new-item-btn").onclick = async () => {
     await supabaseClient.from("items").insert([{ title, description: desc }]);
     loadData();
   }
+};
+
+// Search
+document.getElementById("search-btn").onclick = async () => {
+  const q = document.getElementById("search-input").value;
+  let { data: items } = await supabaseClient
+    .from("items")
+    .select("*")
+    .ilike("title", `%${q}%`);
+  renderItems(items || []);
 };
 
 // Init
