@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>My Static Site with Supabase</title>
-  <meta name="description" content="Static site with Supabase backend, admin panel, and search." />
+  <title>My Supabase Site</title>
+  <meta name="description" content="Static site with Supabase backend, admin panel, images, and background upload." />
   <style>
     :root{--bg:#f7f7fb;--card:#fff;--accent:#4f46e5;--text:#111827}
     *{box-sizing:border-box}
@@ -38,8 +38,8 @@
     <div class="wrap">
       <div style="display:flex;justify-content:space-between;align-items:center">
         <div>
-          <h1 id="site-title">My Static Site</h1>
-          <div class="sub" id="site-desc">An example customizable site deployable to GitHub Pages.</div>
+          <h1 id="site-title">My Supabase Site</h1>
+          <div class="sub" id="site-desc">Editable site connected to Supabase.</div>
         </div>
         <div class="top-actions">
           <div class="pill small" id="status-pill">Public</div>
@@ -65,9 +65,10 @@
   </main>
 
   <footer>
-    Built for GitHub Pages • connected to Supabase for shared data
+    Built for GitHub Pages • connected to Supabase • supports background & image uploads
   </footer>
 
+  <!-- Admin Panel -->
   <div class="admin-panel hidden card" id="admin-panel">
     <div style="padding:12px">
       <div style="display:flex;justify-content:space-between;align-items:center">
@@ -78,15 +79,17 @@
       </div>
 
       <div id="admin-body" style="margin-top:12px">
+        <!-- Login -->
         <div id="login-area">
           <label>Email</label>
           <div style="display:flex;gap:8px;margin-top:6px">
             <input type="text" id="pw-input" placeholder="you@example.com" />
             <button class="btn" id="login-btn">Login</button>
           </div>
-          <div class="small muted" style="margin-top:8px">Enter your Supabase email + password to log in.</div>
+          <div class="small muted" style="margin-top:8px">Use your Supabase email + password.</div>
         </div>
 
+        <!-- Controls -->
         <div id="controls-area" class="hidden">
           <label>Site title</label>
           <input type="text" id="edit-title" />
@@ -96,6 +99,10 @@
 
           <label style="margin-top:8px">Accent color (hex)</label>
           <input type="text" id="edit-accent" placeholder="#4f46e5" />
+
+          <label style="margin-top:8px">Background image</label>
+          <input type="text" id="edit-bg" placeholder="Paste image URL or leave empty" />
+          <input type="file" id="upload-bg" accept="image/*" />
 
           <hr style="margin:12px 0" />
 
