@@ -120,3 +120,96 @@ document.getElementById("search-btn").onclick = async () => {
 
 // Init
 loadData();
+// Load site data
+async function loadData() {
+  let { data: settings } = await supabaseClient
+    .from("site_settings")
+    .select("*")
+    .eq("id", 1)
+    .single();
+
+  if (settings) {
+    document.getElementById("site-title").textContent = settings.title;
+    document.getElementById("site-desc").textContent = settings.description;
+    document.documentElement.style.setProperty("--accent", settings.accent || "#4f46e5");
+    if (settings.background_url) {
+      document.body.style.backgroundImage = `url(${settings.background_url})`;
+      document.body.style.backgroundSize = "cover";
+    }
+
+    document.getElementById("edit-title").value = settings.title;
+    document.getElementById("edit-desc").value = settings.description;
+    document.getElementById("edit-accent").value = settings.accent;
+    document.getElementById("edit-bg").value = settings.background_url || "";
+  }
+
+  let { data: items } = await supabaseClient
+    .from("items")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  renderItems(items || []);
+}
+
+// Render items with images
+function renderItems(items) {
+  const grid = document.getElementById("items-grid");
+  grid.innerHTML = "";
+  items.forEach(item => {
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `
+      ${item.image_url ? `<img src="${item.image_url}" style="max-width:100%;border-radius:8px"/>` : ""}
+      <h3>${item.title}</h3>
+      <p>${item.description}</p>`;
+    grid.appendChild(card);
+  });
+}
+
+// Save settings
+document.getElementById("save-changes").onclick = async () => {
+  const title = document.getElementById("edit-title").value;
+  const desc = document.getElementById("edit-desc").value;
+  const accent = document.getElementById("edit-accent").value;
+  const background_url = document.getElementById("edit-bg").value;
+
+  await supabaseClient.from("site_settings").upsert([
+    { id: 1, title, description: desc, accent, background_url }
+  ]);
+  loadData();
+};
+
+// Add new item with image
+document.getElementById("new-item-btn").onclick = async () => {
+  const title = prompt("Item title:");
+  const desc = prompt("Item description:");
+  const image = prompt("Image URL (or leave empty):");
+
+  if (title) {
+    await supabaseClient.from("items").insert([{ title, description: desc, image_url: image }]);
+    loadData();
+  }
+};
+// Make admin panel draggable
+(function makeDraggable() {
+  const panel = document.getElementById("admin-panel");
+  let offsetX, offsetY, dragging = false;
+
+  panel.addEventListener("mousedown", e => {
+    if (e.target.closest("input,button")) return; // skip form fields
+    dragging = true;
+    offsetX = e.clientX - panel.offsetLeft;
+    offsetY = e.clientY - panel.offsetTop;
+    panel.style.position = "absolute";
+  });
+
+  document.addEventListener("mousemove", e => {
+    if (dragging) {
+      panel.style.left = e.clientX - offsetX + "px";
+      panel.style.top = e.clientY - offsetY + "px";
+    }
+  });
+
+  document.addEventListener("mouseup", () => dragging = false);
+})();
+
