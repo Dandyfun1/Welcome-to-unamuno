@@ -8,14 +8,22 @@
   <script src="https://unpkg.com/@supabase/supabase-js"></script>
 </head>
 <body>
-  <header>
-    <h1>My Supabase Blog</h1>
-    <button id="showLoginBtn">🔑 Admin Login</button>
-  </header>
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="nav-left">
+      <button id="publicBtn" class="nav-btn">📰 Public</button>
+      <button id="showLoginBtn" class="nav-btn">🔑 Admin</button>
+    </div>
+    <h1 class="nav-title">My Supabase Blog</h1>
+  </nav>
 
   <!-- Search -->
-  <input id="search" placeholder="Search posts...">
-  <div id="posts"></div>
+  <div class="search-box">
+    <input id="search" placeholder="Search posts...">
+  </div>
+
+  <!-- Posts -->
+  <div id="posts" class="posts-grid"></div>
 
   <!-- Admin Login Panel -->
   <div id="loginPanel" class="admin-panel hidden">
