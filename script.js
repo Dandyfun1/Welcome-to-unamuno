@@ -1,6 +1,6 @@
 // 🔧 Replace with your Supabase project values
-const SUPABASE_URL = "https://ddpqzpexcktjtzaqradg.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkcHF6cGV4Y2t0anR6YXFyYWRnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkyMjczOTcsImV4cCI6MjA3NDgwMzM5N30.yIEsfMgq1SN_M0Un5w1tHj76agBL8Fr9L3dSUtk4hVQ";
+const SUPABASE_URL = "https://YOUR_PROJECT_ID.supabase.co";
+const SUPABASE_ANON_KEY = "YOUR_PUBLIC_ANON_KEY";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let loggedIn = false;
@@ -37,6 +37,7 @@ async function loadData() {
   renderItems(items || []);
 }
 
+// Render posts (with delete if admin)
 function renderItems(items) {
   const grid = document.getElementById("items-grid");
   grid.innerHTML = "";
@@ -52,12 +53,11 @@ function renderItems(items) {
     grid.appendChild(card);
   });
 
-  // Add delete handlers if admin
   if (loggedIn) {
     document.querySelectorAll(".danger").forEach(btn => {
       btn.addEventListener("click", async (e) => {
         const id = e.target.getAttribute("data-id");
-        if (confirm("Are you sure you want to delete this post?")) {
+        if (confirm("Delete this post?")) {
           await supabaseClient.from("items").delete().eq("id", id);
           loadData();
         }
@@ -69,7 +69,6 @@ function renderItems(items) {
 // Show Admin panel
 document.getElementById("admin-toggle").onclick = () => {
   document.getElementById("admin-panel").classList.remove("hidden");
-
   if (!loggedIn) {
     document.getElementById("login-area").classList.remove("hidden");
     document.getElementById("controls-area").classList.add("hidden");
@@ -84,11 +83,7 @@ document.getElementById("login-btn").onclick = async () => {
   const email = document.getElementById("pw-input").value;
   const password = prompt("Enter your Supabase password:");
 
-  const { error } = await supabaseClient.auth.signInWithPassword({
-    email,
-    password
-  });
-
+  const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
   if (error) {
     alert("Login failed: " + error.message);
   } else {
@@ -96,7 +91,7 @@ document.getElementById("login-btn").onclick = async () => {
     document.getElementById("login-area").classList.add("hidden");
     document.getElementById("controls-area").classList.remove("hidden");
     document.getElementById("status-pill").textContent = "Admin";
-    loadData(); // reload to show delete buttons
+    loadData(); // refresh with delete buttons
   }
 };
 
@@ -106,7 +101,7 @@ document.getElementById("logout-btn").onclick = async () => {
   loggedIn = false;
   document.getElementById("admin-panel").classList.add("hidden");
   document.getElementById("status-pill").textContent = "Public";
-  loadData(); // reload to hide delete buttons
+  loadData(); // refresh without delete buttons
 };
 
 // Save site settings
@@ -127,7 +122,6 @@ document.getElementById("new-item-btn").onclick = async () => {
   const title = prompt("Item title:");
   const desc = prompt("Item description:");
   const image = prompt("Image URL (or leave empty):");
-
   if (title) {
     await supabaseClient.from("items").insert([{ title, description: desc, image_url: image }]);
     loadData();
@@ -148,13 +142,11 @@ document.getElementById("search-btn").onclick = async () => {
 document.getElementById("upload-bg").addEventListener("change", async (e) => {
   const file = e.target.files[0];
   if (!file) return;
-
   const filePath = `backgrounds/${Date.now()}_${file.name}`;
 
   const { error: uploadError } = await supabaseClient.storage
     .from("images")
     .upload(filePath, file, { upsert: true });
-
   if (uploadError) {
     alert("Upload failed: " + uploadError.message);
     return;
@@ -163,7 +155,6 @@ document.getElementById("upload-bg").addEventListener("change", async (e) => {
   const { data: publicData } = supabaseClient.storage
     .from("images")
     .getPublicUrl(filePath);
-
   const publicUrl = publicData.publicUrl;
 
   document.getElementById("edit-bg").value = publicUrl;
@@ -175,7 +166,6 @@ document.getElementById("upload-bg").addEventListener("change", async (e) => {
 (function makeDraggable() {
   const panel = document.getElementById("admin-panel");
   let offsetX, offsetY, dragging = false;
-
   panel.addEventListener("mousedown", e => {
     if (e.target.closest("input,button")) return;
     dragging = true;
@@ -183,14 +173,12 @@ document.getElementById("upload-bg").addEventListener("change", async (e) => {
     offsetY = e.clientY - panel.offsetTop;
     panel.style.position = "absolute";
   });
-
   document.addEventListener("mousemove", e => {
     if (dragging) {
       panel.style.left = e.clientX - offsetX + "px";
       panel.style.top = e.clientY - offsetY + "px";
     }
   });
-
   document.addEventListener("mouseup", () => dragging = false);
 })();
 
