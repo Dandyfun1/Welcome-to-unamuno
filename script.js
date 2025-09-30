@@ -62,9 +62,23 @@ document.getElementById("admin-toggle").onclick = () => {
   document.getElementById("admin-panel").classList.toggle("hidden", !showingLogin && !loggedIn);
 };
 
+// Admin toggle
+document.getElementById("admin-toggle").onclick = () => {
+  if (!loggedIn) {
+    // show login panel
+    document.getElementById("admin-panel").classList.remove("hidden");
+    document.getElementById("login-area").classList.remove("hidden");
+    document.getElementById("controls-area").classList.add("hidden");
+  } else {
+    // if already logged in, show admin controls
+    document.getElementById("admin-panel").classList.remove("hidden");
+    document.getElementById("login-area").classList.add("hidden");
+    document.getElementById("controls-area").classList.remove("hidden");
+  }
+};
 // Login
 document.getElementById("login-btn").onclick = async () => {
-  const email = document.getElementById("pw-input").value; // re-use input
+  const email = document.getElementById("pw-input").value; // reuse field for email
   const password = prompt("Enter your Supabase password:");
   const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
 
@@ -72,10 +86,12 @@ document.getElementById("login-btn").onclick = async () => {
     alert("Login failed: " + error.message);
   } else {
     loggedIn = true;
-    showingLogin = true;
-    renderAdmin();
+    document.getElementById("login-area").classList.add("hidden");
+    document.getElementById("controls-area").classList.remove("hidden");
+    document.getElementById("status-pill").textContent = "Admin";
   }
 };
+
 
 // Logout
 document.getElementById("logout-btn").onclick = async () => {
