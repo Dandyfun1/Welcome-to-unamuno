@@ -6,51 +6,48 @@
   <title>UNAMUNO</title>
   <style>
     :root { --bg:#f9fafb; --card:#fff; --accent:#4f46e5; --text:#111827; }
-    * { box-sizing:border-box; }
-    body {
-      font-family:Inter,system-ui,sans-serif;
-      margin:0; background:var(--bg); color:var(--text);
-    }
-    header {
-      background:linear-gradient(90deg,#4f46e5,#6366f1);
-      padding:20px; color:white;
-    }
-    .wrap { max-width:960px; margin:0 auto; }
-    h1 { margin:0; font-size:1.8rem; }
-    .sub { font-size:0.9rem; opacity:0.9; }
-    .controls { display:flex; gap:10px; margin-top:12px; }
-    .btn { background:var(--accent); color:white; padding:8px 14px; border:0; border-radius:8px; cursor:pointer; }
-    .ghost { background:white; color:var(--accent); border:1px solid var(--accent); padding:8px 14px; border-radius:8px; cursor:pointer; }
-    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:16px; margin-top:20px; }
-    .card { background:var(--card); padding:16px; border-radius:12px; box-shadow:0 2px 6px rgba(0,0,0,0.05); }
-    .danger { background:#ef4444; color:white; border:0; border-radius:8px; padding:6px 10px; margin-top:8px; cursor:pointer; }
-    footer { padding:20px; text-align:center; font-size:0.85rem; color:#6b7280; }
-    .admin-panel {
-      position:fixed; top:100px; right:20px; width:380px;
-      background:white; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.15);
-      display:none; z-index:1000;
-    }
-    .admin-header {
-      background:var(--accent); color:white; padding:12px; border-radius:12px 12px 0 0;
-      cursor:move; font-weight:bold;
-    }
-    .admin-body { padding:14px; max-height:70vh; overflow:auto; }
-    label { display:block; margin-top:10px; font-size:0.9rem; font-weight:500; }
-    input[type=text], input[type=password] {
-      width:100%; padding:8px; border:1px solid #d1d5db; border-radius:8px; margin-top:4px;
-    }
+    * { box-sizing:border-box }
+    body { font-family:Inter,system-ui,sans-serif; margin:0; background:var(--bg); color:var(--text) }
+    header { background:linear-gradient(90deg,#4f46e5,#6366f1); padding:20px; color:#fff }
+    .wrap { max-width:980px; margin:0 auto }
+    h1 { margin:0; font-size:1.6rem }
+    .sub { opacity:.9; margin-top:6px }
+    .controls { display:flex; gap:10px; margin-top:12px; align-items:center }
+    .btn { background:var(--accent); color:#fff; border:0; padding:8px 12px; border-radius:8px; cursor:pointer }
+    .ghost { background:#fff; color:var(--accent); border:1px solid rgba(255,255,255,0.15); padding:8px 12px; border-radius:8px; cursor:pointer }
+    input[type="text"] { padding:8px; border-radius:8px; border:1px solid rgba(0,0,0,0.08); min-width:160px }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:16px; padding:24px 0 }
+    .card { background:var(--card); padding:16px; border-radius:12px; box-shadow:0 6px 18px rgba(0,0,0,0.04) }
+    .card img { width:100%; border-radius:8px; margin-bottom:10px; object-fit:cover }
+    .danger { background:#ef4444; color:#fff; border:0; padding:6px 10px; border-radius:8px; cursor:pointer; }
+    footer { padding:18px; text-align:center; color:#6b7280 }
+    /* admin panel */
+    .admin-panel { position:fixed; display:none; width:380px; max-width:calc(100% - 40px); top:120px; right:20px; background:#fff; border-radius:12px; box-shadow:0 12px 36px rgba(0,0,0,0.18); z-index:2000; }
+    .admin-header { padding:12px 14px; background:var(--accent); color:#fff; cursor:move; border-radius:12px 12px 0 0; display:flex; justify-content:space-between; align-items:center }
+    .admin-body { padding:14px; max-height:70vh; overflow:auto }
+    label { display:block; margin-top:10px; font-weight:600 }
+    input[type="file"] { margin-top:8px }
+    .small { font-size:0.85rem; color:#6b7280; margin-top:8px }
+    .hidden { display:none !important }
   </style>
 </head>
 <body>
   <header>
     <div class="wrap">
-      <h1 id="site-title">UNAMUNO</h1>
-      <div class="sub" id="site-desc">Editable site connected to Supabase.</div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <h1 id="site-title">UNAMUNO</h1>
+          <div class="sub" id="site-desc">Editable site connected to Supabase.</div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:center">
+          <div class="pill small" id="status-pill" style="background:#fff;padding:6px 10px;border-radius:999px;color:var(--accent)">Public</div>
+          <button class="ghost" id="admin-toggle">Admin</button>
+        </div>
+      </div>
+
       <div class="controls">
-        <input type="text" placeholder="Search..." id="search-input" />
+        <input type="text" id="search-input" placeholder="Search posts..." />
         <button class="btn" id="search-btn">Search</button>
-        <button class="ghost" id="admin-toggle">Admin</button>
-        <div class="pill small" id="status-pill">Public</div>
       </div>
     </div>
   </header>
@@ -59,42 +56,49 @@
     <div id="items-grid" class="grid"></div>
   </main>
 
-  <footer>
-    © UNAMUNO • Built with Supabase • Editable via Admin Panel
-  </footer>
+  <footer>© UNAMUNO • Built with Supabase</footer>
 
   <!-- Admin Panel -->
-  <div class="admin-panel" id="admin-panel">
-    <div class="admin-header">Admin Panel</div>
+  <div class="admin-panel" id="admin-panel" aria-hidden="true">
+    <div class="admin-header" id="admin-header">
+      <div>Admin Panel</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button id="admin-close" class="ghost" style="background:transparent;color:#fff;border:1px solid rgba(255,255,255,0.18)">Close</button>
+      </div>
+    </div>
+
     <div class="admin-body">
-      <!-- Login -->
+      <!-- login -->
       <div id="login-area">
         <label>Email</label>
-        <input type="text" id="pw-input" placeholder="you@example.com" />
-        <button class="btn" id="login-btn" style="margin-top:10px;">Login</button>
+        <input type="text" id="pw-input" placeholder="admin@example.com" />
+        <button class="btn" id="login-btn" style="margin-top:10px">Login</button>
+        <div class="small">After clicking Login you'll be prompted for the password (keeps UI simple).</div>
       </div>
 
-      <!-- Controls -->
+      <!-- controls (hidden until logged in) -->
       <div id="controls-area" class="hidden">
         <label>Site title</label>
         <input type="text" id="edit-title" />
         <label>Site description</label>
         <input type="text" id="edit-desc" />
-        <label>Accent color</label>
+        <label>Accent color (hex)</label>
         <input type="text" id="edit-accent" placeholder="#4f46e5" />
-        <label>Background image</label>
+        <label>Background (URL or upload)</label>
         <input type="text" id="edit-bg" placeholder="Paste image URL" />
-        <input type="file" id="upload-bg" accept="image/*" style="margin-top:6px;" />
-        <button class="btn" id="save-changes" style="margin-top:12px;">Save</button>
-        <hr style="margin:16px 0;" />
-        <button class="btn" id="new-item-btn">+ New Post</button>
-        <button class="ghost" id="logout-btn" style="float:right;">Logout</button>
+        <input type="file" id="upload-bg" accept="image/*" />
+        <div style="margin-top:12px;display:flex;gap:8px">
+          <button class="btn" id="save-changes">Save</button>
+          <button class="ghost" id="new-item-btn">+ New Post</button>
+          <button class="ghost" id="logout-btn" style="margin-left:auto">Logout</button>
+        </div>
+        <div id="items-list" style="margin-top:12px;max-height:260px;overflow:auto"></div>
       </div>
     </div>
   </div>
 
+  <!-- load supabase then our script -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="script.js"></script>
 </body>
 </html>
-
