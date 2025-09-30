@@ -1,163 +1,123 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Customizable GitHub-Pages Site (Admin + Search)</title>
-  <meta name="description" content="Static site with on-site admin and client-side search, ready for GitHub Pages." />
-  <!-- Minimal styling (Tailwind-like utility classes are not used to keep single-file) -->
-  <style>
-    :root{--bg:#f7f7fb;--card:#fff;--accent:#4f46e5;--text:#111827}
-    *{box-sizing:border-box}
-    body{font-family:Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; margin:0; background:var(--bg); color:var(--text)}
-    header{background:linear-gradient(90deg, rgba(79,70,229,0.06), rgba(79,70,229,0.02)); padding:28px 24px}
-    .wrap{max-width:980px;margin:0 auto}
-    h1{margin:0;font-size:clamp(18px,2.2vw,28px)}
-    .sub{color:#6b7280;margin-top:6px}
-    .controls{display:flex;gap:10px;margin-top:16px;align-items:center}
-    .btn{background:var(--accent);color:white;padding:8px 12px;border-radius:8px;border:0;cursor:pointer}
-    .ghost{background:transparent;color:var(--accent);border:1px solid rgba(79,70,229,0.12);padding:8px 12px;border-radius:8px}
-    main{padding:28px 24px}
-    .searchbar{display:flex;gap:10px;margin-bottom:18px}
-    input[type=text],textarea,select{padding:10px;border-radius:8px;border:1px solid #e6e7ee;background:white;width:100%}
-    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
-    .card{background:var(--card);padding:14px;border-radius:12px;box-shadow:0 1px 2px rgba(16,24,40,0.03);border:1px solid rgba(9,10,11,0.02)}
-    footer{padding:20px;text-align:center;color:#6b7280}
-    .admin-panel{position:fixed;right:18px;bottom:18px;width:420px;max-width:calc(100% - 36px);box-shadow:0 10px 30px rgba(2,6,23,0.08);}
-    .hidden{display:none}
-    .small{font-size:13px;color:#52525b}
-    .pill{display:inline-block;padding:6px 10px;border-radius:999px;border:1px solid rgba(0,0,0,0.06);background:white}
-    .muted{color:#6b7280}
-    .nav{display:flex;gap:10px;align-items:center}
-    .top-actions{display:flex;gap:8px;align-items:center}
-    .search-results{margin-top:8px}
-    label{font-size:13px;color:#374151}
-    .danger{background:#ef4444}
-    .code{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;font-size:13px}
-  </style>
-</head>
-<body>
-  <!--
-    Single-file static website with an on-site admin and client-side search.
-    How it works:
-      - All site content is stored in browser localStorage under key: "site_data_v1".
-      - Admin can log in with a password (default: "admin"). The password hash is stored in localStorage.
-      - Admin edits content (site title, description, list of items/posts). Changes persist to localStorage.
-      - Export / Import JSON to move content between browsers or to back up.
-      - Client-side search uses Fuse.js (fuzzy search). No server required — works on GitHub Pages.
+// 🔧 Replace with your Supabase project values
+const SUPABASE_URL = "https://YOUR_PROJECT_ID.supabase.co";
+const SUPABASE_ANON_KEY = "YOUR_PUBLIC_ANON_KEY";
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    Deployment on GitHub Pages:
-      - Create a new public repo, push this file as index.html to the root, and enable GitHub Pages for the default branch.
+const postsDiv = document.getElementById('posts');
+const searchInput = document.getElementById('search');
+const loginPanel = document.getElementById('loginPanel');
+const adminPanel = document.getElementById('adminPanel');
 
-    SECURITY NOTE:
-      - This site is fully static: any changes are stored locally in the browser. There is no multi-user sharing.
-      - Do NOT rely on the admin password for real security. For shared storage/use, you'll need a real backend or third-party DB (Supabase, Firebase, GitHub API with tokens, etc.).
-  -->
+let allPosts = [];
 
-  <header>
-    <div class="wrap">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <div>
-          <h1 id="site-title">My Static Site</h1>
-          <div class="sub" id="site-desc">An example customizable site deployable to GitHub Pages.</div>
-        </div>
-        <div class="top-actions">
-          <div class="pill small" id="status-pill">Public</div>
-          <button class="ghost" id="admin-toggle">Admin</button>
-        </div>
-      </div>
-      <div class="controls">
-        <div style="flex:1">
-          <input type="text" placeholder="Search site..." id="search-input" />
-        </div>
-        <div>
-          <button class="btn" id="search-btn">Search</button>
-        </div>
-      </div>
-    </div>
-  </header>
+// Load posts
+async function loadPosts() {
+  const { data, error } = await supabaseClient
+    .from('posts')
+    .select('*')
+    .order('created_at', { ascending: false });
+  if (error) console.error(error);
+  else {
+    allPosts = data;
+    renderPosts(allPosts);
+  }
+}
 
-  <main class="wrap">
-    <div id="content-area">
-      <div class="search-results small muted" id="results-info">Showing all items</div>
-      <div class="grid" id="items-grid"></div>
-    </div>
-  </main>
+// Render posts
+function renderPosts(posts) {
+  postsDiv.innerHTML = '';
+  posts.forEach(p => {
+    const div = document.createElement('div');
+    div.className = 'post';
+    div.innerHTML = `<h3>${p.title}</h3><p>${p.body || ''}</p><small>${(p.tags||[]).join(', ')}</small>`;
 
-  <footer>
-    Built for GitHub Pages • editable via built-in Admin • client-side search
-  </footer>
+    if (!adminPanel.classList.contains('hidden')) {
+      const editBtn = document.createElement('button');
+      editBtn.textContent = 'Edit';
+      editBtn.onclick = () => editPost(p);
+      const delBtn = document.createElement('button');
+      delBtn.textContent = 'Delete';
+      delBtn.onclick = () => deletePost(p.id);
+      div.appendChild(editBtn);
+      div.appendChild(delBtn);
+    }
 
-  <!-- Admin panel (hidden by default) -->
-  <div class="admin-panel hidden card" id="admin-panel">
-    <div style="padding:12px">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <strong>Admin Panel</strong>
-        <div style="display:flex;gap:8px;align-items:center">
-          <button class="ghost" id="export-btn">Export</button>
-          <button class="ghost" id="import-btn">Import</button>
-          <button class="ghost" id="logout-btn">Logout</button>
-        </div>
-      </div>
+    postsDiv.appendChild(div);
+  });
+}
 
-      <div id="admin-body" style="margin-top:12px">
-        <!-- login form shown when not authenticated -->
-        <div id="login-area">
-          <label>Password</label>
-          <div style="display:flex;gap:8px;margin-top:6px">
-            <input type="password" id="pw-input" placeholder="admin" />
-            <button class="btn" id="login-btn">Login</button>
-          </div>
-          <div class="small muted" style="margin-top:8px">Default password: <span class="code">admin</span>. Change after login.</div>
-        </div>
+// Search
+searchInput.addEventListener('input', () => {
+  const q = searchInput.value.toLowerCase();
+  const filtered = allPosts.filter(p =>
+    p.title.toLowerCase().includes(q) ||
+    (p.body || '').toLowerCase().includes(q) ||
+    (p.tags || []).join(',').toLowerCase().includes(q)
+  );
+  renderPosts(filtered);
+});
 
-        <!-- admin UI -->
-        <div id="controls-area" class="hidden">
-          <label>Site title</label>
-          <input type="text" id="edit-title" />
+// Add/Update post
+document.getElementById('postForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const id = document.getElementById('postId').value;
+  const title = document.getElementById('title').value;
+  const body = document.getElementById('body').value;
+  const tags = document.getElementById('tags').value.split(',').map(t => t.trim());
 
-          <label style="margin-top:8px">Site description</label>
-          <input type="text" id="edit-desc" />
+  if (id) {
+    await supabaseClient.from('posts').update({ title, body, tags }).eq('id', id);
+  } else {
+    await supabaseClient.from('posts').insert([{ title, body, tags }]);
+  }
 
-          <label style="margin-top:8px">Accent color (hex)</label>
-          <input type="text" id="edit-accent" placeholder="#4f46e5" />
+  e.target.reset();
+  document.getElementById('postId').value = '';
+  loadPosts();
+});
 
-          <hr style="margin:12px 0" />
+function editPost(p) {
+  document.getElementById('postId').value = p.id;
+  document.getElementById('title').value = p.title;
+  document.getElementById('body').value = p.body;
+  document.getElementById('tags').value = (p.tags || []).join(',');
+}
 
-          <div style="display:flex;gap:8px;align-items:center">
-            <strong>Items</strong>
-            <button class="btn" id="new-item-btn">New</button>
-          </div>
+async function deletePost(id) {
+  if (confirm('Delete this post?')) {
+    await supabaseClient.from('posts').delete().eq('id', id);
+    loadPosts();
+  }
+}
 
-          <div id="items-list" style="margin-top:8px;max-height:260px;overflow:auto"></div>
+// Login
+document.getElementById('loginBtn').onclick = async () => {
+  const email = document.getElementById('email').value;
+  const password = document.getElementById('password').value;
+  const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+  if (error) alert(error.message);
+  else {
+    loginPanel.classList.add('hidden');
+    adminPanel.classList.remove('hidden');
+    loadPosts();
+  }
+};
 
-          <hr style="margin:12px 0" />
+// Logout
+document.getElementById('logoutBtn').onclick = async () => {
+  await supabaseClient.auth.signOut();
+  loginPanel.classList.add('hidden');
+  adminPanel.classList.add('hidden');
+  loadPosts();
+};
 
-          <div style="display:flex;gap:8px;flex-wrap:wrap">
-            <button class="btn" id="save-changes">Save</button>
-            <button class="ghost" id="reset-defaults">Reset to defaults</button>
-            <button class="ghost" id="clear-local">Clear local data</button>
-          </div>
+// Show/hide login panel
+document.getElementById('showLoginBtn').onclick = () => {
+  document.getElementById('loginPanel').classList.remove('hidden');
+};
+document.getElementById('cancelLoginBtn').onclick = () => {
+  document.getElementById('loginPanel').classList.add('hidden');
+};
 
-          <div style="margin-top:10px" class="small muted">You can export data and import on another browser to move content.</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Hidden file input for JSON import -->
-  <input type="file" id="file-input" accept="application/json" class="hidden" />
-
-  <!-- Include Fuse.js for client-side fuzzy search (CDN) -->
-  <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
-
-  <script>
-    /* Script content is unchanged for brevity */ 
-  </script>
-</body>
-</html>
-  </div>
-
-  <script src="script.js"></script>
-</body>
-</html>
+// Initial load
+loadPosts();
