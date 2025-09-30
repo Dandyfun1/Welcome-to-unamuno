@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Supabase Blog</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://unpkg.com/@supabase/supabase-js"></script>
+</head>
+<body>
+  <header>
+    <h1>My Supabase Blog</h1>
+    <button id="showLoginBtn">🔑 Admin Login</button>
+  </header>
+
+  <!-- Search -->
+  <input id="search" placeholder="Search posts...">
+  <div id="posts"></div>
+
+  <!-- Admin Login Panel -->
+  <div id="loginPanel" class="admin-panel hidden">
+    <h2>Admin Login</h2>
+    <input type="email" id="email" placeholder="Email"><br>
+    <input type="password" id="password" placeholder="Password"><br>
+    <button id="loginBtn">Login</button>
+    <button id="cancelLoginBtn">Cancel</button>
+  </div>
+
+  <!-- Admin Panel -->
+  <div class="admin-panel hidden" id="adminPanel">
+    <h2>Admin Panel</h2>
+    <form id="postForm">
+      <input type="hidden" id="postId">
+      <input type="text" id="title" placeholder="Title" required><br>
+      <textarea id="body" placeholder="Body"></textarea><br>
+      <input type="text" id="tags" placeholder="Tags (comma separated)"><br>
+      <button type="submit">Save Post</button>
+    </form>
+    <button id="logoutBtn">Logout</button>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
