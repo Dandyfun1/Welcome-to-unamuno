@@ -4,33 +4,59 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>UNAMUNO</title>
-  <link rel="stylesheet" href="style.css" />
+  <style>
+    :root { --bg:#f9fafb; --card:#fff; --accent:#4f46e5; --text:#111827; }
+    * { box-sizing:border-box; }
+    body {
+      font-family:Inter,system-ui,sans-serif;
+      margin:0; background:var(--bg); color:var(--text);
+    }
+    header {
+      background:linear-gradient(90deg,#4f46e5,#6366f1);
+      padding:20px; color:white;
+    }
+    .wrap { max-width:960px; margin:0 auto; }
+    h1 { margin:0; font-size:1.8rem; }
+    .sub { font-size:0.9rem; opacity:0.9; }
+    .controls { display:flex; gap:10px; margin-top:12px; }
+    .btn { background:var(--accent); color:white; padding:8px 14px; border:0; border-radius:8px; cursor:pointer; }
+    .ghost { background:white; color:var(--accent); border:1px solid var(--accent); padding:8px 14px; border-radius:8px; cursor:pointer; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:16px; margin-top:20px; }
+    .card { background:var(--card); padding:16px; border-radius:12px; box-shadow:0 2px 6px rgba(0,0,0,0.05); }
+    .danger { background:#ef4444; color:white; border:0; border-radius:8px; padding:6px 10px; margin-top:8px; cursor:pointer; }
+    footer { padding:20px; text-align:center; font-size:0.85rem; color:#6b7280; }
+    .admin-panel {
+      position:fixed; top:100px; right:20px; width:380px;
+      background:white; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.15);
+      display:none; z-index:1000;
+    }
+    .admin-header {
+      background:var(--accent); color:white; padding:12px; border-radius:12px 12px 0 0;
+      cursor:move; font-weight:bold;
+    }
+    .admin-body { padding:14px; max-height:70vh; overflow:auto; }
+    label { display:block; margin-top:10px; font-size:0.9rem; font-weight:500; }
+    input[type=text], input[type=password] {
+      width:100%; padding:8px; border:1px solid #d1d5db; border-radius:8px; margin-top:4px;
+    }
+  </style>
 </head>
 <body>
   <header>
     <div class="wrap">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <div>
-          <h1 id="site-title">UNAMUNO</h1>
-          <div class="sub" id="site-desc">Editable site connected to Supabase.</div>
-        </div>
-        <div class="top-actions">
-          <div class="pill small" id="status-pill">Public</div>
-          <button class="ghost" id="admin-toggle">Admin</button>
-        </div>
-      </div>
+      <h1 id="site-title">UNAMUNO</h1>
+      <div class="sub" id="site-desc">Editable site connected to Supabase.</div>
       <div class="controls">
-        <input type="text" placeholder="Search site..." id="search-input" />
+        <input type="text" placeholder="Search..." id="search-input" />
         <button class="btn" id="search-btn">Search</button>
+        <button class="ghost" id="admin-toggle">Admin</button>
+        <div class="pill small" id="status-pill">Public</div>
       </div>
     </div>
   </header>
 
   <main class="wrap">
-    <div id="content-area">
-      <div class="search-results small muted" id="results-info">Showing all items</div>
-      <div class="grid" id="items-grid"></div>
-    </div>
+    <div id="items-grid" class="grid"></div>
   </main>
 
   <footer>
@@ -38,44 +64,31 @@
   </footer>
 
   <!-- Admin Panel -->
-  <div class="admin-panel hidden card" id="admin-panel">
-    <div style="padding:12px">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <strong>Admin Panel</strong>
-        <button class="ghost" id="logout-btn">Logout</button>
+  <div class="admin-panel" id="admin-panel">
+    <div class="admin-header">Admin Panel</div>
+    <div class="admin-body">
+      <!-- Login -->
+      <div id="login-area">
+        <label>Email</label>
+        <input type="text" id="pw-input" placeholder="you@example.com" />
+        <button class="btn" id="login-btn" style="margin-top:10px;">Login</button>
       </div>
 
-      <div id="admin-body" style="margin-top:12px">
-        <!-- Login -->
-        <div id="login-area">
-          <label>Email</label>
-          <input type="text" id="pw-input" placeholder="you@example.com" />
-          <button class="btn" id="login-btn">Login</button>
-        </div>
-
-        <!-- Controls -->
-        <div id="controls-area" class="hidden">
-          <label>Site title</label>
-          <input type="text" id="edit-title" />
-
-          <label>Site description</label>
-          <input type="text" id="edit-desc" />
-
-          <label>Accent color (hex)</label>
-          <input type="text" id="edit-accent" placeholder="#4f46e5" />
-
-          <label>Background image</label>
-          <input type="text" id="edit-bg" placeholder="Paste URL" />
-          <input type="file" id="upload-bg" accept="image/*" />
-
-          <hr />
-          <strong>Posts</strong>
-          <button class="btn" id="new-item-btn">New</button>
-          <div id="items-list"></div>
-
-          <hr />
-          <button class="btn" id="save-changes">Save</button>
-        </div>
+      <!-- Controls -->
+      <div id="controls-area" class="hidden">
+        <label>Site title</label>
+        <input type="text" id="edit-title" />
+        <label>Site description</label>
+        <input type="text" id="edit-desc" />
+        <label>Accent color</label>
+        <input type="text" id="edit-accent" placeholder="#4f46e5" />
+        <label>Background image</label>
+        <input type="text" id="edit-bg" placeholder="Paste image URL" />
+        <input type="file" id="upload-bg" accept="image/*" style="margin-top:6px;" />
+        <button class="btn" id="save-changes" style="margin-top:12px;">Save</button>
+        <hr style="margin:16px 0;" />
+        <button class="btn" id="new-item-btn">+ New Post</button>
+        <button class="ghost" id="logout-btn" style="float:right;">Logout</button>
       </div>
     </div>
   </div>
@@ -84,3 +97,4 @@
   <script src="script.js"></script>
 </body>
 </html>
+
