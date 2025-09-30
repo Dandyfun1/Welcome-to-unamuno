@@ -46,9 +46,24 @@ function renderItems(items) {
     card.innerHTML = `
       ${item.image_url ? `<img src="${item.image_url}" style="max-width:100%;border-radius:8px;margin-bottom:8px"/>` : ""}
       <h3>${item.title}</h3>
-      <p>${item.description}</p>`;
+      <p>${item.description}</p>
+      ${loggedIn ? `<button class="danger" data-id="${item.id}">Delete</button>` : ""}
+    `;
     grid.appendChild(card);
   });
+
+  // Add delete handlers if admin
+  if (loggedIn) {
+    document.querySelectorAll(".danger").forEach(btn => {
+      btn.addEventListener("click", async (e) => {
+        const id = e.target.getAttribute("data-id");
+        if (confirm("Are you sure you want to delete this post?")) {
+          await supabaseClient.from("items").delete().eq("id", id);
+          loadData();
+        }
+      });
+    });
+  }
 }
 
 // Show Admin panel
@@ -81,6 +96,7 @@ document.getElementById("login-btn").onclick = async () => {
     document.getElementById("login-area").classList.add("hidden");
     document.getElementById("controls-area").classList.remove("hidden");
     document.getElementById("status-pill").textContent = "Admin";
+    loadData(); // reload to show delete buttons
   }
 };
 
@@ -90,6 +106,7 @@ document.getElementById("logout-btn").onclick = async () => {
   loggedIn = false;
   document.getElementById("admin-panel").classList.add("hidden");
   document.getElementById("status-pill").textContent = "Public";
+  loadData(); // reload to hide delete buttons
 };
 
 // Save site settings
@@ -134,7 +151,6 @@ document.getElementById("upload-bg").addEventListener("change", async (e) => {
 
   const filePath = `backgrounds/${Date.now()}_${file.name}`;
 
-  // Upload to Supabase Storage
   const { error: uploadError } = await supabaseClient.storage
     .from("images")
     .upload(filePath, file, { upsert: true });
@@ -144,14 +160,12 @@ document.getElementById("upload-bg").addEventListener("change", async (e) => {
     return;
   }
 
-  // Get public URL
   const { data: publicData } = supabaseClient.storage
     .from("images")
     .getPublicUrl(filePath);
 
   const publicUrl = publicData.publicUrl;
 
-  // Save to input + apply background immediately
   document.getElementById("edit-bg").value = publicUrl;
   document.body.style.backgroundImage = `url(${publicUrl})`;
   document.body.style.backgroundSize = "cover";
@@ -163,7 +177,7 @@ document.getElementById("upload-bg").addEventListener("change", async (e) => {
   let offsetX, offsetY, dragging = false;
 
   panel.addEventListener("mousedown", e => {
-    if (e.target.closest("input,button")) return; // skip form fields
+    if (e.target.closest("input,button")) return;
     dragging = true;
     offsetX = e.clientX - panel.offsetLeft;
     offsetY = e.clientY - panel.offsetTop;
@@ -182,3 +196,4 @@ document.getElementById("upload-bg").addEventListener("change", async (e) => {
 
 // Init
 loadData();
+
