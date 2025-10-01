@@ -51,9 +51,12 @@
   <header>
     <div class="wrap">
       <div style="display:flex;justify-content:space-between;align-items:center">
-        <div>
-          <h1 id="site-title">UNAMUNO</h1>
-          <div class="sub" id="site-desc">Editable site connected to Supabase.</div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <img id="site-logo" src="" alt="Logo" style="height:48px;width:auto;display:none" />
+          <div>
+            <h1 id="site-title">UNAMUNO</h1>
+            <div class="sub" id="site-desc">Editable site connected to Supabase.</div>
+          </div>
         </div>
         <div style="display:flex;gap:12px;align-items:center">
           <div id="status-pill" style="background:#fff;padding:6px 10px;border-radius:999px;color:var(--accent);font-size:0.9rem;font-weight:500">Public</div>
@@ -98,6 +101,12 @@
         <input type="text" id="edit-desc" />
         <label>Accent color</label>
         <input type="text" id="edit-accent" placeholder="#16a34a" />
+        
+        <label>Logo URL</label>
+        <input type="text" id="edit-logo" placeholder="Paste logo URL" />
+        <button class="ghost" id="logo-upload-btn" style="margin-top:6px;">Upload Logo</button>
+        <input type="file" id="logo-file-input" accept="image/*" class="hidden" />
+
         <label>Background image</label>
         <input type="text" id="edit-bg" placeholder="Paste image URL" />
         <button class="ghost" id="bg-upload-btn" style="margin-top:6px;">Upload Background</button>
