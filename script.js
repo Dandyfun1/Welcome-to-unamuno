@@ -18,6 +18,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const saveBtn = document.getElementById("save-changes");
   const bgUploadBtn = document.getElementById("bg-upload-btn");
   const bgFileInput = document.getElementById("bg-file-input");
+  const logoEl = document.getElementById("site-logo");
+  const logoInput = document.getElementById("edit-logo");
+  const logoUploadBtn = document.getElementById("logo-upload-btn");
+  const logoFileInput = document.getElementById("logo-file-input");
   const newItemBtn = document.getElementById("new-item-btn");
   const searchBtn = document.getElementById("search-btn");
   const searchInput = document.getElementById("search-input");
@@ -83,9 +87,30 @@ document.addEventListener("DOMContentLoaded", () => {
     const desc = document.getElementById("edit-desc").value;
     const accent = document.getElementById("edit-accent").value || "#16a34a";
     const background_url = document.getElementById("edit-bg").value;
-    await supabaseClient.from("site_settings").upsert([{ id: 1, title, description: desc, accent, background_url }]);
+    const logo_url = logoInput.value;
+
+    await supabaseClient.from("site_settings").upsert([
+      { id: 1, title, description: desc, accent, background_url, logo_url }
+    ]);
+
     document.documentElement.style.setProperty("--accent", accent);
     loadData();
+  };
+
+  // Logo upload
+  logoUploadBtn.onclick = () => logoFileInput.click();
+  logoFileInput.onchange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const path = `logos/${Date.now()}_${file.name}`;
+    const { error } = await supabaseClient.storage.from("images").upload(path, file, { upsert: true });
+    if (error) { alert("Upload failed: " + error.message); return; }
+    const { data } = supabaseClient.storage.from("images").getPublicUrl(path);
+    const url = data.publicUrl;
+    await supabaseClient.from("site_settings").upsert([{ id: 1, logo_url: url }]);
+    logoEl.src = url;
+    logoEl.style.display = "block";
+    logoInput.value = url;
   };
 
   // New post (admin)
@@ -176,12 +201,21 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("edit-desc").value = settings.description;
       document.getElementById("edit-accent").value = settings.accent;
       document.getElementById("edit-bg").value = settings.background_url || "";
+      logoInput.value = settings.logo_url || "";
+
       document.documentElement.style.setProperty("--accent", settings.accent || "#16a34a");
+
       if (settings.background_url) {
         document.body.style.backgroundImage = `url(${settings.background_url})`;
-        document.body.style.backgroundSize = "cover";
+      }
+      if (settings.logo_url) {
+        logoEl.src = settings.logo_url;
+        logoEl.style.display = "block";
+      } else {
+        logoEl.style.display = "none";
       }
     }
+
     let { data: items } = await supabaseClient.from("items").select("*").order("created_at", { ascending: false });
     renderItems(items || []);
   }
