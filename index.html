@@ -7,7 +7,7 @@
   <style>
     :root { --bg:#fdfdfd; --card:#fff; --accent:#16a34a; --text:#111827; }
     * { box-sizing:border-box }
-    body { font-family:Inter,system-ui,sans-serif; margin:0; background:var(--bg); color:var(--text); }
+    body { font-family:Inter,system-ui,sans-serif; margin:0; background:var(--bg); color:var(--text); background-size:cover; background-position:center; background-repeat:no-repeat; }
     header { background:var(--accent); padding:20px; color:#fff }
     .wrap { max-width:980px; margin:0 auto }
     h1 { margin:0; font-size:1.6rem }
@@ -72,6 +72,19 @@
         <input type="text" id="pw-input" placeholder="admin@example.com" />
         <button class="btn" id="login-btn" style="margin-top:10px">Login</button>
         <div class="small">Enter your email, then you’ll be prompted for password.</div>
+      </div>
+
+      <!-- PUBLIC posting form -->
+      <div id="public-post-area" style="margin-top:20px">
+        <h3>Share Something</h3>
+        <label>Title</label>
+        <input type="text" id="public-title" />
+        <label>Description</label>
+        <input type="text" id="public-desc" />
+        <label>Image URL (optional)</label>
+        <input type="text" id="public-img" />
+        <button class="btn" id="public-post-btn" style="margin-top:10px">Post</button>
+        <div class="small">This will be public immediately.</div>
       </div>
 
       <!-- controls -->
