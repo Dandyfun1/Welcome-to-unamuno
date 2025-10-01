@@ -1,6 +1,6 @@
 // 🔧 Replace with your Supabase project details
-const SUPABASE_URL = "https://YOUR_PROJECT_ID.supabase.co";
-const SUPABASE_ANON_KEY = "YOUR_ANON_KEY";
+const SUPABASE_URL = "https://ddpqzpexcktjtzaqradg.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkcHF6cGV4Y2t0anR6YXFyYWRnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkyMjczOTcsImV4cCI6MjA3NDgwMzM5N30.yIEsfMgq1SN_M0Un5w1tHj76agBL8Fr9L3dSUtk4hVQ";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let loggedIn = false;
@@ -18,11 +18,15 @@ document.addEventListener("DOMContentLoaded", () => {
   const saveBtn = document.getElementById("save-changes");
   const newItemBtn = document.getElementById("new-item-btn");
   const itemsGrid = document.getElementById("items-grid");
-
   const searchBtn = document.getElementById("search-btn");
   const searchInput = document.getElementById("search-input");
 
-  // Floating add button
+  const bgUploadBtn = document.getElementById("bg-upload-btn");
+  const bgFileInput = document.getElementById("bg-file-input");
+  const logoUploadBtn = document.getElementById("logo-upload-btn");
+  const logoFileInput = document.getElementById("logo-file-input");
+
+  // Floating add button (public posts)
   const publicAddBtn = document.createElement("button");
   publicAddBtn.textContent = "+";
   Object.assign(publicAddBtn.style, {
@@ -55,7 +59,7 @@ document.addEventListener("DOMContentLoaded", () => {
     loadData();
   });
 
-  // Admin UI
+  // UI updates
   function updateAuthUI() {
     if (loggedIn) {
       loginArea.style.display = "none";
@@ -68,7 +72,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Panel open/close
+  // Admin panel open/close
   adminToggle.onclick = () => { adminPanel.style.display = "block"; updateAuthUI(); };
   adminClose.onclick = () => { adminPanel.style.display = "none"; };
 
@@ -110,7 +114,7 @@ document.addEventListener("DOMContentLoaded", () => {
     loadData();
   };
 
-  // Add new post (Admin button inside panel)
+  // New post (admin)
   newItemBtn.onclick = async () => {
     const title = prompt("Post title:");
     if (!title) return;
@@ -120,7 +124,7 @@ document.addEventListener("DOMContentLoaded", () => {
     loadData();
   };
 
-  // Public floating button
+  // Public add post
   publicAddBtn.onclick = async () => {
     const title = prompt("Your post title:");
     if (!title) return;
@@ -131,16 +135,46 @@ document.addEventListener("DOMContentLoaded", () => {
     else loadData();
   };
 
-  // Search
+  // Search posts
   searchBtn.onclick = async () => {
     const q = searchInput.value;
     let { data: items } = await supabaseClient.from("items").select("*").ilike("title", `%${q}%`);
     renderItems(items || []);
   };
 
+  // Background upload
+  bgUploadBtn.onclick = () => bgFileInput.click();
+  bgFileInput.onchange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const path = `backgrounds/${Date.now()}_${file.name}`;
+    const { error } = await supabaseClient.storage.from("images").upload(path, file, { upsert: true });
+    if (error) return alert("Upload failed: " + error.message);
+    const { data } = supabaseClient.storage.from("images").getPublicUrl(path);
+    const url = data.publicUrl;
+    document.getElementById("edit-bg").value = url;
+    document.body.style.backgroundImage = `url(${url})`;
+  };
+
+  // Logo upload
+  logoUploadBtn.onclick = () => logoFileInput.click();
+  logoFileInput.onchange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const path = `logos/${Date.now()}_${file.name}`;
+    const { error } = await supabaseClient.storage.from("images").upload(path, file, { upsert: true });
+    if (error) return alert("Upload failed: " + error.message);
+    const { data } = supabaseClient.storage.from("images").getPublicUrl(path);
+    const url = data.publicUrl;
+    document.getElementById("edit-logo").value = url;
+    const logoEl = document.getElementById("site-logo");
+    logoEl.src = url;
+    logoEl.style.display = "block";
+  };
+
   // Load data
   async function loadData() {
-    let { data: settings } = await supabaseClient.from("site_settings").select("*").limit(1).single();
+    let { data: settings } = await supabaseClient.from("site_settings").select("*").eq("id", "00000000-0000-0000-0000-000000000001").single();
     if (settings) {
       document.getElementById("site-title").textContent = settings.title;
       document.getElementById("site-desc").textContent = settings.description;
@@ -194,7 +228,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Draggable admin panel
+  // Make admin panel draggable
   (function makeDraggable() {
     let dragging = false, offsetX = 0, offsetY = 0;
     adminHeader.addEventListener("mousedown", e => {
