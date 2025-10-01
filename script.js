@@ -1,6 +1,6 @@
-// 🔧 Replace with your Supabase project details
-const SUPABASE_URL = "https://ddpqzpexcktjtzaqradg.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkcHF6cGV4Y2t0anR6YXFyYWRnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkyMjczOTcsImV4cCI6MjA3NDgwMzM5N30.yIEsfMgq1SN_M0Un5w1tHj76agBL8Fr9L3dSUtk4hVQ";
+// 🔧 Replace with your Supabase project credentials
+const SUPABASE_URL = "https://YOUR_PROJECT_ID.supabase.co";
+const SUPABASE_ANON_KEY = "YOUR_PUBLIC_ANON_KEY";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let loggedIn = false;
@@ -22,6 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const searchBtn = document.getElementById("search-btn");
   const searchInput = document.getElementById("search-input");
   const itemsGrid = document.getElementById("items-grid");
+  const publicPostBtn = document.getElementById("public-post-btn");
 
   // Init
   supabaseClient.auth.getSession().then(({ data }) => {
@@ -36,7 +37,6 @@ document.addEventListener("DOMContentLoaded", () => {
     loadData();
   });
 
-  // UI updates
   function updateAuthUI() {
     if (loggedIn) {
       loginArea.style.display = "none";
@@ -85,7 +85,7 @@ document.addEventListener("DOMContentLoaded", () => {
     loadData();
   };
 
-  // New post
+  // New post (admin)
   newItemBtn.onclick = async () => {
     const title = prompt("Post title:");
     if (!title) return;
@@ -93,6 +93,29 @@ document.addEventListener("DOMContentLoaded", () => {
     const image_url = prompt("Image URL (optional):");
     await supabaseClient.from("items").insert([{ title, description: desc, image_url }]);
     loadData();
+  };
+
+  // Public post form
+  publicPostBtn.onclick = async () => {
+    const title = document.getElementById("public-title").value.trim();
+    const description = document.getElementById("public-desc").value.trim();
+    const image_url = document.getElementById("public-img").value.trim();
+
+    if (!title) {
+      alert("Title is required");
+      return;
+    }
+
+    const { error } = await supabaseClient.from("items").insert([{ title, description, image_url }]);
+    if (error) {
+      alert("Failed to post: " + error.message);
+    } else {
+      alert("Post submitted!");
+      document.getElementById("public-title").value = "";
+      document.getElementById("public-desc").value = "";
+      document.getElementById("public-img").value = "";
+      loadData();
+    }
   };
 
   // Search
