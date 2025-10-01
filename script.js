@@ -1,4 +1,3 @@
-// 🔧 Replace with your Supabase project details
 const SUPABASE_URL = "https://ddpqzpexcktjtzaqradg.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkcHF6cGV4Y2t0anR6YXFyYWRnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkyMjczOTcsImV4cCI6MjA3NDgwMzM5N30.yIEsfMgq1SN_M0Un5w1tHj76agBL8Fr9L3dSUtk4hVQ";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -26,7 +25,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const logoDropzone = document.getElementById("logo-dropzone");
   const publicPostBtn = document.getElementById("public-post-btn");
 
-  // Init session
   supabaseClient.auth.getSession().then(({ data }) => {
     loggedIn = !!data.session;
     updateAuthUI();
@@ -39,22 +37,14 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   function updateAuthUI() {
-    if (loggedIn) {
-      loginArea.style.display = "none";
-      controlsArea.classList.remove("hidden");
-      statusPill.textContent = "Admin";
-    } else {
-      loginArea.style.display = "block";
-      controlsArea.classList.add("hidden");
-      statusPill.textContent = "Public";
-    }
+    loginArea.style.display = loggedIn ? "none" : "block";
+    controlsArea.classList.toggle("hidden", !loggedIn);
+    statusPill.textContent = loggedIn ? "Admin" : "Public";
   }
 
-  // Admin panel toggle
   adminToggle.onclick = () => { adminPanel.style.display = "block"; updateAuthUI(); };
   adminClose.onclick = () => { adminPanel.style.display = "none"; };
 
-  // Login
   loginBtn.onclick = async () => {
     const email = document.getElementById("pw-input").value.trim();
     const password = prompt("Enter your Supabase password:");
@@ -66,7 +56,6 @@ document.addEventListener("DOMContentLoaded", () => {
     loadData();
   };
 
-  // Logout
   logoutBtn.onclick = async () => {
     await supabaseClient.auth.signOut();
     loggedIn = false;
@@ -75,61 +64,39 @@ document.addEventListener("DOMContentLoaded", () => {
     adminPanel.style.display = "none";
   };
 
-  // Save settings
   saveBtn.onclick = async () => {
     const title = document.getElementById("edit-title").value;
     const desc = document.getElementById("edit-desc").value;
     const accent = document.getElementById("edit-accent").value || "#16a34a";
     const background_url = document.getElementById("edit-bg").value;
     const logo_url = document.getElementById("edit-logo").value;
-
-    await supabaseClient.from("site_settings").upsert([{ 
-      id: '00000000-0000-0000-0000-000000000001', 
-      title, description: desc, accent, background_url, logo_url 
+    await supabaseClient.from("site_settings").upsert([{
+      id: '00000000-0000-0000-0000-000000000001',
+      title, description: desc, accent, background_url, logo_url
     }]);
-
-    document.documentElement.style.setProperty("--accent", accent);
-    if (background_url) {
-      document.body.style.backgroundImage = `url(${background_url})`;
-      document.body.style.backgroundSize = "cover";
-    }
-    if (logo_url) {
-      const logoEl = document.getElementById("site-logo");
-      logoEl.src = logo_url;
-      logoEl.style.display = "block";
-    }
-    loadData();
   };
 
-  // New post (admin only)
   newItemBtn.onclick = async () => {
-    const title = prompt("Post title:");
-    if (!title) return;
+    const title = prompt("Post title:"); if (!title) return;
     const desc = prompt("Post description:");
     const image_url = prompt("Image URL (optional):");
     await supabaseClient.from("items").insert([{ title, description: desc, image_url }]);
-    loadData();
   };
 
-  // Public post (floating button)
   publicPostBtn.onclick = async () => {
-    const title = prompt("Post title:");
-    if (!title) return;
+    const title = prompt("Post title:"); if (!title) return;
     const desc = prompt("Post description:");
     const image_url = prompt("Image URL (optional):");
     const { error } = await supabaseClient.from("items").insert([{ title, description: desc, image_url }]);
-    if (error) return alert("Failed to post: " + error.message);
-    loadData();
+    if (error) alert("Failed to post: " + error.message);
   };
 
-  // Search
   searchBtn.onclick = async () => {
     const q = searchInput.value;
     let { data: items } = await supabaseClient.from("items").select("*").ilike("title", `%${q}%`);
     renderItems(items || []);
   };
 
-  // Upload utility
   async function uploadFileToStorage(file, folder) {
     const path = `${folder}/${Date.now()}_${file.name}`;
     const { error } = await supabaseClient.storage.from("images").upload(path, file, { upsert: true });
@@ -138,7 +105,6 @@ document.addEventListener("DOMContentLoaded", () => {
     return data.publicUrl;
   }
 
-  // Setup dropzones
   function setupDropzone(dropzone, fileInput, type) {
     dropzone.addEventListener("click", () => fileInput.click());
     fileInput.addEventListener("change", async e => {
@@ -164,15 +130,13 @@ document.addEventListener("DOMContentLoaded", () => {
     } else if (type === "logos") {
       document.getElementById("edit-logo").value = url;
       const logoEl = document.getElementById("site-logo");
-      logoEl.src = url;
-      logoEl.style.display = "block";
+      logoEl.src = url; logoEl.style.display = "block";
     }
   }
 
   setupDropzone(bgDropzone, bgFileInput, "backgrounds");
   setupDropzone(logoDropzone, logoFileInput, "logos");
 
-  // Drag admin panel
   (function makeDraggable() {
     let dragging = false, offsetX = 0, offsetY = 0;
     adminHeader.addEventListener("mousedown", e => {
@@ -191,7 +155,6 @@ document.addEventListener("DOMContentLoaded", () => {
     window.addEventListener("mouseup", () => { dragging = false; document.body.style.userSelect = ""; });
   })();
 
-  // Load data
   async function loadData() {
     let { data: settings } = await supabaseClient.from("site_settings").select("*").eq("id", '00000000-0000-0000-0000-000000000001').single();
     if (settings) {
@@ -209,8 +172,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       if (settings.logo_url) {
         const logoEl = document.getElementById("site-logo");
-        logoEl.src = settings.logo_url;
-        logoEl.style.display = "block";
+        logoEl.src = settings.logo_url; logoEl.style.display = "block";
       }
     }
     let { data: items } = await supabaseClient.from("items").select("*").order("created_at", { ascending: false });
@@ -236,11 +198,18 @@ document.addEventListener("DOMContentLoaded", () => {
           const id = e.target.getAttribute("data-id");
           if (confirm("Delete this post?")) {
             await supabaseClient.from("items").delete().eq("id", id);
-            loadData();
           }
         };
       });
     }
   }
-});
 
+  // Realtime subscriptions
+  supabaseClient.channel('items-changes')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'items' }, payload => loadData())
+    .subscribe();
+
+  supabaseClient.channel('settings-changes')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'site_settings' }, payload => loadData())
+    .subscribe();
+});
