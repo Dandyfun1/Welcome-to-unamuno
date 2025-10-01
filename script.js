@@ -22,7 +22,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const searchBtn = document.getElementById("search-btn");
   const searchInput = document.getElementById("search-input");
   const itemsGrid = document.getElementById("items-grid");
+  const fab = document.getElementById("public-fab");
+  const popup = document.getElementById("public-popup");
   const publicPostBtn = document.getElementById("public-post-btn");
+  const publicCancel = document.getElementById("public-cancel");
 
   // Init
   supabaseClient.auth.getSession().then(({ data }) => {
@@ -95,7 +98,10 @@ document.addEventListener("DOMContentLoaded", () => {
     loadData();
   };
 
-  // Public post form
+  // Public post popup
+  fab.onclick = () => { popup.style.display = "block"; };
+  publicCancel.onclick = () => { popup.style.display = "none"; };
+
   publicPostBtn.onclick = async () => {
     const title = document.getElementById("public-title").value.trim();
     const description = document.getElementById("public-desc").value.trim();
@@ -114,6 +120,7 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("public-title").value = "";
       document.getElementById("public-desc").value = "";
       document.getElementById("public-img").value = "";
+      popup.style.display = "none";
       loadData();
     }
   };
