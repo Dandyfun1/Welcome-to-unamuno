@@ -7,7 +7,11 @@
   <style>
     :root { --bg:#fdfdfd; --card:#fff; --accent:#16a34a; --text:#111827; }
     * { box-sizing:border-box }
-    body { font-family:Inter,system-ui,sans-serif; margin:0; background:var(--bg); color:var(--text); background-size:cover; background-position:center; background-repeat:no-repeat; }
+    body {
+      font-family:Inter,system-ui,sans-serif; margin:0;
+      background:var(--bg); color:var(--text);
+      background-size:cover; background-position:center; background-repeat:no-repeat;
+    }
     header { background:var(--accent); padding:20px; color:#fff }
     .wrap { max-width:980px; margin:0 auto }
     h1 { margin:0; font-size:1.6rem }
@@ -29,6 +33,18 @@
     input[type="file"] { margin-top:8px }
     .small { font-size:0.85rem; color:#6b7280; margin-top:8px }
     .hidden { display:none !important }
+    /* Floating button */
+    #public-fab {
+      position:fixed; bottom:20px; right:20px; width:60px; height:60px;
+      border-radius:50%; background:var(--accent); color:#fff; font-size:2rem;
+      border:none; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,0.25); z-index:1500;
+    }
+    /* Public post popup */
+    #public-popup {
+      display:none; position:fixed; bottom:100px; right:20px; width:320px;
+      background:#fff; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.2);
+      padding:16px; z-index:1600;
+    }
   </style>
 </head>
 <body>
@@ -74,20 +90,7 @@
         <div class="small">Enter your email, then you’ll be prompted for password.</div>
       </div>
 
-      <!-- PUBLIC posting form -->
-      <div id="public-post-area" style="margin-top:20px">
-        <h3>Share Something</h3>
-        <label>Title</label>
-        <input type="text" id="public-title" />
-        <label>Description</label>
-        <input type="text" id="public-desc" />
-        <label>Image URL (optional)</label>
-        <input type="text" id="public-img" />
-        <button class="btn" id="public-post-btn" style="margin-top:10px">Post</button>
-        <div class="small">This will be public immediately.</div>
-      </div>
-
-      <!-- controls -->
+      <!-- controls (admins only) -->
       <div id="controls-area" class="hidden">
         <label>Site title</label>
         <input type="text" id="edit-title" />
@@ -107,6 +110,24 @@
         </div>
         <div id="items-list" style="margin-top:12px;max-height:260px;overflow:auto"></div>
       </div>
+    </div>
+  </div>
+
+  <!-- Floating Public Post Button -->
+  <button id="public-fab">+</button>
+
+  <!-- Public Post Popup -->
+  <div id="public-popup">
+    <h3 style="margin-top:0">New Post</h3>
+    <label>Title</label>
+    <input type="text" id="public-title" style="width:100%;margin-bottom:6px" />
+    <label>Description</label>
+    <input type="text" id="public-desc" style="width:100%;margin-bottom:6px" />
+    <label>Image URL (optional)</label>
+    <input type="text" id="public-img" style="width:100%;margin-bottom:10px" />
+    <div style="display:flex;justify-content:flex-end;gap:8px">
+      <button id="public-cancel" class="ghost">Cancel</button>
+      <button id="public-post-btn" class="btn">Post</button>
     </div>
   </div>
 
