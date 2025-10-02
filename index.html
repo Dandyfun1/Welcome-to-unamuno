@@ -13,7 +13,7 @@
         <img id="site-logo" class="logo" alt="" />
         <div>
           <h1 id="site-title">UNAMUNO</h1>
-          <div id="site-desc" class="sub">Sitio editable conectado a Supabase.</div>
+          <div id="site-desc" class="sub">Editable site — posts & calendario compartido.</div>
         </div>
       </div>
       <div class="top-controls">
@@ -34,7 +34,7 @@
     </section>
 
     <aside id="right-col" class="card side-panel">
-      <h3>Calendario (vista rápida)</h3>
+      <h3>Calendario (próximo)</h3>
       <div id="mini-calendar" class="mini-cal"></div>
       <div style="margin-top:12px">
         <button id="open-calendar" class="btn">Abrir calendario</button>
@@ -47,7 +47,22 @@
   <!-- Floating public post button -->
   <button id="public-post-btn" title="Publicar">+</button>
 
-  <!-- Admin panel (draggable) -->
+  <!-- Public Post Modal -->
+  <div class="modal hidden" id="post-modal" aria-hidden="true">
+    <div class="modal-content">
+      <h2>Nuevo post</h2>
+      <label>Título</label>
+      <input id="post-title" type="text" />
+      <label>Descripción</label>
+      <textarea id="post-desc"></textarea>
+      <div class="modal-actions">
+        <button id="post-submit" class="btn">Publicar</button>
+        <button id="post-cancel" class="ghost">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Panel -->
   <div id="admin-panel" class="admin-panel hidden" role="dialog" aria-hidden="true">
     <div id="admin-header" class="admin-header">
       <div>Admin — UNAMUNO</div>
@@ -58,10 +73,10 @@
 
     <div class="admin-body">
       <div id="login-area">
-        <label>Email admin</label>
+        <label>Admin email</label>
         <input id="pw-input" type="text" placeholder="admin@example.com" />
-        <button id="login-btn" class="btn">Login</button>
-        <div class="small muted">Introduce tu email; se pedirá contraseña luego.</div>
+        <button id="login-btn" class="btn" style="margin-top:8px">Login</button>
+        <div class="small muted" style="margin-top:8px">Introduce tu email; se te pedirá contraseña.</div>
       </div>
 
       <div id="controls-area" class="hidden">
@@ -76,7 +91,7 @@
           <input id="edit-title" type="text" />
           <label>Descripción</label>
           <input id="edit-desc" type="text" />
-          <label>Color (hex)</label>
+          <label>Accent color</label>
           <input id="edit-accent" type="text" placeholder="#16a34a" />
           <label>Logo URL</label>
           <input id="edit-logo" type="text" placeholder="https://..." />
@@ -88,7 +103,7 @@
 
         <div class="tab-body hidden" id="posts">
           <div style="display:flex;gap:8px;align-items:center">
-            <button id="new-item-btn" class="btn">+ Nuevo Post</button>
+            <button id="new-item-btn" class="btn">+ Nuevo post</button>
             <button id="refresh-posts" class="ghost">Refresh</button>
           </div>
           <div id="items-list" style="margin-top:10px;max-height:260px;overflow:auto"></div>
@@ -100,7 +115,7 @@
             <div id="cal-month" style="font-weight:600"></div>
             <button id="cal-next" class="ghost">▶</button>
           </div>
-          <div id="calendar-container"></div>
+          <div id="calendar-container" class="card"></div>
           <div class="small muted" style="margin-top:8px">Haz clic en un día para ver/editar nota (solo admin).</div>
         </div>
 
@@ -108,13 +123,20 @@
     </div>
   </div>
 
-  <!-- Calendar modal (simple prompt fallback; kept for accessibility) -->
-  <div id="day-modal" class="hidden">
-    <!-- We use prompt() for entering notes to keep code short and robust for GitHub Pages -->
+  <!-- Note Modal -->
+  <div class="modal hidden" id="note-modal" aria-hidden="true">
+    <div class="modal-content">
+      <h3 id="note-date"></h3>
+      <textarea id="note-text" placeholder="Escribe la nota aquí..."></textarea>
+      <div class="modal-actions">
+        <button id="note-save" class="btn">Guardar</button>
+        <button id="note-delete" class="ghost">Eliminar</button>
+        <button id="note-cancel" class="ghost">Cancelar</button>
+      </div>
+    </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="script.js"></script>
 </body>
 </html>
-
