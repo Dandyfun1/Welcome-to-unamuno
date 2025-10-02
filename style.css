@@ -17,7 +17,7 @@ header {
   color: #fff;
 }
 .wrap { max-width: 980px; margin: 0 auto; }
-h1 { margin: 0; font-size: 1.6rem; display: flex; align-items: center; gap: 10px; }
+h1 { margin: 0; font-size: 1.6rem; }
 .sub { opacity: .9; margin-top: 4px; }
 .controls { display: flex; gap: 10px; margin-top: 12px; align-items: center; }
 .btn {
@@ -58,12 +58,6 @@ input[type="text"] {
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
-.card img {
-  width: 100%;
-  border-radius: 8px;
-  margin-bottom: 10px;
-  object-fit: cover;
-}
 .danger {
   background: #dc2626;
   color: #fff;
@@ -84,7 +78,7 @@ footer { padding: 18px; text-align: center; color: #6b7280; }
 }
 .admin-header {
   padding: 12px 14px; background: var(--accent); color: #fff;
-  cursor: move; border-radius: 12px 12px 0 0;
+  border-radius: 12px 12px 0 0;
   display: flex; justify-content: space-between; align-items: center;
 }
 .admin-body { padding: 14px; max-height: 70vh; overflow: auto; }
