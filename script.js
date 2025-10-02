@@ -1,333 +1,287 @@
-// ====== Replace these with your Supabase project values ======
+// 🔧 Replace with your Supabase credentials
 const SUPABASE_URL = "https://YOUR_PROJECT.supabase.co";
 const SUPABASE_ANON_KEY = "YOUR_ANON_KEY";
-// ============================================================
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let loggedIn = false;
-let currentCalendarDate = new Date(); // used by calendar
-
-const $ = (sel) => document.querySelector(sel);
-const $$ = (sel) => Array.from(document.querySelectorAll(sel));
 
 document.addEventListener("DOMContentLoaded", () => {
-  // DOM refs
-  const adminPanel = $("#admin-panel");
-  const adminHeader = $("#admin-header");
-  const adminToggle = $("#admin-toggle");
-  const adminClose = $("#admin-close");
-  const loginArea = $("#login-area");
-  const controlsArea = $("#controls-area");
-  const loginBtn = $("#login-btn");
-  const logoutBtn = $("#logout-btn");
-  const statusPill = $("#status-pill");
-  const saveBtn = $("#save-changes");
-  const newItemBtn = $("#new-item-btn");
-  const publicPostBtn = $("#public-post-btn");
-  const itemsGrid = $("#items-grid");
-  const searchBtn = $("#search-btn");
-  const searchInput = $("#search-input");
+  const adminPanel = document.getElementById("admin-panel");
+  const adminHeader = document.getElementById("admin-header");
+  const adminToggle = document.getElementById("admin-toggle");
+  const adminClose = document.getElementById("admin-close");
+  const loginArea = document.getElementById("login-area");
+  const controlsArea = document.getElementById("controls-area");
+  const loginBtn = document.getElementById("login-btn");
+  const logoutBtn = document.getElementById("logout-btn");
+  const statusPill = document.getElementById("status-pill");
+  const saveBtn = document.getElementById("save-changes");
+  const newItemBtn = document.getElementById("new-item-btn");
+  const searchBtn = document.getElementById("search-btn");
+  const searchInput = document.getElementById("search-input");
+  const itemsGrid = document.getElementById("items-grid");
+  const bgFileInput = document.getElementById("bg-file-input");
+  const logoFileInput = document.getElementById("logo-file-input");
+  const bgDropzone = document.getElementById("bg-dropzone");
+  const logoDropzone = document.getElementById("logo-dropzone");
+  const publicPostBtn = document.getElementById("public-post-btn");
+  const calendarPanel = document.getElementById("calendar-panel");
+  const calendarToggle = document.getElementById("calendar-toggle");
+  const calendarClose = document.getElementById("calendar-close");
+  const calendarDays = document.getElementById("calendar-days");
+  const currentMonthEl = document.getElementById("current-month");
 
-  const calendarPanel = $("#calendar-panel");
-  const calendarToggle = $("#calendar-toggle");
-  const calendarClose = $("#calendar-close");
-  const calendarBody = $("#calendar");
+  let currentDate = new Date();
 
-  // --- Session init ---
-  supabaseClient.auth.getSession().then(({ data, error }) => {
-    if (error) console.warn("session init error", error);
-    loggedIn = !!data?.session;
+  // Init auth
+  supabaseClient.auth.getSession().then(({ data }) => {
+    loggedIn = !!data.session;
     updateAuthUI();
-    loadSiteAndPosts();
+    loadData();
   });
 
-  // react to auth changes
   supabaseClient.auth.onAuthStateChange((_event, session) => {
     loggedIn = !!session;
     updateAuthUI();
-    loadSiteAndPosts();
+    loadData();
   });
 
   function updateAuthUI() {
-    if (loginArea) loginArea.style.display = loggedIn ? "none" : "block";
-    if (controlsArea) controlsArea.classList.toggle("hidden", !loggedIn);
-    statusPill.textContent = loggedIn ? "Admin" : "Público";
+    loginArea.style.display = loggedIn ? "none" : "block";
+    controlsArea.classList.toggle("hidden", !loggedIn);
+    statusPill.textContent = loggedIn ? "Admin" : "Public";
   }
 
-  // --- Panel toggles ---
-  adminToggle.onclick = () => { adminPanel.classList.remove("hidden"); adminPanel.style.display = "block"; };
-  adminClose.onclick = () => { adminPanel.classList.add("hidden"); adminPanel.style.display = "none"; };
+  // Admin panel
+  adminToggle.onclick = () => { adminPanel.style.display = "block"; updateAuthUI(); };
+  adminClose.onclick = () => { adminPanel.style.display = "none"; };
 
-  calendarToggle.onclick = () => { renderCalendar(currentCalendarDate); calendarPanel.classList.remove("hidden"); calendarPanel.style.display = "block"; };
-  calendarClose.onclick = () => { calendarPanel.classList.add("hidden"); calendarPanel.style.display = "none"; };
+  // Calendar panel
+  calendarToggle.onclick = () => { calendarPanel.style.display = "block"; loadCalendar(); };
+  calendarClose.onclick = () => { calendarPanel.style.display = "none"; };
 
-  // Make admin panel draggable (simple)
-  makeDraggable(adminHeader, adminPanel);
-  makeDraggable($("#calendar-header"), calendarPanel);
-
-  // --- Login flow ---
+  // Login
   loginBtn.onclick = async () => {
-    const email = document.getElementById("pw-input").value?.trim();
-    if (!email) return alert("Introduce tu email de admin.");
-    const pw = prompt("Contraseña para " + email);
-    if (!pw) return;
-    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password: pw });
-    if (error) {
-      alert("Login falló: " + error.message);
-      console.error(error);
-      return;
-    }
+    const email = document.getElementById("pw-input").value.trim();
+    const password = prompt("Enter your Supabase password:");
+    if (!email || !password) return;
+    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+    if (error) return alert("Login failed: " + error.message);
     loggedIn = !!data.session;
-    alert("Login correcto");
     updateAuthUI();
-    loadSiteAndPosts();
+    loadData();
   };
 
   logoutBtn.onclick = async () => {
-    const { error } = await supabaseClient.auth.signOut();
-    if (error) return alert("Logout failed: " + error.message);
+    await supabaseClient.auth.signOut();
     loggedIn = false;
     updateAuthUI();
-    adminPanel.classList.add("hidden");
+    loadData();
+    adminPanel.style.display = "none";
   };
 
-  // --- Save site settings ---
-  saveBtn?.addEventListener("click", async () => {
-    const title = $("#edit-title").value || "UNAMUNO";
-    const description = $("#edit-desc").value || "";
-    const accent = $("#edit-accent").value || "#16a34a";
-    const logo_url = $("#edit-logo").value || null;
-    const background_url = $("#edit-bg").value || null;
+  // Save site settings
+  saveBtn.onclick = async () => {
+    const title = document.getElementById("edit-title").value;
+    const desc = document.getElementById("edit-desc").value;
+    const accent = document.getElementById("edit-accent").value || "#16a34a";
+    const background_url = document.getElementById("edit-bg").value;
+    const logo_url = document.getElementById("edit-logo").value;
 
-    const { error } = await supabaseClient.from("site_settings").upsert([{
-      id: 1, title, description, accent, logo_url, background_url
+    await supabaseClient.from("site_settings").upsert([{
+      id: '00000000-0000-0000-0000-000000000001',
+      title, description: desc, accent, background_url, logo_url
     }]);
-    if (error) { alert("Error guardando: " + error.message); return; }
+
     document.documentElement.style.setProperty("--accent", accent);
-    alert("Ajustes guardados");
-    loadSiteAndPosts();
-  });
+    loadData();
+  };
 
-  // --- Create post (admin) ---
-  newItemBtn?.addEventListener("click", async () => {
-    if (!loggedIn) return alert("Solo admin puede crear desde aquí.");
-    const title = prompt("Título de la publicación:");
-    if (!title) return;
-    const description = prompt("Descripción (opcional):") || null;
-    const { error } = await supabaseClient.from("items").insert([{ title, description, posted_by: "admin" }]);
-    if (error) { alert("Error al crear: " + error.message); return; }
-    alert("Publicación creada.");
-    loadPosts();
-  });
+  // New post (admin)
+  newItemBtn.onclick = async () => {
+    const title = prompt("Post title:"); if (!title) return;
+    const desc = prompt("Post description:");
+    const image_url = prompt("Image URL (optional):");
+    await supabaseClient.from("items").insert([{ title, description: desc, image_url }]);
+    loadData();
+  };
 
-  // --- Create post (public) ---
-  publicPostBtn.addEventListener("click", async () => {
-    const title = prompt("Título de la publicación (público):");
-    if (!title) return;
-    const description = prompt("Descripción (opcional):") || null;
-    const { error } = await supabaseClient.from("items").insert([{ title, description, posted_by: "public" }]);
-    if (error) { alert("No se pudo publicar: " + error.message); console.error(error); return; }
-    alert("Tu publicación se publicó.");
-    loadPosts();
-  });
+  // Public post
+  publicPostBtn.onclick = async () => {
+    const title = prompt("Post title:"); if (!title) return;
+    const desc = prompt("Post description:");
+    const image_url = prompt("Image URL (optional):");
+    const { error } = await supabaseClient.from("items").insert([{ title, description: desc, image_url }]);
+    if (error) alert("Failed to post: " + error.message);
+    loadData();
+  };
 
-  // --- Search ---
-  searchBtn.addEventListener("click", async () => {
-    const q = searchInput.value?.trim() || "";
-    const { data, error } = await supabaseClient.from("items").select("*").ilike("title", `%${q}%`).order("created_at", { ascending: false });
-    if (error) return alert("Error búsqueda: " + error.message);
-    renderItems(data || []);
-  });
+  // Search posts
+  searchBtn.onclick = async () => {
+    const q = searchInput.value;
+    let { data: items } = await supabaseClient.from("items").select("*").ilike("title", `%${q}%`);
+    renderItems(items || []);
+  };
 
-  // --- Load site settings + posts ---
-  async function loadSiteAndPosts() {
-    // site settings
-    const { data: settingData } = await supabaseClient.from("site_settings").select("*").eq("id", 1).single().catch(()=>({ data:null }));
-    if (settingData) {
-      $("#site-title").textContent = settingData.title || "UNAMUNO";
-      $("#site-desc").textContent = settingData.description || "";
-      $("#edit-title").value = settingData.title || "";
-      $("#edit-desc").value = settingData.description || "";
-      $("#edit-accent").value = settingData.accent || "#16a34a";
-      $("#edit-logo").value = settingData.logo_url || "";
-      $("#edit-bg").value = settingData.background_url || "";
-      if (settingData.background_url) {
-        document.body.style.backgroundImage = `url(${settingData.background_url})`;
-        document.body.style.backgroundSize = "cover";
-      }
-      if (settingData.logo_url) {
-        const logo = $("#site-logo");
-        logo.src = settingData.logo_url;
-        logo.style.display = "inline-block";
-      }
-      document.documentElement.style.setProperty("--accent", settingData.accent || "#16a34a");
-    }
-    loadPosts();
+  // Upload helpers
+  async function uploadFileToStorage(file, folder) {
+    const path = `${folder}/${Date.now()}_${file.name}`;
+    const { error } = await supabaseClient.storage.from("images").upload(path, file, { upsert: true });
+    if (error) { alert("Upload failed: " + error.message); return null; }
+    const { data } = supabaseClient.storage.from("images").getPublicUrl(path);
+    return data.publicUrl;
   }
 
-  async function loadPosts() {
-    const { data, error } = await supabaseClient.from("items").select("*").order("created_at", { ascending: false });
-    if (error) { console.error("load posts err", error); return; }
-    renderItems(data || []);
+  function setupDropzone(dropzone, fileInput, type) {
+    dropzone.addEventListener("click", () => fileInput.click());
+    fileInput.addEventListener("change", async e => {
+      const file = e.target.files[0]; if (!file) return;
+      const url = await uploadFileToStorage(file, type);
+      if (url) applyImage(type, url);
+    });
+    dropzone.addEventListener("drop", async e => {
+      e.preventDefault();
+      const file = e.dataTransfer.files[0]; if (!file) return;
+      const url = await uploadFileToStorage(file, type);
+      if (url) applyImage(type, url);
+    });
+  }
+
+  function applyImage(type, url) {
+    if (type === "backgrounds") {
+      document.getElementById("edit-bg").value = url;
+      document.body.style.backgroundImage = `url(${url})`;
+      document.body.style.backgroundSize = "cover";
+    } else if (type === "logos") {
+      document.getElementById("edit-logo").value = url;
+      const logoEl = document.getElementById("site-logo");
+      logoEl.src = url; logoEl.style.display = "block";
+    }
+  }
+
+  setupDropzone(bgDropzone, bgFileInput, "backgrounds");
+  setupDropzone(logoDropzone, logoFileInput, "logos");
+
+  // Draggable admin panel
+  (function makeDraggable() {
+    let dragging = false, offsetX = 0, offsetY = 0;
+    adminHeader.addEventListener("mousedown", e => {
+      dragging = true;
+      offsetX = e.clientX - adminPanel.offsetLeft;
+      offsetY = e.clientY - adminPanel.offsetTop;
+      document.body.style.userSelect = "none";
+    });
+    window.addEventListener("mousemove", e => {
+      if (dragging) {
+        adminPanel.style.left = (e.clientX - offsetX) + "px";
+        adminPanel.style.top = (e.clientY - offsetY) + "px";
+        adminPanel.style.right = "auto";
+      }
+    });
+    window.addEventListener("mouseup", () => { dragging = false; document.body.style.userSelect = ""; });
+  })();
+
+  // Load settings + posts
+  async function loadData() {
+    let { data: settings } = await supabaseClient.from("site_settings")
+      .select("*").eq("id", '00000000-0000-0000-0000-000000000001').single();
+
+    if (settings) {
+      document.getElementById("site-title").textContent = settings.title;
+      document.getElementById("site-desc").textContent = settings.description;
+      document.getElementById("edit-title").value = settings.title;
+      document.getElementById("edit-desc").value = settings.description;
+      document.getElementById("edit-accent").value = settings.accent;
+      document.getElementById("edit-bg").value = settings.background_url || "";
+      document.getElementById("edit-logo").value = settings.logo_url || "";
+      document.documentElement.style.setProperty("--accent", settings.accent || "#16a34a");
+      if (settings.background_url) {
+        document.body.style.backgroundImage = `url(${settings.background_url})`;
+        document.body.style.backgroundSize = "cover";
+      }
+      if (settings.logo_url) {
+        const logoEl = document.getElementById("site-logo");
+        logoEl.src = settings.logo_url; logoEl.style.display = "block";
+      }
+    }
+
+    let { data: items } = await supabaseClient.from("items").select("*").order("created_at", { ascending: false });
+    renderItems(items || []);
   }
 
   function renderItems(items) {
     itemsGrid.innerHTML = "";
-    (items || []).forEach(it => {
-      const el = document.createElement("div");
-      el.className = "card";
-      el.innerHTML = `
-        ${it.image_url ? `<img src="${it.image_url}" alt="">` : ""}
-        <h3>${escapeHtml(it.title)}</h3>
-        <p>${escapeHtml(it.description || "")}</p>
-        <div style="font-size:12px;color:var(--muted);margin-top:8px">Publicado por: ${escapeHtml(it.posted_by || "public")}</div>
+    items.forEach(item => {
+      const div = document.createElement("div");
+      div.className = "card";
+      div.innerHTML = `
+        ${item.image_url ? `<img src="${item.image_url}" alt="">` : ""}
+        <h3 style="margin:0 0 6px 0">${item.title}</h3>
+        <p>${item.description || ""}</p>
+        ${loggedIn ? `<button class="danger" data-id="${item.id}">Delete</button>` : ""}
       `;
-      if (loggedIn) {
-        const d = document.createElement("button");
-        d.className = "danger";
-        d.textContent = "Eliminar";
-        d.style.marginTop = "8px";
-        d.onclick = async () => {
-          if (!confirm("¿Eliminar esta publicación?")) return;
-          const { error } = await supabaseClient.from("items").delete().eq("id", it.id);
-          if (error) return alert("Error al eliminar: " + error.message);
-          loadPosts();
-        };
-        el.appendChild(d);
-      }
-      itemsGrid.appendChild(el);
+      itemsGrid.appendChild(div);
     });
-
-    // admin items list in panel (if present)
-    const itemsList = $("#items-list");
-    if (itemsList) {
-      itemsList.innerHTML = "";
-      (items || []).forEach(it => {
-        const row = document.createElement("div");
-        row.style.display = "flex";
-        row.style.justifyContent = "space-between";
-        row.style.alignItems = "center";
-        row.style.padding = "8px 0";
-        row.innerHTML = `<div><strong>${escapeHtml(it.title)}</strong><div style="font-size:12px;color:var(--muted)">${new Date(it.created_at).toLocaleString()}</div></div>`;
-        const del = document.createElement("button");
-        del.className = "ghost";
-        del.textContent = "Eliminar";
-        del.onclick = async () => {
-          if (!confirm("Eliminar?")) return;
-          const { error } = await supabaseClient.from("items").delete().eq("id", it.id);
-          if (error) return alert("Delete failed: " + error.message);
-          loadPosts();
+    if (loggedIn) {
+      itemsGrid.querySelectorAll(".danger").forEach(btn => {
+        btn.onclick = async e => {
+          const id = e.target.getAttribute("data-id");
+          if (confirm("Delete this post?")) {
+            await supabaseClient.from("items").delete().eq("id", id);
+            loadData();
+          }
         };
-        row.appendChild(del);
-        itemsList.appendChild(row);
       });
     }
   }
 
-  // --- Calendar rendering (Spanish, highlights days with events) ---
-  async function renderCalendar(date) {
-    const year = date.getFullYear();
-    const month = date.getMonth();
-    calendarBody.innerHTML = "";
-    const daysInMonth = new Date(year, month+1, 0).getDate();
+  // Calendar
+  async function loadCalendar() {
+    currentMonthEl.textContent = currentDate.toLocaleDateString("es-ES", { month: "long", year: "numeric" });
+    calendarDays.innerHTML = "";
 
-    // fetch events for month range
-    const startIso = `${year}-${String(month+1).padStart(2,"0")}-01`;
-    const endIso = `${year}-${String(month+1).padStart(2,"0")}-${String(daysInMonth).padStart(2,"0")}`;
-    const { data: events } = await supabaseClient.from("events").select("*").gte("date", startIso).lte("date", endIso).order("date", { ascending: true });
-    const map = (events || []).reduce((acc, e) => { acc[e.date] = e; return acc; }, {});
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
 
-    for (let d=1; d<=daysInMonth; d++) {
-      const iso = `${year}-${String(month+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
-      const cell = document.createElement("div");
-      cell.className = "day";
-      cell.textContent = d;
-      if (map[iso]) {
-        cell.classList.add("has-event");
-        cell.title = map[iso].note || "";
-      }
-      cell.onclick = async () => {
-        if (!loggedIn) {
-          // if not admin, show the note if exists
-          if (map[iso]) return alert("Nota: " + (map[iso].note || ""));
-          return alert("Solo admin puede editar notas.");
-        }
-        // admin editing
-        const note = prompt("Nota para " + iso, map[iso]?.note || "");
-        if (note === null) return; // cancelled
-        if (note.trim() === "") {
-          // delete if exists
-          if (map[iso]) {
-            const { error } = await supabaseClient.from("events").delete().eq("date", iso);
-            if (error) return alert("Error eliminando nota: " + error.message);
-            renderCalendar(date);
-            return;
+    const firstDay = new Date(year, month, 1).getDay();
+    const lastDate = new Date(year, month + 1, 0).getDate();
+
+    let { data: events } = await supabaseClient.from("events").select("*").gte("event_date", `${year}-${month+1}-01`).lte("event_date", `${year}-${month+1}-${lastDate}`);
+
+    for (let i = 0; i < firstDay; i++) {
+      calendarDays.innerHTML += `<div></div>`;
+    }
+
+    for (let d = 1; d <= lastDate; d++) {
+      const dateStr = `${year}-${String(month+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+      const hasEvent = events && events.some(e => e.event_date === dateStr);
+      calendarDays.innerHTML += `
+        <div class="day ${hasEvent ? "has-event" : ""}" data-date="${dateStr}">
+          ${d}
+        </div>`;
+    }
+
+    document.querySelectorAll(".day").forEach(day => {
+      day.onclick = async () => {
+        const date = day.getAttribute("data-date");
+        let note = prompt("Add/Edit note for " + date);
+        if (note !== null) {
+          if (loggedIn) {
+            await supabaseClient.from("events").upsert([{ event_date: date, note }]);
+            loadCalendar();
           } else {
-            return; // nothing to delete
+            alert("Only admin can set events.");
           }
-        } else {
-          const { error } = await supabaseClient.from("events").upsert([{ date: iso, note }]);
-          if (error) return alert("Error guardando nota: " + error.message);
-          renderCalendar(date);
         }
       };
-      calendarBody.appendChild(cell);
-    }
-  }
-
-  // initial calendar render when opening
-  // wire quick controls
-  // simple month navigation via calendar panel header drag not added to keep minimal
-  // render when opening
-
-  // make calendar panel draggable too
-  makeDraggable($("#calendar-header"), calendarPanel);
-
-  // initial load of calendar mini (not visible until opened)
-  // but keep currentCalendarDate synced
-  // (user opens calendar with button)
-
-  // --- Realtime (optional) subscribe to updates for items and events ---
-  try {
-    supabaseClient.channel("items-changes")
-      .on("postgres_changes", { event: "*", schema: "public", table: "items" }, () => loadPosts())
-      .subscribe();
-
-    supabaseClient.channel("events-changes")
-      .on("postgres_changes", { event: "*", schema: "public", table: "events" }, () => renderCalendar(currentCalendarDate))
-      .subscribe();
-  } catch (e) {
-    // realtime may fail on older projects / free plan — it's safe to ignore
-    console.warn("Realtime subscription skipped or failed:", e);
-  }
-
-  // utility functions
-  function escapeHtml(s) {
-    return String(s || "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-  }
-
-  function makeDraggable(handle, panel) {
-    if (!handle || !panel) return;
-    let dragging = false, ox = 0, oy = 0;
-    handle.addEventListener("pointerdown", (e) => {
-      dragging = true;
-      ox = e.clientX - panel.offsetLeft;
-      oy = e.clientY - panel.offsetTop;
-      document.body.style.userSelect = "none";
     });
-    window.addEventListener("pointermove", (e) => {
-      if (!dragging) return;
-      let x = e.clientX - ox;
-      let y = e.clientY - oy;
-      x = Math.max(8, Math.min(window.innerWidth - panel.offsetWidth - 8, x));
-      y = Math.max(8, Math.min(window.innerHeight - panel.offsetHeight - 8, y));
-      panel.style.left = x + "px";
-      panel.style.top = y + "px";
-      panel.style.right = "auto";
-      panel.style.position = "fixed";
-    });
-    window.addEventListener("pointerup", () => { dragging = false; document.body.style.userSelect = ""; });
   }
 
-}); // DOMContentLoaded end
+  // Realtime sync
+  supabaseClient.channel('changes')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'items' }, loadData)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'site_settings' }, loadData)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'events' }, loadCalendar)
+    .subscribe();
+});
 
