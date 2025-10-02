@@ -2,17 +2,24 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>UNAMUNO Test</title>
+  <title>UNAMUNO – Admin Test</title>
   <style>
     body { font-family:sans-serif; margin:20px; }
     .post { border:1px solid #ccc; padding:10px; margin-bottom:10px; border-radius:6px; }
     #add-btn { padding:10px 14px; border-radius:6px; border:0; background:#16a34a; color:#fff; cursor:pointer; }
+    #status { margin-left:10px; font-weight:bold; }
+    .danger { background:#dc2626; color:#fff; border:0; padding:4px 8px; border-radius:6px; cursor:pointer; }
   </style>
 </head>
 <body>
-  <h1>UNAMUNO Test – Public Posting</h1>
+  <h1>UNAMUNO Test – Admin Features</h1>
 
-  <button id="add-btn">+ Add Post</button>
+  <div>
+    <button id="add-btn">+ Add Post</button>
+    <button id="login-btn">Login</button>
+    <button id="logout-btn" style="display:none">Logout</button>
+    <span id="status">Public</span>
+  </div>
 
   <div id="posts"></div>
 
