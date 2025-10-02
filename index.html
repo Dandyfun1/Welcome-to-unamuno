@@ -1,4 +1,5 @@
 <!doctype html>
+
 <html lang="es">
 <head>
   <meta charset="utf-8" />
@@ -11,20 +12,24 @@
     <div class="wrap">
       <div class="header-bar">
         <div>
-          <h1><img id="site-logo" alt="Logo"/> <span id="site-title">UNAMUNO</span></h1>
-          <div class="sub" id="site-desc">Editable site connected to Supabase.</div>
+          <h1><img id="site-logo" alt="Logo" /> <span id="site-title">UNAMUNO</span></h1>
+          <div class="sub" id="site-desc">Sitio editable conectado a Supabase</div>
         </div>
         <div class="header-right">
-          <div id="status-pill">Public</div>
-          <button class="ghost" id="admin-toggle">Admin</button>
+          <div id="status-pill">Público</div>
           <button class="ghost" id="calendar-toggle">Calendario</button>
+          <button class="ghost" id="admin-toggle">Admin</button>
         </div>
       </div>
-      <div class="controls">
-        <input type="text" id="search-input" placeholder="Buscar publicaciones..." />
-        <button class="btn" id="search-btn">Buscar</button>
-      </div>
-    </div>
+
+
+  <div class="controls">
+    <input type="text" id="search-input" placeholder="Buscar publicaciones..." />
+    <button class="btn" id="search-btn">Buscar</button>
+  </div>
+</div>
+
+
   </header>
 
   <main class="wrap">
@@ -33,46 +38,54 @@
 
   <footer>© UNAMUNO • Powered by Supabase</footer>
 
-  <!-- Floating Public Post Button -->
-  <button id="public-post-btn">+</button>
+  <!-- Floating public post button -->
 
-  <!-- Admin Panel -->
-  <div class="admin-panel" id="admin-panel" aria-hidden="true">
+<button id="public-post-btn" title="Nueva publicación">+</button>
+
+  <!-- Admin Panel (draggable) -->
+
+  <div class="admin-panel hidden" id="admin-panel" role="dialog" aria-hidden="true">
     <div class="admin-header" id="admin-header">
-      <div>Admin Panel</div>
+      <div>Panel Admin</div>
       <button id="admin-close" class="ghost close-btn">✕</button>
     </div>
-    <div class="admin-body">
-      <div id="login-area">
-        <label>Email</label>
-        <input type="text" id="pw-input" placeholder="admin@example.com" />
-        <button class="btn" id="login-btn">Login</button>
-        <div class="small">Introduce tu correo y luego la contraseña.</div>
-      </div>
-      <div id="controls-area" class="hidden">
-        <label>Título del sitio</label>
-        <input type="text" id="edit-title" />
-        <label>Descripción</label>
-        <input type="text" id="edit-desc" />
-        <label>Color de acento</label>
-        <input type="text" id="edit-accent" placeholder="#16a34a" />
-        <label>Imagen de fondo</label>
-        <input type="text" id="edit-bg" placeholder="URL de imagen" />
-        <input type="file" id="bg-file-input" accept="image/*" />
-        <label>Logo</label>
-        <input type="text" id="edit-logo" placeholder="URL de logo" />
-        <input type="file" id="logo-file-input" accept="image/*" />
-        <div class="btn-row">
-          <button class="btn" id="save-changes">Guardar</button>
-          <button class="ghost" id="new-item-btn">+ Publicación</button>
-          <button class="ghost" id="logout-btn">Salir</button>
-        </div>
-      </div>
-    </div>
+
+
+<div class="admin-body">
+  <div id="login-area">
+    <label>Email (admin)</label>
+    <input type="text" id="pw-input" placeholder="admin@example.com" />
+    <button class="btn" id="login-btn">Entrar</button>
+    <div class="small">Introduce tu correo; se te pedirá la contraseña.</div>
   </div>
 
-  <!-- Calendar Panel -->
-  <div class="calendar-panel" id="calendar-panel" aria-hidden="true">
+  <div id="controls-area" class="hidden">
+    <label>Título del sitio</label>
+    <input type="text" id="edit-title" />
+    <label>Descripción</label>
+    <input type="text" id="edit-desc" />
+    <label>Color principal (hex)</label>
+    <input type="text" id="edit-accent" placeholder="#16a34a" />
+    <label>URL logo</label>
+    <input type="text" id="edit-logo" placeholder="https://..." />
+    <label>URL fondo (opcional)</label>
+    <input type="text" id="edit-bg" placeholder="https://..." />
+
+    <div class="btn-row" style="margin-top:12px">
+      <button class="btn" id="save-changes">Guardar</button>
+      <button class="ghost" id="new-item-btn">+ Publicación (admin)</button>
+      <button class="ghost" id="logout-btn" style="margin-left:auto">Salir</button>
+    </div>
+
+    <div id="items-list" style="margin-top:12px;max-height:260px;overflow:auto"></div>
+  </div>
+</div>
+
+  </div>
+
+  <!-- Calendar panel -->
+
+  <div class="calendar-panel hidden" id="calendar-panel" role="dialog" aria-hidden="true">
     <div class="admin-header" id="calendar-header">
       <div>Calendario</div>
       <button id="calendar-close" class="ghost close-btn">✕</button>
@@ -82,8 +95,11 @@
     </div>
   </div>
 
+  <!-- Supabase JS -->
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <script src="script.js"></script>
+
 </body>
 </html>
-
