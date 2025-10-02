@@ -1,1 +1,115 @@
-[INDEX CONTENTS HERE]
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>UNAMUNO</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="script.js"></script>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <h1><img id="site-logo" alt="Logo"/> <span id="site-title">UNAMUNO</span></h1>
+          <div class="sub" id="site-desc">Editable site conectado a Supabase.</div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:center">
+          <div id="status-pill" class="pill">Public</div>
+          <button class="ghost" id="admin-toggle">Admin</button>
+          <button class="ghost" id="open-full-calendar">Calendario</button>
+        </div>
+      </div>
+      <div class="controls">
+        <input type="text" id="search-input" placeholder="Buscar posts..." />
+        <button class="btn" id="search-btn">Buscar</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div id="items-grid" class="grid"></div>
+    <h3>Calendario mini</h3>
+    <div id="mini-calendar" class="mini-calendar"></div>
+  </main>
+
+  <footer>© UNAMUNO • Powered by Supabase</footer>
+
+  <!-- Floating Public Post Button -->
+  <button id="public-post-btn">+</button>
+
+  <!-- Post Modal -->
+  <div class="modal hidden" id="post-modal">
+    <div class="modal-content">
+      <h3>Nuevo Post</h3>
+      <input type="text" id="post-title" placeholder="Título" />
+      <textarea id="post-desc" placeholder="Descripción"></textarea>
+      <div class="modal-actions">
+        <button class="btn" id="post-submit">Publicar</button>
+        <button class="ghost" id="post-cancel">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Panel -->
+  <div class="admin-panel hidden" id="admin-panel">
+    <div class="admin-header" id="admin-header">
+      <div>Admin Panel</div>
+      <button id="admin-close" class="ghost">✕</button>
+    </div>
+    <div class="admin-body">
+      <div id="login-area">
+        <label>Email</label>
+        <input type="text" id="pw-input" placeholder="admin@example.com" />
+        <button class="btn" id="login-btn">Login</button>
+      </div>
+      <div id="controls-area" class="hidden">
+        <label>Título del sitio</label>
+        <input type="text" id="edit-title" />
+        <label>Descripción</label>
+        <input type="text" id="edit-desc" />
+        <label>Color principal</label>
+        <input type="text" id="edit-accent" placeholder="#16a34a" />
+        <label>Logo</label>
+        <input type="text" id="edit-logo" placeholder="URL del logo" />
+        <div style="margin-top:12px;display:flex;gap:8px">
+          <button class="btn" id="save-changes">Guardar</button>
+          <button class="ghost" id="new-item-btn">+ Nuevo Post</button>
+          <button class="ghost" id="logout-btn" style="margin-left:auto">Salir</button>
+        </div>
+        <div id="items-list" style="margin-top:12px;max-height:260px;overflow:auto"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Full Calendar Modal -->
+  <div class="modal hidden" id="calendar-modal">
+    <div class="modal-content large">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h3 id="full-cal-month">Calendario</h3>
+        <div>
+          <button id="full-cal-prev" class="ghost">◀</button>
+          <button id="full-cal-next" class="ghost">▶</button>
+          <button id="calendar-close" class="ghost">✕</button>
+        </div>
+      </div>
+      <div id="full-calendar-grid"></div>
+    </div>
+  </div>
+
+  <!-- Note Modal -->
+  <div class="modal hidden" id="note-modal">
+    <div class="modal-content">
+      <h3 id="note-date">Nota</h3>
+      <textarea id="note-text" placeholder="Escribe nota..."></textarea>
+      <div class="modal-actions">
+        <button class="btn" id="note-save">Guardar</button>
+        <button class="danger" id="note-delete">Eliminar</button>
+        <button class="ghost" id="note-cancel">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
