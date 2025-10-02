@@ -1,5 +1,4 @@
 <!doctype html>
-
 <html lang="es">
 <head>
   <meta charset="utf-8" />
@@ -12,29 +11,24 @@
   <header class="site-header">
     <div class="wrap header-inner">
       <div class="brand">
-        <div class="logo-area">
-          <div id="site-logo" class="logo-placeholder" aria-hidden="true">UN</div>
-          <div>
-            <h1 id="site-title">UNAMUNO</h1>
-            <p class="sub" id="site-desc">Editable site conectado a Supabase</p>
-          </div>
+        <div id="site-logo" class="logo-placeholder" aria-hidden="true">UN</div>
+        <div>
+          <h1 id="site-title">UNAMUNO</h1>
+          <p class="sub" id="site-desc">Editable site conectado a Supabase</p>
         </div>
       </div>
 
+      <div class="controls-right">
+        <div id="status-pill" class="pill">Público</div>
+        <button id="calendar-toggle" class="ghost">Calendario</button>
+        <button id="admin-toggle" class="ghost">Admin</button>
+      </div>
 
-  <div class="controls-right">
-    <div id="status-pill" class="pill">Público</div>
-    <button id="calendar-toggle" class="ghost">Calendario</button>
-    <button id="admin-toggle" class="ghost">Admin</button>
-  </div>
-
-  <div class="search-row">
-    <input id="search-input" type="text" placeholder="Buscar publicaciones..." />
-    <button id="search-btn" class="btn">Buscar</button>
-  </div>
-</div>
-
-
+      <div class="search-row">
+        <input id="search-input" type="text" placeholder="Buscar publicaciones..." />
+        <button id="search-btn" class="btn">Buscar</button>
+      </div>
+    </div>
   </header>
 
   <main class="wrap main">
@@ -43,12 +37,9 @@
 
   <footer class="site-footer">© UNAMUNO • Built with Supabase</footer>
 
-  <!-- Floating Public Post Button -->
+  <button id="public-post-btn" class="fab" title="Nueva publicación">+</button>
 
-<button id="public-post-btn" class="fab" title="Nueva publicación">+</button>
-
-  <!-- Admin Panel (draggable) -->
-
+  <!-- Admin Panel -->
   <div id="admin-panel" class="panel hidden" role="dialog" aria-hidden="true" aria-label="Admin Panel">
     <div id="admin-drag" class="panel-header">
       <div><strong>Admin</strong></div>
@@ -57,45 +48,41 @@
       </div>
     </div>
 
+    <div class="panel-body">
+      <div id="login-area">
+        <label for="pw-input">Email (admin)</label>
+        <input id="pw-input" type="text" placeholder="admin@example.com" />
+        <div style="margin-top:8px">
+          <button id="login-btn" class="btn">Entrar</button>
+        </div>
+        <p class="small muted">Introduce tu email y contraseña (se pedirá la contraseña después).</p>
+      </div>
 
-<div class="panel-body">
-  <div id="login-area">
-    <label for="pw-input">Email (admin)</label>
-    <input id="pw-input" type="text" placeholder="admin@example.com" />
-    <div style="margin-top:8px">
-      <button id="login-btn" class="btn">Entrar</button>
+      <div id="controls-area" class="hidden">
+        <label for="edit-title">Título del sitio</label>
+        <input id="edit-title" type="text" />
+
+        <label for="edit-desc">Descripción</label>
+        <input id="edit-desc" type="text" />
+
+        <label for="edit-accent">Color principal (hex)</label>
+        <input id="edit-accent" type="text" placeholder="#16a34a" />
+
+        <div class="panel-actions">
+          <button id="save-changes" class="btn">Guardar</button>
+          <button id="new-item-btn" class="ghost">+ Nuevo post</button>
+          <button id="logout-btn" class="ghost">Cerrar sesión</button>
+        </div>
+
+        <div id="items-list" class="items-list small muted" aria-live="polite"></div>
+      </div>
     </div>
-    <p class="small muted">Introduce tu email y contraseña (te pedirá la contraseña al entrar).</p>
   </div>
 
-  <div id="controls-area" class="hidden">
-    <label for="edit-title">Título del sitio</label>
-    <input id="edit-title" type="text" />
-
-    <label for="edit-desc">Descripción</label>
-    <input id="edit-desc" type="text" />
-
-    <label for="edit-accent">Color principal (hex)</label>
-    <input id="edit-accent" type="text" placeholder="#16a34a" />
-
-    <div class="panel-actions">
-      <button id="save-changes" class="btn">Guardar</button>
-      <button id="new-item-btn" class="ghost">+ Nuevo post</button>
-      <button id="logout-btn" class="ghost">Cerrar sesión</button>
-    </div>
-
-    <div id="items-list" class="items-list small muted" aria-live="polite"></div>
-  </div>
-</div>
-
-
-  </div>
-
-  <!-- Calendar Panel (draggable) -->
-
+  <!-- Calendar Panel -->
   <div id="calendar-panel" class="panel hidden" role="dialog" aria-hidden="true" aria-label="Calendario">
     <div id="calendar-drag" class="panel-header">
-      <div><strong>Calendario (Administradores)</strong></div>
+      <div><strong>Calendario</strong></div>
       <div class="panel-controls">
         <button id="calendar-close" class="ghost small">✕</button>
       </div>
@@ -112,7 +99,6 @@
   </div>
 
   <script src="script.js" defer></script>
-
 </body>
 </html>
 
