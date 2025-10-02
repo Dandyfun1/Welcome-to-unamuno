@@ -1,183 +1,190 @@
-// Supabase config
+// Supabase setup
 const SUPABASE_URL = "https://ddpqzpexcktjtzaqradg.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkcHF6cGV4Y2t0anR6YXFyYWRnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkyMjczOTcsImV4cCI6MjA3NDgwMzM5N30.yIEsfMgq1SN_M0Un5w1tHj76agBL8Fr9L3dSUtk4hVQ";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let loggedIn = false;
-let currentCalendarDate = new Date();
-let selectedNoteDate = null;
 
-const $ = (s)=>document.querySelector(s);
+document.addEventListener("DOMContentLoaded", () => {
+  const adminPanel = document.getElementById("admin-panel");
+  const adminHeader = document.getElementById("admin-header");
+  const adminToggle = document.getElementById("admin-toggle");
+  const adminClose = document.getElementById("admin-close");
+  const loginArea = document.getElementById("login-area");
+  const controlsArea = document.getElementById("controls-area");
+  const loginBtn = document.getElementById("login-btn");
+  const logoutBtn = document.getElementById("logout-btn");
+  const statusPill = document.getElementById("status-pill");
+  const saveBtn = document.getElementById("save-changes");
+  const newItemBtn = document.getElementById("new-item-btn");
+  const searchBtn = document.getElementById("search-btn");
+  const searchInput = document.getElementById("search-input");
+  const itemsGrid = document.getElementById("items-grid");
+  const publicPostBtn = document.getElementById("public-post-btn");
 
-document.addEventListener('DOMContentLoaded', () => {
-  const adminPanel = $('#admin-panel');
-  const adminToggle = $('#admin-toggle');
-  const adminClose = $('#admin-close');
-  const loginBtn = $('#login-btn');
-  const logoutBtn = $('#logout-btn');
-  const loginArea = $('#login-area');
-  const controlsArea = $('#controls-area');
-  const saveBtn = $('#save-changes');
-  const newItemBtn = $('#new-item-btn');
-  const publicPostBtn = $('#public-post-btn');
-  const postModal = $('#post-modal');
-  const postSubmit = $('#post-submit');
-  const postCancel = $('#post-cancel');
-  const itemsGrid = $('#items-grid');
-  const searchBtn = $('#search-btn');
-  const searchInput = $('#search-input');
-  const miniCalendar = $('#mini-calendar');
-  const openFullCalendar = $('#open-full-calendar');
-  const fullCalendarModal = $('#calendar-modal');
-  const calendarClose = $('#calendar-close');
-  const fullCalendarGrid = $('#full-calendar-grid');
-  const fullPrev = $('#full-cal-prev');
-  const fullNext = $('#full-cal-next');
-  const noteModal = $('#note-modal');
-  const noteDate = $('#note-date');
-  const noteText = $('#note-text');
-  const noteSave = $('#note-save');
-  const noteDelete = $('#note-delete');
-  const noteCancel = $('#note-cancel');
+  // Calendar
+  const calendarPanel = document.getElementById("calendar-panel");
+  const calendarHeader = document.getElementById("calendar-header");
+  const calendarToggle = document.getElementById("calendar-toggle");
+  const calendarClose = document.getElementById("calendar-close");
+  const calendarBody = document.getElementById("calendar");
 
-  // session init
-  supabaseClient.auth.getSession().then(({data})=>{
+  // Auth session
+  supabaseClient.auth.getSession().then(({ data }) => {
     loggedIn = !!data.session;
     updateAuthUI();
-    loadPosts();
-    renderMiniCalendar(new Date());
+    loadData();
   });
 
-  supabaseClient.auth.onAuthStateChange((_e, session)=>{
+  supabaseClient.auth.onAuthStateChange((_event, session) => {
     loggedIn = !!session;
     updateAuthUI();
-    loadPosts();
+    loadData();
   });
 
-  function updateAuthUI(){
-    loginArea.style.display = loggedIn? "none":"block";
-    controlsArea?.classList.toggle("hidden", !loggedIn);
-    document.getElementById("status-pill").textContent = loggedIn? "Admin":"Public";
+  function updateAuthUI() {
+    loginArea.style.display = loggedIn ? "none" : "block";
+    controlsArea.classList.toggle("hidden", !loggedIn);
+    statusPill.textContent = loggedIn ? "Admin" : "Public";
   }
 
-  // Admin Panel
-  adminToggle.onclick = ()=>{ adminPanel.style.display="block"; };
-  adminClose.onclick = ()=>{ adminPanel.style.display="none"; };
-  loginBtn.onclick = async ()=>{
+  // Admin panel
+  adminToggle.onclick = () => { adminPanel.style.display = "block"; };
+  adminClose.onclick = () => { adminPanel.style.display = "none"; };
+
+  // Calendar panel
+  calendarToggle.onclick = () => { renderCalendar(new Date()); calendarPanel.style.display = "block"; };
+  calendarClose.onclick = () => { calendarPanel.style.display = "none"; };
+
+  // Login
+  loginBtn.onclick = async () => {
     const email = document.getElementById("pw-input").value.trim();
-    const password = prompt("Password:");
+    const password = prompt("Introduce la contraseña:");
+    if (!email || !password) return;
     const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-    if(error) return alert(error.message);
-    loggedIn = !!data.session; updateAuthUI(); loadPosts();
+    if (error) return alert("Error: " + error.message);
+    loggedIn = !!data.session;
+    updateAuthUI();
+    loadData();
   };
-  logoutBtn.onclick = async ()=>{
-    await supabaseClient.auth.signOut(); loggedIn=false; updateAuthUI(); adminPanel.style.display="none";
+
+  logoutBtn.onclick = async () => {
+    await supabaseClient.auth.signOut();
+    loggedIn = false;
+    updateAuthUI();
+    adminPanel.style.display = "none";
   };
 
   // Save site settings
-  saveBtn.onclick = async ()=>{
+  saveBtn.onclick = async () => {
     const title = document.getElementById("edit-title").value;
     const desc = document.getElementById("edit-desc").value;
     const accent = document.getElementById("edit-accent").value || "#16a34a";
-    const logo = document.getElementById("edit-logo").value;
-    await supabaseClient.from("site_settings").upsert([{id:'00000000-0000-0000-0000-000000000001',title,description:desc,accent,logo_url:logo}]);
+    const background_url = document.getElementById("edit-bg").value;
+    const logo_url = document.getElementById("edit-logo").value;
+    await supabaseClient.from("site_settings").upsert([{ id: 1, title, description: desc, accent, background_url, logo_url }]);
     document.documentElement.style.setProperty("--accent", accent);
+    loadData();
   };
 
-  // Public Post
-  publicPostBtn.onclick = ()=> postModal.classList.remove("hidden");
-  postCancel.onclick = ()=> postModal.classList.add("hidden");
-  postSubmit.onclick = async ()=>{
-    const title = document.getElementById("post-title").value;
-    const desc = document.getElementById("post-desc").value;
-    const { error } = await supabaseClient.from("items").insert([{title, description:desc}]);
-    if(error) return alert(error.message);
-    postModal.classList.add("hidden"); loadPosts();
+  // New item (admin)
+  newItemBtn.onclick = async () => {
+    const title = prompt("Título:"); if (!title) return;
+    const desc = prompt("Descripción:");
+    const image_url = prompt("URL de imagen (opcional):");
+    await supabaseClient.from("items").insert([{ title, description: desc, image_url }]);
+    loadData();
   };
 
-  // Admin new post
-  newItemBtn.onclick = async ()=>{
-    const title = prompt("Post title:"); if(!title) return;
-    const desc = prompt("Description:");
-    await supabaseClient.from("items").insert([{title, description:desc}]);
-    loadPosts();
+  // Public post
+  publicPostBtn.onclick = async () => {
+    const title = prompt("Título:"); if (!title) return;
+    const desc = prompt("Descripción:");
+    const image_url = prompt("URL de imagen (opcional):");
+    await supabaseClient.from("items").insert([{ title, description: desc, image_url }]);
+    loadData();
   };
 
   // Search
-  searchBtn.onclick = async ()=>{
+  searchBtn.onclick = async () => {
     const q = searchInput.value;
-    let {data} = await supabaseClient.from("items").select("*").ilike("title", `%${q}%`);
-    renderItems(data);
+    let { data: items } = await supabaseClient.from("items").select("*").ilike("title", `%${q}%`);
+    renderItems(items || []);
   };
 
-  async function loadPosts(){
-    let {data} = await supabaseClient.from("items").select("*").order("created_at",{ascending:false});
-    renderItems(data||[]);
-  }
-
-  function renderItems(items){
-    itemsGrid.innerHTML="";
-    (items||[]).forEach(it=>{
-      const el=document.createElement("div"); el.className="card";
-      el.innerHTML=`<h3>${it.title}</h3><p>${it.description||""}</p>`;
-      if(loggedIn){
-        const btn=document.createElement("button"); btn.textContent="Eliminar"; btn.className="danger";
-        btn.onclick=async()=>{ await supabaseClient.from("items").delete().eq("id", it.id); loadPosts(); };
-        el.appendChild(btn);
+  async function loadData() {
+    let { data: settings } = await supabaseClient.from("site_settings").select("*").eq("id", 1).single();
+    if (settings) {
+      document.getElementById("site-title").textContent = settings.title;
+      document.getElementById("site-desc").textContent = settings.description;
+      document.getElementById("edit-title").value = settings.title;
+      document.getElementById("edit-desc").value = settings.description;
+      document.getElementById("edit-accent").value = settings.accent;
+      document.getElementById("edit-bg").value = settings.background_url || "";
+      document.getElementById("edit-logo").value = settings.logo_url || "";
+      if (settings.background_url) {
+        document.body.style.backgroundImage = `url(${settings.background_url})`;
       }
-      itemsGrid.appendChild(el);
-    });
+      if (settings.logo_url) {
+        const logoEl = document.getElementById("site-logo");
+        logoEl.src = settings.logo_url; logoEl.style.display = "block";
+      }
+    }
+    let { data: items } = await supabaseClient.from("items").select("*").order("created_at", { ascending: false });
+    renderItems(items || []);
   }
 
-  // Calendar
-  openFullCalendar.onclick = ()=>{ renderFullCalendar(currentCalendarDate); fullCalendarModal.classList.remove("hidden"); };
-  calendarClose.onclick = ()=> fullCalendarModal.classList.add("hidden");
-  fullPrev.onclick = ()=>{ currentCalendarDate=new Date(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth()-1,1); renderFullCalendar(currentCalendarDate); };
-  fullNext.onclick = ()=>{ currentCalendarDate=new Date(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth()+1,1); renderFullCalendar(currentCalendarDate); };
-
-  noteCancel.onclick = ()=> noteModal.classList.add("hidden");
-  noteSave.onclick = async ()=>{
-    if(!selectedNoteDate) return;
-    await supabaseClient.from("events").upsert([{event_date:selectedNoteDate, note:noteText.value}]);
-    noteModal.classList.add("hidden"); renderFullCalendar(currentCalendarDate); renderMiniCalendar(new Date());
-  };
-  noteDelete.onclick = async ()=>{
-    await supabaseClient.from("events").delete().eq("event_date", selectedNoteDate);
-    noteModal.classList.add("hidden"); renderFullCalendar(currentCalendarDate); renderMiniCalendar(new Date());
-  };
-
-  async function renderFullCalendar(date){
-    fullCalendarGrid.innerHTML="";
-    const y=date.getFullYear(), m=date.getMonth();
-    document.getElementById("full-cal-month").textContent=date.toLocaleString("es-ES",{month:"long",year:"numeric"});
-    const days=new Date(y,m+1,0).getDate();
-    const offset=(new Date(y,m,1).getDay()+6)%7;
-    const {data} = await supabaseClient.from("events").select("*").gte("event_date",`${y}-${m+1}-01`).lte("event_date",`${y}-${m+1}-${days}`);
-    const set=new Set((data||[]).map(e=>e.event_date));
-    for(let i=0;i<offset;i++){ fullCalendarGrid.appendChild(document.createElement("div")); }
-    for(let d=1;d<=days;d++){
-      const iso=`${y}-${String(m+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
-      const cell=document.createElement("div"); cell.className="day"; cell.textContent=d;
-      if(set.has(iso)) cell.classList.add("red");
-      cell.onclick=()=>{ selectedNoteDate=iso; noteDate.textContent="Nota: "+iso; noteText.value=(data||[]).find(e=>e.event_date===iso)?.note||""; noteModal.classList.remove("hidden"); };
-      fullCalendarGrid.appendChild(cell);
+  function renderItems(items) {
+    itemsGrid.innerHTML = "";
+    items.forEach(item => {
+      const div = document.createElement("div");
+      div.className = "card";
+      div.innerHTML = `
+        ${item.image_url ? `<img src="${item.image_url}" alt="">` : ""}
+        <h3>${item.title}</h3>
+        <p>${item.description || ""}</p>
+        ${loggedIn ? `<button class="danger" data-id="${item.id}">Eliminar</button>` : ""}
+      `;
+      itemsGrid.appendChild(div);
+    });
+    if (loggedIn) {
+      itemsGrid.querySelectorAll(".danger").forEach(btn => {
+        btn.onclick = async e => {
+          const id = e.target.getAttribute("data-id");
+          if (confirm("¿Eliminar publicación?")) {
+            await supabaseClient.from("items").delete().eq("id", id);
+            loadData();
+          }
+        };
+      });
     }
   }
 
-  async function renderMiniCalendar(date){
-    miniCalendar.innerHTML="";
-    const y=date.getFullYear(), m=date.getMonth();
-    const days=new Date(y,m+1,0).getDate();
-    const offset=(new Date(y,m,1).getDay()+6)%7;
-    const {data}=await supabaseClient.from("events").select("*").gte("event_date",`${y}-${m+1}-01`).lte("event_date",`${y}-${m+1}-${days}`);
-    const set=new Set((data||[]).map(e=>e.event_date));
-    for(let i=0;i<offset;i++) miniCalendar.appendChild(document.createElement("div"));
-    for(let d=1;d<=days;d++){
-      const iso=`${y}-${String(m+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
-      const el=document.createElement("div"); el.className="mday"; el.textContent=d;
-      if(set.has(iso)) el.classList.add("red");
-      if(d===new Date().getDate()&&m===new Date().getMonth()&&y===new Date().getFullYear()) el.classList.add("today");
-      miniCalendar.appendChild(el);
+  // Render Spanish Calendar
+  async function renderCalendar(date) {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const start = new Date(year, month, 1);
+    const end = new Date(year, month + 1, 0);
+
+    calendarBody.innerHTML = "";
+    for (let d = 1; d <= end.getDate(); d++) {
+      const dayEl = document.createElement("div");
+      dayEl.className = "day";
+      dayEl.textContent = d;
+      const dateStr = `${year}-${String(month+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+      // check events
+      const { data: events } = await supabaseClient.from("events").select("*").eq("date", dateStr);
+      if (events && events.length > 0) dayEl.classList.add("has-event");
+      dayEl.onclick = async () => {
+        const note = prompt("Nota para " + dateStr);
+        if (note) {
+          await supabaseClient.from("events").upsert([{ date: dateStr, note }]);
+          renderCalendar(date);
+        }
+      };
+      calendarBody.appendChild(dayEl);
     }
   }
 });
+
