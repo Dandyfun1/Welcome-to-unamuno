@@ -186,4 +186,4 @@ document.addEventListener("DOMContentLoaded", () => {
     .on('postgres_changes', { event: '*', schema: 'public', table: 'events' }, () => loadData())
     .subscribe();
 });
-```
+
