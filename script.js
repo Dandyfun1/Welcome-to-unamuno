@@ -39,7 +39,10 @@ async function loadPosts() {
       btn.onclick = async e => {
         const id = e.target.getAttribute("data-id");
         if (confirm("Delete this post?")) {
-          await supabaseClient.from("items").delete().eq("id", id);
+          const { error } = await supabaseClient.from("items").delete().eq("id", id);
+          if (error) {
+            alert("Delete failed:\n" + JSON.stringify(error, null, 2));
+          }
           loadPosts();
         }
       };
@@ -54,7 +57,7 @@ addBtn.onclick = async () => {
   const desc = prompt("Enter description:");
   let { error } = await supabaseClient.from("items").insert([{ title, description: desc }]);
   if (error) {
-    alert("Error adding post: " + error.message);
+    alert("Error adding post:\n" + JSON.stringify(error, null, 2));
   } else {
     loadPosts();
   }
@@ -67,21 +70,32 @@ loginBtn.onclick = async () => {
   if (!email || !password) return;
 
   const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+  
   if (error) {
-    alert("Login failed: " + error.message);
+    alert("Login failed:\n" + JSON.stringify(error, null, 2));
+    console.error("Login error:", error);
     return;
   }
 
-  loggedIn = true;
-  statusSpan.textContent = "Admin";
-  loginBtn.style.display = "none";
-  logoutBtn.style.display = "inline-block";
-  loadPosts();
+  if (data.session) {
+    loggedIn = true;
+    statusSpan.textContent = "Admin";
+    loginBtn.style.display = "none";
+    logoutBtn.style.display = "inline-block";
+    loadPosts();
+  } else {
+    alert("Login failed: No session returned");
+    console.warn("Login response:", data);
+  }
 };
 
 // Logout
 logoutBtn.onclick = async () => {
-  await supabaseClient.auth.signOut();
+  const { error } = await supabaseClient.auth.signOut();
+  if (error) {
+    alert("Logout error:\n" + JSON.stringify(error, null, 2));
+    console.error("Logout error:", error);
+  }
   loggedIn = false;
   statusSpan.textContent = "Public";
   loginBtn.style.display = "inline-block";
