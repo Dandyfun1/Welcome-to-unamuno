@@ -12,6 +12,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const logoutBtn = document.getElementById("logout-btn");
   const statusPill = document.getElementById("status-pill");
 
+  const adminPanel = document.getElementById("admin-panel");
+  const adminToggle = document.getElementById("admin-toggle");
+  const adminClose = document.getElementById("admin-close");
+  const loginArea = document.getElementById("login-area");
+  const controlsArea = document.getElementById("controls-area");
+
   // Auth state
   supabaseClient.auth.getSession().then(({ data }) => {
     loggedIn = !!data.session;
@@ -25,8 +31,14 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   function updateAuthUI() {
+    loginArea.style.display = loggedIn ? "none" : "block";
+    controlsArea.classList.toggle("hidden", !loggedIn);
     statusPill.textContent = loggedIn ? "Admin" : "Public";
   }
+
+  // Admin panel toggle
+  adminToggle.onclick = () => { adminPanel.style.display = "block"; };
+  adminClose.onclick = () => { adminPanel.style.display = "none"; };
 
   // Admin login
   loginBtn.onclick = async () => {
@@ -45,33 +57,23 @@ document.addEventListener("DOMContentLoaded", () => {
     updateAuthUI();
   };
 
-  // Public post button
+  // Public posting
   publicPostBtn.onclick = async () => {
-    const title = prompt("Post title:"); if (!title) return;
-    const desc = prompt("Post description:");
-    const image_url = prompt("Image URL (optional):");
-    const { error } = await supabaseClient.from("items").insert([{ title, description: desc, image_url }]);
-    if (error) {
-      alert("Public posting failed: " + error.message);
-    } else {
-      alert("Public post added!");
-      loadData();
-    }
+    const title = prompt("Título del post:"); if (!title) return;
+    const desc = prompt("Descripción:");
+    const { error } = await supabaseClient.from("items").insert([{ title, description: desc }]);
+    if (error) alert("Public posting failed: " + error.message);
+    else { alert("Post publicado!"); loadData(); }
   };
 
-  // Admin post button
+  // Admin posting
   newItemBtn.onclick = async () => {
     if (!loggedIn) return alert("Only admins can post here.");
-    const title = prompt("Admin post title:"); if (!title) return;
-    const desc = prompt("Description:");
-    const image_url = prompt("Image URL (optional):");
-    const { error } = await supabaseClient.from("items").insert([{ title, description: desc, image_url }]);
-    if (error) {
-      alert("Admin posting failed: " + error.message);
-    } else {
-      alert("Admin post added!");
-      loadData();
-    }
+    const title = prompt("Título (Admin):"); if (!title) return;
+    const desc = prompt("Descripción:");
+    const { error } = await supabaseClient.from("items").insert([{ title, description: desc }]);
+    if (error) alert("Admin posting failed: " + error.message);
+    else { alert("Post publicado!"); loadData(); }
   };
 
   // Load posts
@@ -90,7 +92,6 @@ document.addEventListener("DOMContentLoaded", () => {
       const div = document.createElement("div");
       div.className = "card";
       div.innerHTML = `
-        ${item.image_url ? `<img src="${item.image_url}" alt="">` : ""}
         <h3>${item.title}</h3>
         <p>${item.description || ""}</p>
         ${loggedIn ? `<button class="danger" data-id="${item.id}">Delete</button>` : ""}
@@ -102,7 +103,7 @@ document.addEventListener("DOMContentLoaded", () => {
       itemsGrid.querySelectorAll(".danger").forEach(btn => {
         btn.onclick = async e => {
           const id = e.target.getAttribute("data-id");
-          if (confirm("Delete this post?")) {
+          if (confirm("¿Eliminar este post?")) {
             await supabaseClient.from("items").delete().eq("id", id);
             loadData();
           }
@@ -111,3 +112,4 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 });
+
