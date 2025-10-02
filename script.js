@@ -5,6 +5,11 @@ const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const postsDiv = document.getElementById("posts");
 const addBtn = document.getElementById("add-btn");
+const loginBtn = document.getElementById("login-btn");
+const logoutBtn = document.getElementById("logout-btn");
+const statusSpan = document.getElementById("status");
+
+let loggedIn = false;
 
 // Load posts
 async function loadPosts() {
@@ -12,20 +17,37 @@ async function loadPosts() {
     .from("items")
     .select("*")
     .order("created_at", { ascending: false });
+
   if (error) {
     console.error("Error loading posts:", error);
     return;
   }
+
   postsDiv.innerHTML = "";
   data.forEach(post => {
     const div = document.createElement("div");
     div.className = "post";
-    div.innerHTML = `<strong>${post.title}</strong><br>${post.description || ""}`;
+    div.innerHTML = `
+      <strong>${post.title}</strong><br>${post.description || ""}
+      ${loggedIn ? `<br><button class="danger" data-id="${post.id}">Delete</button>` : ""}
+    `;
     postsDiv.appendChild(div);
   });
+
+  if (loggedIn) {
+    document.querySelectorAll(".danger").forEach(btn => {
+      btn.onclick = async e => {
+        const id = e.target.getAttribute("data-id");
+        if (confirm("Delete this post?")) {
+          await supabaseClient.from("items").delete().eq("id", id);
+          loadPosts();
+        }
+      };
+    });
+  }
 }
 
-// Add post
+// Add post (public)
 addBtn.onclick = async () => {
   const title = prompt("Enter post title:");
   if (!title) return;
@@ -33,11 +55,45 @@ addBtn.onclick = async () => {
   let { error } = await supabaseClient.from("items").insert([{ title, description: desc }]);
   if (error) {
     alert("Error adding post: " + error.message);
-    console.error(error);
   } else {
     loadPosts();
   }
 };
 
-// Initial load
-loadPosts();
+// Login
+loginBtn.onclick = async () => {
+  const email = prompt("Enter your admin email:");
+  const password = prompt("Enter your password:");
+  if (!email || !password) return;
+
+  const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+  if (error) {
+    alert("Login failed: " + error.message);
+    return;
+  }
+
+  loggedIn = true;
+  statusSpan.textContent = "Admin";
+  loginBtn.style.display = "none";
+  logoutBtn.style.display = "inline-block";
+  loadPosts();
+};
+
+// Logout
+logoutBtn.onclick = async () => {
+  await supabaseClient.auth.signOut();
+  loggedIn = false;
+  statusSpan.textContent = "Public";
+  loginBtn.style.display = "inline-block";
+  logoutBtn.style.display = "none";
+  loadPosts();
+};
+
+// Check session on load
+supabaseClient.auth.getSession().then(({ data }) => {
+  loggedIn = !!data.session;
+  statusSpan.textContent = loggedIn ? "Admin" : "Public";
+  loginBtn.style.display = loggedIn ? "none" : "inline-block";
+  logoutBtn.style.display = loggedIn ? "inline-block" : "none";
+  loadPosts();
+});
