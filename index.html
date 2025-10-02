@@ -1,106 +1,84 @@
+```html
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>UNAMUNO</title>
   <style>
-    :root { --bg:#fdfdfd; --card:#fff; --accent:#16a34a; --text:#111827; }
-    * { box-sizing:border-box }
-    body { font-family:Inter,system-ui,sans-serif; margin:0; background:var(--bg); color:var(--text); }
-    header { background:var(--accent); padding:20px; color:#fff }
-    .wrap { max-width:980px; margin:0 auto }
-    h1 { margin:0; font-size:1.6rem; display:flex; align-items:center; gap:10px }
-    .sub { opacity:.9; margin-top:4px }
-    .controls { display:flex; gap:10px; margin-top:12px; align-items:center }
-    .btn { background:var(--accent); color:#fff; border:0; padding:8px 12px; border-radius:8px; cursor:pointer; font-weight:500 }
-    .ghost { background:#fff; color:var(--accent); border:1px solid var(--accent); padding:8px 12px; border-radius:8px; cursor:pointer; font-weight:500 }
-    input[type="text"] { padding:8px; border-radius:8px; border:1px solid rgba(0,0,0,0.1); min-width:160px }
-    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:16px; padding:24px 0 }
-    .card { background:var(--card); padding:16px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.05) }
-    .card img { width:100%; border-radius:8px; margin-bottom:10px; object-fit:cover }
-    .danger { background:#dc2626; color:#fff; border:0; padding:6px 10px; border-radius:8px; cursor:pointer; font-weight:500 }
-    footer { padding:18px; text-align:center; color:#6b7280 }
-    /* admin panel */
-    .admin-panel { position:fixed; display:none; width:380px; max-width:calc(100% - 40px); top:120px; right:20px; background:#fff; border-radius:12px; box-shadow:0 12px 36px rgba(0,0,0,0.18); z-index:2000; }
-    .admin-header { padding:12px 14px; background:var(--accent); color:#fff; cursor:move; border-radius:12px 12px 0 0; display:flex; justify-content:space-between; align-items:center; font-weight:600 }
-    .admin-body { padding:14px; max-height:70vh; overflow:auto }
-    label { display:block; margin-top:10px; font-weight:600 }
-    input[type="file"] { margin-top:8px }
-    .small { font-size:0.85rem; color:#6b7280; margin-top:8px }
-    .hidden { display:none !important }
-    #site-logo { height:32px; display:none; border-radius:6px }
-    .dropzone { border:2px dashed var(--accent); padding:20px; text-align:center; border-radius:8px; margin-top:8px; cursor:pointer }
-    /* Floating public post button */
-    #public-post-btn { position:fixed; bottom:20px; right:20px; width:56px; height:56px; border-radius:50%; background:var(--accent); color:#fff; font-size:32px; border:0; cursor:pointer; box-shadow:0 6px 16px rgba(0,0,0,0.2); }
+    :root { --bg:#fdfdfd; --accent:#16a34a; --card:#fff; --text:#111827; }
+    body { margin:0; font-family:Inter,system-ui,sans-serif; background:var(--bg); color:var(--text);}
+    header { background:var(--accent); color:#fff; padding:18px;}
+    .wrap { max-width:1000px; margin:0 auto; padding:0 16px;}
+    h1 { margin:0; font-size:1.6rem; display:flex; align-items:center; gap:10px;}
+    .logo { height:40px; width:auto; }
+    .controls { display:flex; gap:10px; margin-top:12px;}
+    .btn { background:var(--accent); color:#fff; border:0; padding:8px 12px; border-radius:8px; cursor:pointer;}
+    .ghost { background:#fff; color:var(--accent); border:1px solid var(--accent); padding:8px 12px; border-radius:8px; cursor:pointer;}
+    input[type=text] { padding:8px; border:1px solid #ddd; border-radius:8px; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:16px; margin:20px 0;}
+    .card { background:#fff; padding:14px; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,.06);}
+    .card img { width:100%; border-radius:8px; margin-bottom:10px;}
+    .danger { background:#dc2626; color:#fff; border:0; padding:6px 10px; border-radius:8px; cursor:pointer;}
+    footer { padding:18px; text-align:center; color:#6b7280;}
+    /* floating new post */
+    #new-post-btn { position:fixed; bottom:24px; right:24px; background:var(--accent); color:#fff; border:0; border-radius:50%; width:56px; height:56px; font-size:32px; cursor:pointer; }
+    /* calendar */
+    .calendar-controls{display:flex;gap:8px;align-items:center;margin:18px 0;}
+    .year-btn{padding:6px 10px;border:1px solid #ccc;border-radius:8px;background:#fff;cursor:pointer;}
+    .calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
+    .month-title{grid-column:1/-1;font-weight:700;margin:12px 0;}
+    .day{background:#fff;padding:6px;border-radius:6px;min-height:72px;position:relative;cursor:pointer;}
+    .day-number{font-weight:600;font-size:14px;}
+    .event-dot{width:8px;height:8px;background:var(--accent);border-radius:50%;position:absolute;top:6px;right:6px;}
+    /* modal */
+    .modal{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);background:#fff;padding:16px;border-radius:10px;box-shadow:0 8px 20px rgba(0,0,0,.25);display:none;z-index:2000;width:400px;max-width:95%;}
+    .modal.show{display:block;}
+    .modal textarea,.modal input[type=text]{width:100%;padding:8px;border:1px solid #ddd;border-radius:8px;margin-top:8px;}
+    .modal .actions{display:flex;gap:8px;justify-content:flex-end;margin-top:12px;}
   </style>
 </head>
 <body>
   <header>
-    <div class="wrap">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <div>
-          <h1><img id="site-logo" alt="Logo"/> <span id="site-title">UNAMUNO</span></h1>
-          <div class="sub" id="site-desc">Editable site connected to Supabase.</div>
-        </div>
-        <div style="display:flex;gap:12px;align-items:center">
-          <div id="status-pill" style="background:#fff;padding:6px 10px;border-radius:999px;color:var(--accent);font-size:0.9rem;font-weight:500">Public</div>
-          <button class="ghost" id="admin-toggle">Admin</button>
-        </div>
+    <div class="wrap" style="display:flex;justify-content:space-between;align-items:center">
+      <h1><img id="site-logo" class="logo" alt="" /><span id="site-title">UNAMUNO</span></h1>
+      <div>
+        <button class="ghost" id="admin-toggle">Admin</button>
       </div>
-      <div class="controls">
-        <input type="text" id="search-input" placeholder="Search posts..." />
-        <button class="btn" id="search-btn">Search</button>
-      </div>
+    </div>
+    <div class="wrap controls">
+      <input type="text" id="search-input" placeholder="Search posts..."/>
+      <button class="btn" id="search-btn">Search</button>
     </div>
   </header>
 
   <main class="wrap">
+    <h2>Posts</h2>
     <div id="items-grid" class="grid"></div>
+
+    <h2>Calendar 2025 & 2026</h2>
+    <div class="calendar-controls">
+      <button id="prev-year" class="year-btn">Prev</button>
+      <button id="year-2025" class="year-btn">2025</button>
+      <button id="year-2026" class="year-btn">2026</button>
+      <button id="next-year" class="year-btn">Next</button>
+    </div>
+    <div id="calendar-container"></div>
   </main>
 
   <footer>© UNAMUNO • Powered by Supabase</footer>
 
-  <!-- Floating Public Post Button -->
-  <button id="public-post-btn">+</button>
+  <button id="new-post-btn">+</button>
 
-  <!-- Admin Panel -->
-  <div class="admin-panel" id="admin-panel" aria-hidden="true">
-    <div class="admin-header" id="admin-header">
-      <div>Admin Panel</div>
-      <button id="admin-close" class="ghost" style="background:transparent;color:#fff;border:1px solid rgba(255,255,255,0.25)">✕</button>
-    </div>
-    <div class="admin-body">
-      <!-- login -->
-      <div id="login-area">
-        <label>Email</label>
-        <input type="text" id="pw-input" placeholder="admin@example.com" />
-        <button class="btn" id="login-btn" style="margin-top:10px">Login</button>
-        <div class="small">Enter your email, then you’ll be prompted for password.</div>
-      </div>
-      <!-- controls -->
-      <div id="controls-area" class="hidden">
-        <label>Site title</label>
-        <input type="text" id="edit-title" />
-        <label>Site description</label>
-        <input type="text" id="edit-desc" />
-        <label>Accent color</label>
-        <input type="text" id="edit-accent" placeholder="#16a34a" />
-        <label>Background image</label>
-        <input type="text" id="edit-bg" placeholder="Paste image URL" />
-        <div id="bg-dropzone" class="dropzone">Drag & Drop Background Image or Click to Upload</div>
-        <input type="file" id="bg-file-input" accept="image/*" class="hidden" />
-        <label style="margin-top:12px">Logo image</label>
-        <input type="text" id="edit-logo" placeholder="Paste logo URL" />
-        <div id="logo-dropzone" class="dropzone">Drag & Drop Logo Image or Click to Upload</div>
-        <input type="file" id="logo-file-input" accept="image/*" class="hidden" />
-        <div style="margin-top:12px;display:flex;gap:8px">
-          <button class="btn" id="save-changes">Save</button>
-          <button class="ghost" id="new-item-btn">+ New Post</button>
-          <button class="ghost" id="logout-btn" style="margin-left:auto">Logout</button>
-        </div>
-        <div id="items-list" style="margin-top:12px;max-height:260px;overflow:auto"></div>
-      </div>
+  <!-- Event modal -->
+  <div id="day-modal" class="modal">
+    <h3 id="modal-day-title"></h3>
+    <input type="text" id="modal-event-title" placeholder="Event title"/>
+    <textarea id="modal-event-note" placeholder="Notes"></textarea>
+    <div class="actions">
+      <button id="modal-close" class="ghost">Close</button>
+      <button id="modal-delete" class="ghost">Delete</button>
+      <button id="modal-save" class="btn">Save</button>
     </div>
   </div>
 
@@ -108,3 +86,4 @@
   <script src="script.js"></script>
 </body>
 </html>
+```
