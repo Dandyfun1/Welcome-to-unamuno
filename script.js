@@ -7,6 +7,9 @@ let loggedIn = false;
 
 document.addEventListener("DOMContentLoaded", () => {
   const adminPanel = document.getElementById("admin-panel");
+  const adminHeader = document.getElementById("admin-header");
+  const adminToggle = document.getElementById("admin-toggle");
+  const adminClose = document.getElementById("admin-close");
   const loginArea = document.getElementById("login-area");
   const controlsArea = document.getElementById("controls-area");
   const loginBtn = document.getElementById("login-btn");
@@ -14,12 +17,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const statusPill = document.getElementById("status-pill");
   const saveBtn = document.getElementById("save-changes");
   const newItemBtn = document.getElementById("new-item-btn");
-  const publicPostBtn = document.getElementById("public-post-btn");
+  const searchBtn = document.getElementById("search-btn");
+  const searchInput = document.getElementById("search-input");
   const itemsGrid = document.getElementById("items-grid");
+  const publicPostBtn = document.getElementById("public-post-btn");
 
-  // SESSION INIT
-  supabaseClient.auth.getSession().then(({ data, error }) => {
-    if (error) console.error("Session error:", error);
+  // Auth session check
+  supabaseClient.auth.getSession().then(({ data }) => {
     loggedIn = !!data.session;
     updateAuthUI();
     loadData();
@@ -31,36 +35,59 @@ document.addEventListener("DOMContentLoaded", () => {
     loadData();
   });
 
+  // UI updates
   function updateAuthUI() {
     loginArea.style.display = loggedIn ? "none" : "block";
     controlsArea.classList.toggle("hidden", !loggedIn);
     statusPill.textContent = loggedIn ? "Admin" : "Public";
   }
 
-  // LOGIN
+  // Admin Panel
+  adminToggle.onclick = () => {
+    adminPanel.style.display = "block";
+    updateAuthUI();
+  };
+  adminClose.onclick = () => {
+    adminPanel.style.display = "none";
+  };
+
+  // Login
   loginBtn.onclick = async () => {
     const email = document.getElementById("pw-input").value.trim();
     const password = prompt("Enter your Supabase password:");
-    if (!email || !password) return;
-    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-    if (error) {
-      alert("❌ Login failed: " + error.message);
+    if (!email || !password) {
+      alert("Please enter email and password.");
       return;
     }
+    const { data, error } = await supabaseClient.auth.signInWithPassword({
+      email,
+      password,
+    });
+    if (error) {
+      alert("Login failed: " + error.message);
+      return;
+    }
+    alert("Login successful!");
     loggedIn = !!data.session;
     updateAuthUI();
     loadData();
   };
 
-  // LOGOUT
+  // Logout
   logoutBtn.onclick = async () => {
-    await supabaseClient.auth.signOut();
+    const { error } = await supabaseClient.auth.signOut();
+    if (error) {
+      alert("Logout failed: " + error.message);
+      return;
+    }
     loggedIn = false;
     updateAuthUI();
     loadData();
+    adminPanel.style.display = "none";
+    alert("Logged out successfully.");
   };
 
-  // SAVE SETTINGS
+  // Save site settings
   saveBtn.onclick = async () => {
     const title = document.getElementById("edit-title").value;
     const desc = document.getElementById("edit-desc").value;
@@ -68,56 +95,109 @@ document.addEventListener("DOMContentLoaded", () => {
     const background_url = document.getElementById("edit-bg").value;
     const logo_url = document.getElementById("edit-logo").value;
 
-    const { error } = await supabaseClient.from("site_settings").upsert([{
-      id: '00000000-0000-0000-0000-000000000001',
-      title, description: desc, accent, background_url, logo_url
-    }]);
-    if (error) alert("❌ Save failed: " + error.message);
-    else loadData();
+    const { error } = await supabaseClient.from("site_settings").upsert([
+      {
+        id: "00000000-0000-0000-0000-000000000001",
+        title,
+        description: desc,
+        accent,
+        background_url,
+        logo_url,
+      },
+    ]);
+
+    if (error) {
+      alert("Failed to save site settings: " + error.message);
+      return;
+    }
+    alert("Settings saved successfully.");
+    document.documentElement.style.setProperty("--accent", accent);
+    loadData();
   };
 
-  // ADMIN NEW ITEM
+  // Admin-only new post
   newItemBtn.onclick = async () => {
     const title = prompt("Post title:");
     if (!title) return;
     const desc = prompt("Post description:");
     const image_url = prompt("Image URL (optional):");
 
-    const { error } = await supabaseClient.from("items").insert([{ title, description: desc, image_url }]);
-    if (error) alert("❌ Failed to post: " + error.message);
-    else loadData();
+    const { error } = await supabaseClient
+      .from("items")
+      .insert([{ title, description: desc, image_url }]);
+
+    if (error) {
+      alert("Failed to create post: " + error.message);
+      return;
+    }
+    alert("Post created successfully.");
+    loadData();
   };
 
-  // PUBLIC POST
+  // Public posting
   publicPostBtn.onclick = async () => {
     const title = prompt("Post title:");
     if (!title) return;
     const desc = prompt("Post description:");
     const image_url = prompt("Image URL (optional):");
 
-    const { error } = await supabaseClient.from("items").insert([{ title, description: desc, image_url }]);
-    if (error) alert("❌ Public post failed: " + error.message);
-    else loadData();
+    const { error } = await supabaseClient
+      .from("items")
+      .insert([{ title, description: desc, image_url }]);
+
+    if (error) {
+      alert("Failed to post: " + error.message);
+      return;
+    }
+    alert("Post published successfully.");
+    loadData();
   };
 
-  // LOAD DATA
+  // Search
+  searchBtn.onclick = async () => {
+    const q = searchInput.value;
+    let { data: items, error } = await supabaseClient
+      .from("items")
+      .select("*")
+      .ilike("title", `%${q}%`);
+
+    if (error) {
+      alert("Search failed: " + error.message);
+      return;
+    }
+    renderItems(items || []);
+  };
+
+  // Load settings + posts
   async function loadData() {
-    // Site settings
-    const { data: settings, error: settingsError } = await supabaseClient
+    let { data: settings, error: settingsError } = await supabaseClient
       .from("site_settings")
       .select("*")
-      .eq("id", '00000000-0000-0000-0000-000000000001')
+      .eq("id", "00000000-0000-0000-0000-000000000001")
       .single();
-    if (settingsError) console.error("Settings error:", settingsError);
+
+    if (settingsError) {
+      console.error("Settings load error:", settingsError.message);
+    }
 
     if (settings) {
       document.getElementById("site-title").textContent = settings.title;
       document.getElementById("site-desc").textContent = settings.description;
-      document.documentElement.style.setProperty("--accent", settings.accent || "#16a34a");
+      document.getElementById("edit-title").value = settings.title;
+      document.getElementById("edit-desc").value = settings.description;
+      document.getElementById("edit-accent").value = settings.accent;
+      document.getElementById("edit-bg").value = settings.background_url || "";
+      document.getElementById("edit-logo").value = settings.logo_url || "";
+      document.documentElement.style.setProperty(
+        "--accent",
+        settings.accent || "#16a34a"
+      );
+
       if (settings.background_url) {
         document.body.style.backgroundImage = `url(${settings.background_url})`;
         document.body.style.backgroundSize = "cover";
       }
+
       if (settings.logo_url) {
         const logoEl = document.getElementById("site-logo");
         logoEl.src = settings.logo_url;
@@ -125,37 +205,53 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
-    // Items
-    const { data: items, error: itemsError } = await supabaseClient
+    let { data: items, error: itemsError } = await supabaseClient
       .from("items")
       .select("*")
       .order("created_at", { ascending: false });
-    if (itemsError) console.error("Items error:", itemsError);
+
+    if (itemsError) {
+      console.error("Items load error:", itemsError.message);
+    }
+
     renderItems(items || []);
   }
 
+  // Render items
   function renderItems(items) {
     itemsGrid.innerHTML = "";
-    items.forEach(item => {
+    items.forEach((item) => {
       const div = document.createElement("div");
       div.className = "card";
       div.innerHTML = `
         ${item.image_url ? `<img src="${item.image_url}" alt="">` : ""}
         <h3 style="margin:0 0 6px 0">${item.title}</h3>
         <p>${item.description || ""}</p>
-        ${loggedIn ? `<button class="danger" data-id="${item.id}">Delete</button>` : ""}
+        ${
+          loggedIn
+            ? `<button class="danger" data-id="${item.id}">Delete</button>`
+            : ""
+        }
       `;
       itemsGrid.appendChild(div);
     });
 
     if (loggedIn) {
-      itemsGrid.querySelectorAll(".danger").forEach(btn => {
-        btn.onclick = async e => {
+      itemsGrid.querySelectorAll(".danger").forEach((btn) => {
+        btn.onclick = async (e) => {
           const id = e.target.getAttribute("data-id");
           if (confirm("Delete this post?")) {
-            const { error } = await supabaseClient.from("items").delete().eq("id", id);
-            if (error) alert("❌ Delete failed: " + error.message);
-            else loadData();
+            const { error } = await supabaseClient
+              .from("items")
+              .delete()
+              .eq("id", id);
+
+            if (error) {
+              alert("Delete failed: " + error.message);
+              return;
+            }
+            alert("Post deleted successfully.");
+            loadData();
           }
         };
       });
