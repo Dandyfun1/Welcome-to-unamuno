@@ -6,24 +6,23 @@
   <title>UNAMUNO</title>
   <link rel="stylesheet" href="style.css" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script defer src="script.js"></script>
 </head>
 <body>
   <header>
     <div class="wrap">
-      <div class="flex-header">
+      <div style="display:flex;justify-content:space-between;align-items:center">
         <div>
-          <h1><span id="site-title">UNAMUNO</span></h1>
+          <h1 id="site-title">UNAMUNO</h1>
           <div class="sub" id="site-desc">Editable site conectado a Supabase.</div>
         </div>
-        <div class="header-controls">
+        <div style="display:flex;gap:12px;align-items:center">
           <div id="status-pill" class="status-pill">Public</div>
           <button class="ghost" id="admin-toggle">Admin</button>
           <button class="ghost" id="calendar-toggle">Calendario</button>
         </div>
       </div>
       <div class="controls">
-        <input type="text" id="search-input" placeholder="Buscar posts..." />
+        <input type="text" id="search-input" placeholder="Buscar publicaciones..." />
         <button class="btn" id="search-btn">Buscar</button>
       </div>
     </div>
@@ -42,7 +41,7 @@
   <div class="admin-panel" id="admin-panel">
     <div class="admin-header">
       <div>Admin Panel</div>
-      <button id="admin-close" class="ghost close-btn">✕</button>
+      <button id="admin-close" class="ghost" style="background:transparent;color:#fff">✕</button>
     </div>
     <div class="admin-body">
       <!-- login -->
@@ -59,11 +58,12 @@
         <input type="text" id="edit-desc" />
         <label>Color principal</label>
         <input type="text" id="edit-accent" placeholder="#16a34a" />
-        <div class="btn-group">
+        <div style="margin-top:12px;display:flex;gap:8px">
           <button class="btn" id="save-changes">Guardar</button>
-          <button class="ghost" id="new-item-btn">+ Nuevo post</button>
-          <button class="ghost" id="logout-btn">Logout</button>
+          <button class="ghost" id="new-item-btn">+ Nuevo Post</button>
+          <button class="ghost" id="logout-btn" style="margin-left:auto">Cerrar sesión</button>
         </div>
+        <div id="items-list" style="margin-top:12px;max-height:260px;overflow:auto"></div>
       </div>
     </div>
   </div>
@@ -72,10 +72,12 @@
   <div class="calendar-panel" id="calendar-panel">
     <div class="calendar-header">
       <div>Calendario</div>
-      <button id="calendar-close" class="ghost close-btn">✕</button>
+      <button id="calendar-close" class="ghost" style="background:transparent;color:#fff">✕</button>
     </div>
     <div class="calendar-body" id="calendar-body"></div>
   </div>
+
+  <script src="script.js"></script>
 </body>
 </html>
 
