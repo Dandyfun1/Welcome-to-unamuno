@@ -5,31 +5,26 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>UNAMUNO</title>
   <link rel="stylesheet" href="style.css" />
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="script.js" defer></script>
 </head>
 <body>
   <header>
     <div class="wrap">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <div>
-          <h1><span id="site-title">UNAMUNO</span></h1>
-          <div class="sub" id="site-desc">Editable site conectado a Supabase.</div>
-        </div>
-        <div style="display:flex;gap:12px;align-items:center">
-          <div id="status-pill" class="pill">Public</div>
-          <button class="ghost" id="calendar-toggle">Calendario</button>
-          <button class="ghost" id="admin-toggle">Admin</button>
-        </div>
+      <div class="header-left">
+        <h1 id="site-title">UNAMUNO</h1>
+        <div class="sub" id="site-desc">Editable site conectado a Supabase.</div>
       </div>
-      <div class="controls">
-        <input type="text" id="search-input" placeholder="Buscar posts..." />
-        <button class="btn" id="search-btn">Buscar</button>
+      <div class="header-right">
+        <span id="status-pill" class="pill">Public</span>
+        <button class="ghost" id="admin-toggle">Admin</button>
       </div>
     </div>
   </header>
 
   <main class="wrap">
+    <div class="controls">
+      <input type="text" id="search-input" placeholder="Buscar..." />
+      <button class="btn" id="search-btn">Buscar</button>
+    </div>
     <div id="items-grid" class="grid"></div>
   </main>
 
@@ -45,36 +40,28 @@
       <button id="admin-close" class="ghost">✕</button>
     </div>
     <div class="admin-body">
-      <!-- login -->
       <div id="login-area">
         <label>Email</label>
         <input type="text" id="pw-input" placeholder="admin@example.com" />
         <button class="btn" id="login-btn">Login</button>
       </div>
-      <!-- controls -->
       <div id="controls-area" class="hidden">
-        <label>Título del sitio</label>
+        <label>Título</label>
         <input type="text" id="edit-title" />
         <label>Descripción</label>
         <input type="text" id="edit-desc" />
-        <div class="actions">
+        <label>Color de acento</label>
+        <input type="text" id="edit-accent" placeholder="#16a34a" />
+        <div class="panel-buttons">
           <button class="btn" id="save-changes">Guardar</button>
           <button class="ghost" id="new-item-btn">+ Nuevo post</button>
           <button class="ghost" id="logout-btn">Logout</button>
         </div>
-        <div id="items-list"></div>
       </div>
     </div>
   </div>
 
-  <!-- Calendar Panel -->
-  <div class="calendar-panel" id="calendar-panel">
-    <div class="calendar-header">
-      <span id="current-month">Mes</span>
-      <button id="calendar-close" class="ghost">✕</button>
-    </div>
-    <div class="calendar-grid" id="calendar-days"></div>
-  </div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="script.js"></script>
 </body>
 </html>
-
