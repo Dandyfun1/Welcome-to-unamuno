@@ -1,35 +1,32 @@
 <!doctype html>
-
 <html lang="es">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>UNAMUNO</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="script.js" defer></script>
 </head>
 <body>
   <header>
     <div class="wrap">
-      <div class="header-bar">
+      <div style="display:flex;justify-content:space-between;align-items:center">
         <div>
-          <h1><img id="site-logo" alt="Logo" /> <span id="site-title">UNAMUNO</span></h1>
-          <div class="sub" id="site-desc">Sitio editable conectado a Supabase</div>
+          <h1><img id="site-logo" alt="Logo"/> <span id="site-title">UNAMUNO</span></h1>
+          <div class="sub" id="site-desc">Editable site conectado a Supabase.</div>
         </div>
-        <div class="header-right">
-          <div id="status-pill">Público</div>
+        <div style="display:flex;gap:12px;align-items:center">
+          <div id="status-pill" class="pill">Public</div>
           <button class="ghost" id="calendar-toggle">Calendario</button>
           <button class="ghost" id="admin-toggle">Admin</button>
         </div>
       </div>
-
-
-  <div class="controls">
-    <input type="text" id="search-input" placeholder="Buscar publicaciones..." />
-    <button class="btn" id="search-btn">Buscar</button>
-  </div>
-</div>
-
-
+      <div class="controls">
+        <input type="text" id="search-input" placeholder="Buscar posts..." />
+        <button class="btn" id="search-btn">Buscar</button>
+      </div>
+    </div>
   </header>
 
   <main class="wrap">
@@ -38,68 +35,54 @@
 
   <footer>© UNAMUNO • Powered by Supabase</footer>
 
-  <!-- Floating public post button -->
+  <!-- Floating Public Post Button -->
+  <button id="public-post-btn">+</button>
 
-<button id="public-post-btn" title="Nueva publicación">+</button>
-
-  <!-- Admin Panel (draggable) -->
-
-  <div class="admin-panel hidden" id="admin-panel" role="dialog" aria-hidden="true">
+  <!-- Admin Panel -->
+  <div class="admin-panel" id="admin-panel">
     <div class="admin-header" id="admin-header">
-      <div>Panel Admin</div>
-      <button id="admin-close" class="ghost close-btn">✕</button>
+      <div>Admin Panel</div>
+      <button id="admin-close" class="ghost">✕</button>
     </div>
-
-
-<div class="admin-body">
-  <div id="login-area">
-    <label>Email (admin)</label>
-    <input type="text" id="pw-input" placeholder="admin@example.com" />
-    <button class="btn" id="login-btn">Entrar</button>
-    <div class="small">Introduce tu correo; se te pedirá la contraseña.</div>
-  </div>
-
-  <div id="controls-area" class="hidden">
-    <label>Título del sitio</label>
-    <input type="text" id="edit-title" />
-    <label>Descripción</label>
-    <input type="text" id="edit-desc" />
-    <label>Color principal (hex)</label>
-    <input type="text" id="edit-accent" placeholder="#16a34a" />
-    <label>URL logo</label>
-    <input type="text" id="edit-logo" placeholder="https://..." />
-    <label>URL fondo (opcional)</label>
-    <input type="text" id="edit-bg" placeholder="https://..." />
-
-    <div class="btn-row" style="margin-top:12px">
-      <button class="btn" id="save-changes">Guardar</button>
-      <button class="ghost" id="new-item-btn">+ Publicación (admin)</button>
-      <button class="ghost" id="logout-btn" style="margin-left:auto">Salir</button>
-    </div>
-
-    <div id="items-list" style="margin-top:12px;max-height:260px;overflow:auto"></div>
-  </div>
-</div>
-
-  </div>
-
-  <!-- Calendar panel -->
-
-  <div class="calendar-panel hidden" id="calendar-panel" role="dialog" aria-hidden="true">
-    <div class="admin-header" id="calendar-header">
-      <div>Calendario</div>
-      <button id="calendar-close" class="ghost close-btn">✕</button>
-    </div>
-    <div class="admin-body" id="calendar-body">
-      <div id="calendar"></div>
+    <div class="admin-body">
+      <!-- login -->
+      <div id="login-area">
+        <label>Email</label>
+        <input type="text" id="pw-input" placeholder="admin@example.com" />
+        <button class="btn" id="login-btn">Login</button>
+      </div>
+      <!-- controls -->
+      <div id="controls-area" class="hidden">
+        <label>Título del sitio</label>
+        <input type="text" id="edit-title" />
+        <label>Descripción</label>
+        <input type="text" id="edit-desc" />
+        <label>Color principal</label>
+        <input type="text" id="edit-accent" placeholder="#16a34a" />
+        <label>Fondo</label>
+        <input type="text" id="edit-bg" placeholder="URL imagen" />
+        <input type="file" id="bg-file-input" accept="image/*" class="hidden" />
+        <label>Logo</label>
+        <input type="text" id="edit-logo" placeholder="URL logo" />
+        <input type="file" id="logo-file-input" accept="image/*" class="hidden" />
+        <div class="actions">
+          <button class="btn" id="save-changes">Guardar</button>
+          <button class="ghost" id="new-item-btn">+ Nuevo post</button>
+          <button class="ghost" id="logout-btn">Logout</button>
+        </div>
+        <div id="items-list"></div>
+      </div>
     </div>
   </div>
 
-  <!-- Supabase JS -->
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <script src="script.js"></script>
-
+  <!-- Calendar Panel -->
+  <div class="calendar-panel" id="calendar-panel">
+    <div class="calendar-header">
+      <span id="current-month">Mes</span>
+      <button id="calendar-close" class="ghost">✕</button>
+    </div>
+    <div class="calendar-grid" id="calendar-days"></div>
+  </div>
 </body>
 </html>
+
