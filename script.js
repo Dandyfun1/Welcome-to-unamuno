@@ -1,192 +1,65 @@
-const SUPABASE_URL = "https://ddpqzpexcktjtzaqradg.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkcHF6cGV4Y2t0anR6YXFyYWRnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkyMjczOTcsImV4cCI6MjA3NDgwMzM5N30.yIEsfMgq1SN_M0Un5w1tHj76agBL8Fr9L3dSUtk4hVQ";
+```javascript
+// Replace with your Supabase project details
+const SUPABASE_URL = "https://YOURPROJECT.supabase.co";
+const SUPABASE_ANON_KEY = "YOUR_ANON_KEY";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let loggedIn = false;
+let currentYear = 2025;
+let eventsCache = {};
 
 document.addEventListener("DOMContentLoaded", () => {
-  const adminPanel = document.getElementById("admin-panel");
-  const adminHeader = document.getElementById("admin-header");
-  const adminToggle = document.getElementById("admin-toggle");
-  const adminClose = document.getElementById("admin-close");
-  const loginArea = document.getElementById("login-area");
-  const controlsArea = document.getElementById("controls-area");
-  const loginBtn = document.getElementById("login-btn");
-  const logoutBtn = document.getElementById("logout-btn");
-  const statusPill = document.getElementById("status-pill");
-  const saveBtn = document.getElementById("save-changes");
-  const newItemBtn = document.getElementById("new-item-btn");
+  const itemsGrid = document.getElementById("items-grid");
   const searchBtn = document.getElementById("search-btn");
   const searchInput = document.getElementById("search-input");
-  const itemsGrid = document.getElementById("items-grid");
-  const bgFileInput = document.getElementById("bg-file-input");
-  const logoFileInput = document.getElementById("logo-file-input");
-  const bgDropzone = document.getElementById("bg-dropzone");
-  const logoDropzone = document.getElementById("logo-dropzone");
-  const publicPostBtn = document.getElementById("public-post-btn");
+  const newPostBtn = document.getElementById("new-post-btn");
+  const adminToggle = document.getElementById("admin-toggle");
 
-  supabaseClient.auth.getSession().then(({ data }) => {
-    loggedIn = !!data.session;
-    updateAuthUI();
-    loadData();
-  });
-  supabaseClient.auth.onAuthStateChange((_event, session) => {
-    loggedIn = !!session;
-    updateAuthUI();
-    loadData();
-  });
+  const calendarContainer = document.getElementById("calendar-container");
+  const year2025Btn = document.getElementById("year-2025");
+  const year2026Btn = document.getElementById("year-2026");
+  const prevYearBtn = document.getElementById("prev-year");
+  const nextYearBtn = document.getElementById("next-year");
 
-  function updateAuthUI() {
-    loginArea.style.display = loggedIn ? "none" : "block";
-    controlsArea.classList.toggle("hidden", !loggedIn);
-    statusPill.textContent = loggedIn ? "Admin" : "Public";
-  }
+  const modal = document.getElementById("day-modal");
+  const modalDayTitle = document.getElementById("modal-day-title");
+  const modalEventTitle = document.getElementById("modal-event-title");
+  const modalEventNote = document.getElementById("modal-event-note");
+  const modalSave = document.getElementById("modal-save");
+  const modalDelete = document.getElementById("modal-delete");
+  const modalClose = document.getElementById("modal-close");
+  let selectedDateISO = null;
+  let selectedEventId = null;
 
-  adminToggle.onclick = () => { adminPanel.style.display = "block"; updateAuthUI(); };
-  adminClose.onclick = () => { adminPanel.style.display = "none"; };
+  // AUTH
+  supabaseClient.auth.getSession().then(({ data }) => { loggedIn = !!data.session; loadAll(); });
+  supabaseClient.auth.onAuthStateChange((_e, session) => { loggedIn = !!session; loadAll(); });
 
-  loginBtn.onclick = async () => {
-    const email = document.getElementById("pw-input").value.trim();
-    const password = prompt("Enter your Supabase password:");
-    if (!email || !password) return;
-    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-    if (error) return alert("Login failed: " + error.message);
-    loggedIn = !!data.session;
-    updateAuthUI();
-    loadData();
-  };
-
-  logoutBtn.onclick = async () => {
-    await supabaseClient.auth.signOut();
-    loggedIn = false;
-    updateAuthUI();
-    loadData();
-    adminPanel.style.display = "none";
-  };
-
-  saveBtn.onclick = async () => {
-    const title = document.getElementById("edit-title").value;
-    const desc = document.getElementById("edit-desc").value;
-    const accent = document.getElementById("edit-accent").value || "#16a34a";
-    const background_url = document.getElementById("edit-bg").value;
-    const logo_url = document.getElementById("edit-logo").value;
-    await supabaseClient.from("site_settings").upsert([{
-      id: '00000000-0000-0000-0000-000000000001',
-      title, description: desc, accent, background_url, logo_url
-    }]);
-  };
-
-  newItemBtn.onclick = async () => {
-    const title = prompt("Post title:"); if (!title) return;
-    const desc = prompt("Post description:");
-    const image_url = prompt("Image URL (optional):");
-    await supabaseClient.from("items").insert([{ title, description: desc, image_url }]);
-  };
-
-  publicPostBtn.onclick = async () => {
-    const title = prompt("Post title:"); if (!title) return;
-    const desc = prompt("Post description:");
-    const image_url = prompt("Image URL (optional):");
-    const { error } = await supabaseClient.from("items").insert([{ title, description: desc, image_url }]);
-    if (error) alert("Failed to post: " + error.message);
-  };
-
-  searchBtn.onclick = async () => {
-    const q = searchInput.value;
-    let { data: items } = await supabaseClient.from("items").select("*").ilike("title", `%${q}%`);
-    renderItems(items || []);
-  };
-
-  async function uploadFileToStorage(file, folder) {
-    const path = `${folder}/${Date.now()}_${file.name}`;
-    const { error } = await supabaseClient.storage.from("images").upload(path, file, { upsert: true });
-    if (error) { alert("Upload failed: " + error.message); return null; }
-    const { data } = supabaseClient.storage.from("images").getPublicUrl(path);
-    return data.publicUrl;
-  }
-
-  function setupDropzone(dropzone, fileInput, type) {
-    dropzone.addEventListener("click", () => fileInput.click());
-    fileInput.addEventListener("change", async e => {
-      const file = e.target.files[0]; if (!file) return;
-      const url = await uploadFileToStorage(file, type);
-      if (url) applyImage(type, url);
-    });
-    ["dragenter","dragover"].forEach(ev => dropzone.addEventListener(ev, e => { e.preventDefault(); dropzone.style.background="rgba(22,163,74,0.1)"; }));
-    ["dragleave","drop"].forEach(ev => dropzone.addEventListener(ev, e => { e.preventDefault(); dropzone.style.background=""; }));
-    dropzone.addEventListener("drop", async e => {
-      e.preventDefault();
-      const file = e.dataTransfer.files[0]; if (!file) return;
-      const url = await uploadFileToStorage(file, type);
-      if (url) applyImage(type, url);
-    });
-  }
-
-  function applyImage(type, url) {
-    if (type === "backgrounds") {
-      document.getElementById("edit-bg").value = url;
-      document.body.style.backgroundImage = `url(${url})`;
-      document.body.style.backgroundSize = "cover";
-    } else if (type === "logos") {
-      document.getElementById("edit-logo").value = url;
-      const logoEl = document.getElementById("site-logo");
-      logoEl.src = url; logoEl.style.display = "block";
+  adminToggle.onclick = async () => {
+    if (!loggedIn) {
+      const email = prompt("Admin email:");
+      const password = prompt("Password:");
+      if (!email || !password) return;
+      const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+      if (error) alert(error.message);
+    } else {
+      if (confirm("Logout?")) await supabaseClient.auth.signOut();
     }
+  };
+
+  // POSTS
+  async function loadPosts() {
+    const { data } = await supabaseClient.from("items").select("*").order("created_at", { ascending: false });
+    renderPosts(data || []);
   }
-
-  setupDropzone(bgDropzone, bgFileInput, "backgrounds");
-  setupDropzone(logoDropzone, logoFileInput, "logos");
-
-  (function makeDraggable() {
-    let dragging = false, offsetX = 0, offsetY = 0;
-    adminHeader.addEventListener("mousedown", e => {
-      dragging = true;
-      offsetX = e.clientX - adminPanel.offsetLeft;
-      offsetY = e.clientY - adminPanel.offsetTop;
-      document.body.style.userSelect = "none";
-    });
-    window.addEventListener("mousemove", e => {
-      if (dragging) {
-        adminPanel.style.left = (e.clientX - offsetX) + "px";
-        adminPanel.style.top = (e.clientY - offsetY) + "px";
-        adminPanel.style.right = "auto";
-      }
-    });
-    window.addEventListener("mouseup", () => { dragging = false; document.body.style.userSelect = ""; });
-  })();
-
-  async function loadData() {
-    let { data: settings } = await supabaseClient.from("site_settings").select("*").eq("id", '00000000-0000-0000-0000-000000000001').single();
-    if (settings) {
-      document.getElementById("site-title").textContent = settings.title;
-      document.getElementById("site-desc").textContent = settings.description;
-      document.getElementById("edit-title").value = settings.title;
-      document.getElementById("edit-desc").value = settings.description;
-      document.getElementById("edit-accent").value = settings.accent;
-      document.getElementById("edit-bg").value = settings.background_url || "";
-      document.getElementById("edit-logo").value = settings.logo_url || "";
-      document.documentElement.style.setProperty("--accent", settings.accent || "#16a34a");
-      if (settings.background_url) {
-        document.body.style.backgroundImage = `url(${settings.background_url})`;
-        document.body.style.backgroundSize = "cover";
-      }
-      if (settings.logo_url) {
-        const logoEl = document.getElementById("site-logo");
-        logoEl.src = settings.logo_url; logoEl.style.display = "block";
-      }
-    }
-    let { data: items } = await supabaseClient.from("items").select("*").order("created_at", { ascending: false });
-    renderItems(items || []);
-  }
-
-  function renderItems(items) {
+  function renderPosts(items) {
     itemsGrid.innerHTML = "";
     items.forEach(item => {
       const div = document.createElement("div");
       div.className = "card";
       div.innerHTML = `
-        ${item.image_url ? `<img src="${item.image_url}" alt="">` : ""}
-        <h3 style="margin:0 0 6px 0">${item.title}</h3>
+        ${item.image_url ? `<img src="${item.image_url}">` : ""}
+        <h3>${item.title}</h3>
         <p>${item.description || ""}</p>
         ${loggedIn ? `<button class="danger" data-id="${item.id}">Delete</button>` : ""}
       `;
@@ -196,20 +69,81 @@ document.addEventListener("DOMContentLoaded", () => {
       itemsGrid.querySelectorAll(".danger").forEach(btn => {
         btn.onclick = async e => {
           const id = e.target.getAttribute("data-id");
-          if (confirm("Delete this post?")) {
-            await supabaseClient.from("items").delete().eq("id", id);
-          }
+          if (confirm("Delete post?")) await supabaseClient.from("items").delete().eq("id", id);
+          loadPosts();
         };
       });
     }
   }
+  searchBtn.onclick = async () => {
+    const q = searchInput.value;
+    const { data } = await supabaseClient.from("items").select("*").ilike("title", `%${q}%`);
+    renderPosts(data || []);
+  };
+  newPostBtn.onclick = async () => {
+    const title = prompt("Post title:");
+    if (!title) return;
+    const desc = prompt("Description:");
+    const image_url = prompt("Image URL:");
+    await supabaseClient.from("items").insert([{ title, description: desc, image_url }]);
+    loadPosts();
+  };
 
-  // Realtime subscriptions
-  supabaseClient.channel('items-changes')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'items' }, payload => loadData())
-    .subscribe();
+  // CALENDAR
+  year2025Btn.onclick = () => { currentYear=2025; renderCalendar(); loadEvents(); };
+  year2026Btn.onclick = () => { currentYear=2026; renderCalendar(); loadEvents(); };
+  prevYearBtn.onclick = () => { currentYear--; renderCalendar(); loadEvents(); };
+  nextYearBtn.onclick = () => { currentYear++; renderCalendar(); loadEvents(); };
 
-  supabaseClient.channel('settings-changes')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'site_settings' }, payload => loadData())
-    .subscribe();
+  function renderCalendar() {
+    calendarContainer.innerHTML = "";
+    const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    for (let m=0;m<12;m++) {
+      const title = document.createElement("div"); title.className="month-title"; title.textContent=`${months[m]} ${currentYear}`;
+      calendarContainer.appendChild(title);
+      const grid = document.createElement("div"); grid.className="calendar";
+      const first=new Date(currentYear,m,1), daysIn=new Date(currentYear,m+1,0).getDate();
+      for(let i=0;i<first.getDay();i++){grid.appendChild(document.createElement("div"));}
+      for(let d=1;d<=daysIn;d++){
+        const date=new Date(currentYear,m,d), iso=date.toISOString().slice(0,10);
+        const el=document.createElement("div"); el.className="day"; el.dataset.iso=iso;
+        el.innerHTML=`<div class="day-number">${d}</div><div class="event-dot" style="display:none"></div>`;
+        el.onclick=()=>{ if(!loggedIn) return alert("Admin only"); openModal(iso); };
+        grid.appendChild(el);
+      }
+      calendarContainer.appendChild(grid);
+    }
+    decorateEvents();
+  }
+
+  async function loadEvents() {
+    const start=`${currentYear}-01-01`, end=`${currentYear}-12-31`;
+    const { data } = await supabaseClient.from("events").select("*").gte("event_date",start).lte("event_date",end);
+    eventsCache={};
+    (data||[]).forEach(e=>{if(!eventsCache[e.event_date]) eventsCache[e.event_date]=[]; eventsCache[e.event_date].push(e);});
+    decorateEvents();
+  }
+  function decorateEvents() {
+    calendarContainer.querySelectorAll(".day").forEach(el=>{
+      const iso=el.dataset.iso, dot=el.querySelector(".event-dot");
+      if(loggedIn && eventsCache[iso]) dot.style.display="block"; else dot.style.display="none";
+    });
+  }
+  function openModal(iso){
+    selectedDateISO=iso; modalDayTitle.textContent=new Date(iso).toDateString();
+    const evs=eventsCache[iso]||[]; if(evs.length>0){selectedEventId=evs[0].id; modalEventTitle.value=evs[0].title; modalEventNote.value=evs[0].note||""; modalDelete.style.display="inline-block";} else {selectedEventId=null; modalEventTitle.value=""; modalEventNote.value=""; modalDelete.style.display="none";}
+    modal.classList.add("show");
+  }
+  modalClose.onclick=()=>modal.classList.remove("show");
+  modalSave.onclick=async()=>{if(!modalEventTitle.value)return;
+    if(selectedEventId) await supabaseClient.from("events").update({title:modalEventTitle.value,note:modalEventNote.value}).eq("id",selectedEventId);
+    else await supabaseClient.from("events").insert([{event_date:selectedDateISO,title:modalEventTitle.value,note:modalEventNote.value}]);
+    modal.classList.remove("show"); loadEvents();
+  };
+  modalDelete.onclick=async()=>{if(!selectedEventId)return;await supabaseClient.from("events").delete().eq("id",selectedEventId);modal.classList.remove("show");loadEvents();};
+
+  // INIT
+  function loadAll(){ loadPosts(); renderCalendar(); loadEvents(); }
 });
+```
+
