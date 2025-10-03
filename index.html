@@ -5,17 +5,19 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>UNAMUNO</title>
   <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
   <header>
     <div class="wrap">
       <div style="display:flex;justify-content:space-between;align-items:center">
         <div>
-          <h1 id="site-title">UNAMUNO</h1>
+          <h1><img id="site-logo" alt="Logo"/> <span id="site-title">UNAMUNO</span></h1>
           <div class="sub" id="site-desc">Editable site connected to Supabase.</div>
         </div>
         <div style="display:flex;gap:12px;align-items:center">
           <div id="status-pill" class="pill">Public</div>
+          <button class="ghost" id="calendar-toggle">Calendar</button>
           <button class="ghost" id="admin-toggle">Admin</button>
         </div>
       </div>
@@ -32,18 +34,20 @@
 
   <footer>© UNAMUNO • Powered by Supabase</footer>
 
+  <!-- Floating Public Post Button -->
   <button id="public-post-btn">+</button>
 
-  <div class="admin-panel" id="admin-panel" aria-hidden="true">
-    <div class="admin-header" id="admin-header">
-      <div>Admin Panel</div>
-      <button id="admin-close" class="ghost">✕</button>
+  <!-- Admin Panel -->
+  <div class="popup-panel" id="admin-panel">
+    <div class="popup-header" id="admin-header">
+      <span>Admin Panel</span>
+      <button class="close-btn" id="admin-close">✕</button>
     </div>
-    <div class="admin-body">
+    <div class="popup-body">
       <div id="login-area">
         <label>Email</label>
         <input type="text" id="pw-input" placeholder="admin@example.com" />
-        <button class="btn" id="login-btn" style="margin-top:10px">Login</button>
+        <button class="btn" id="login-btn">Login</button>
       </div>
       <div id="controls-area" class="hidden">
         <label>Site title</label>
@@ -52,25 +56,29 @@
         <input type="text" id="edit-desc" />
         <label>Accent color</label>
         <input type="text" id="edit-accent" placeholder="#16a34a" />
+        <label>Logo URL</label>
+        <input type="text" id="edit-logo" placeholder="Paste logo URL" />
         <div style="margin-top:12px;display:flex;gap:8px">
           <button class="btn" id="save-changes">Save</button>
           <button class="ghost" id="new-item-btn">+ New Post</button>
           <button class="ghost" id="logout-btn" style="margin-left:auto">Logout</button>
         </div>
-        <div id="items-list" style="margin-top:12px;max-height:260px;overflow:auto"></div>
+        <div id="items-list"></div>
       </div>
     </div>
   </div>
 
-  <div class="calendar-panel" id="calendar-panel" aria-hidden="true">
-    <div class="calendar-header" id="calendar-header">
-      <div>Calendar</div>
-      <button id="calendar-close" class="ghost">✕</button>
+  <!-- Calendar Panel -->
+  <div class="popup-panel" id="calendar-panel">
+    <div class="popup-header" id="calendar-header">
+      <span>Calendar</span>
+      <button class="close-btn" id="calendar-close">✕</button>
     </div>
-    <div class="calendar-body" id="calendar-body"></div>
+    <div class="popup-body">
+      <div id="calendar"></div>
+    </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="script.js"></script>
 </body>
 </html>
