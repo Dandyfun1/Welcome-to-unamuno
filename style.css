@@ -1,0 +1,20 @@
+:root { --bg:#fdfdfd; --card:#fff; --accent:#16a34a; --text:#111827; }
+* { box-sizing:border-box }
+body { font-family:Inter,system-ui,sans-serif; margin:0; background:var(--bg); color:var(--text); }
+header { background:var(--accent); padding:20px; color:#fff }
+.wrap { max-width:980px; margin:0 auto }
+h1 { margin:0; font-size:1.6rem }
+.sub { opacity:.9; margin-top:4px }
+.controls { display:flex; gap:10px; margin-top:12px; align-items:center }
+.btn { background:var(--accent); color:#fff; border:0; padding:8px 12px; border-radius:8px; cursor:pointer; font-weight:500 }
+.ghost { background:#fff; color:var(--accent); border:1px solid var(--accent); padding:8px 12px; border-radius:8px; cursor:pointer; font-weight:500 }
+input[type="text"] { padding:8px; border-radius:8px; border:1px solid rgba(0,0,0,0.1); min-width:160px }
+.grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:16px; padding:24px 0 }
+.card { background:var(--card); padding:16px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.05) }
+.danger { background:#dc2626; color:#fff; border:0; padding:6px 10px; border-radius:8px; cursor:pointer; font-weight:500 }
+footer { padding:18px; text-align:center; color:#6b7280 }
+#public-post-btn { position:fixed; bottom:20px; right:20px; width:56px; height:56px; border-radius:50%; background:var(--accent); color:#fff; font-size:32px; border:0; cursor:pointer; box-shadow:0 6px 16px rgba(0,0,0,0.2); }
+.admin-panel, .calendar-panel { position:fixed; display:none; width:380px; max-width:calc(100% - 40px); top:120px; right:20px; background:#fff; border-radius:12px; box-shadow:0 12px 36px rgba(0,0,0,0.18); z-index:2000; }
+.admin-header, .calendar-header { padding:12px 14px; background:var(--accent); color:#fff; cursor:move; border-radius:12px 12px 0 0; display:flex; justify-content:space-between; align-items:center; font-weight:600 }
+.admin-body, .calendar-body { padding:14px; max-height:70vh; overflow:auto }
+.hidden { display:none !important }
