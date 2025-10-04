@@ -1,88 +1,114 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Clear Blue Blog</title>
-  <link rel="stylesheet" href="style.css">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- Supabase JS (UMD build) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
+  <!-- Your app JS (deferred) -->
   <script defer src="script.js"></script>
 </head>
 <body>
   <header>
-    <div class="logo-area">
-      <img id="site-logo" src="" alt="Logo">
-      <h1 id="site-title">Clear Blue Blog</h1>
-    </div>
-    <p id="site-sub">Bienvenido a tu blog con calendario público</p>
-    <div class="search-bar">
-      <input type="text" id="search-input" placeholder="Buscar publicaciones...">
-      <button id="search-btn">🔍</button>
-    </div>
-    <div class="nav-controls">
-      <button id="calendar-toggle">📅 Calendario</button>
-      <button id="public-post-btn">➕ Nueva publicación</button>
-      <div id="login-area">
-        <input type="email" id="pw-input" placeholder="Admin email">
-        <button id="login-btn">Login</button>
+    <div class="header-top">
+      <div class="logo-area">
+        <img id="site-logo" src="" alt="Logo" />
+        <div>
+          <h1 id="site-title">Clear Blue Blog</h1>
+          <p id="site-sub">Bienvenido a tu blog con calendario público.</p>
+        </div>
       </div>
-      <div id="controls-area" class="hidden">
-        <button id="admin-toggle">⚙️ Admin</button>
-        <button id="export-btn">⬇ Export</button>
-        <button id="logout-btn">Logout</button>
+
+      <div class="controls">
+        <div class="search-bar">
+          <input id="search-input" type="text" placeholder="Buscar publicaciones..." />
+          <button id="search-btn">🔍</button>
+        </div>
+
+        <div class="action-buttons">
+          <button id="calendar-toggle">📅 Calendario</button>
+          <button id="public-post-btn">➕ Nueva publicación</button>
+          <div id="login-area" class="inline-login">
+            <input id="pw-input" type="email" placeholder="Admin email" />
+            <button id="login-btn">Login</button>
+          </div>
+          <div id="controls-area" class="hidden">
+            <button id="admin-toggle">⚙️ Admin</button>
+            <button id="export-btn">⬇ Export</button>
+            <button id="logout-btn">Logout</button>
+          </div>
+          <button id="dark-toggle" title="Dark / Light">🌙</button>
+        </div>
       </div>
     </div>
   </header>
 
   <main>
-    <section id="pinned-area"></section>
+    <section id="pinned-area" class="grid"></section>
     <section id="items-grid" class="grid"></section>
   </main>
 
   <!-- Admin Panel -->
-  <div id="admin-panel" class="panel hidden">
-    <div id="admin-drag" class="drag-bar">⚙️ Admin Panel <button id="admin-close">✖</button></div>
+  <div id="admin-panel" class="panel hidden" aria-hidden="true">
+    <div id="admin-drag" class="drag-bar">
+      <strong>⚙️ Admin Panel</strong>
+      <button id="admin-close" class="ghost">✖</button>
+    </div>
     <div class="panel-body">
-      <h2>Configuración del sitio</h2>
-      <label>Título <input id="edit-title" type="text"></label>
-      <label>Subtítulo <input id="edit-sub" type="text"></label>
-      <label>Color principal <input id="edit-accent" type="color"></label>
-      <label>Logo URL <input id="edit-logo" type="text"></label>
-      <label>Hero URL <input id="edit-hero" type="text"></label>
-      <button id="save-changes">Guardar</button>
-      <h2>Posts</h2>
+      <h3>Configuración del sitio</h3>
+      <label>Título <input id="edit-title" type="text" /></label>
+      <label>Subtítulo <input id="edit-sub" type="text" /></label>
+      <label>Color principal <input id="edit-accent" type="color" value="#79c1d9" /></label>
+      <label>Logo URL <input id="edit-logo" type="text" /></label>
+      <label>Hero URL <input id="edit-hero" type="text" /></label>
+      <div style="margin-top:8px">
+        <button id="save-changes" class="main-btn">Guardar</button>
+        <button id="new-item-btn" class="ghost">➕ Nuevo Post</button>
+      </div>
+
+      <hr />
+
+      <h3>Posts (admin)</h3>
       <div id="items-list"></div>
-      <button id="new-item-btn">➕ Nuevo Post</button>
     </div>
   </div>
 
   <!-- Calendar Panel -->
-  <div id="calendar-panel" class="panel hidden">
-    <div id="calendar-drag" class="drag-bar">📅 Calendario <button id="calendar-close">✖</button></div>
+  <div id="calendar-panel" class="panel hidden" aria-hidden="true">
+    <div id="calendar-drag" class="drag-bar">
+      <strong>📅 Calendario</strong>
+      <button id="calendar-close" class="ghost">✖</button>
+    </div>
     <div class="panel-body">
       <div class="calendar-header">
         <button id="cal-prev">◀</button>
-        <h2 id="cal-title"></h2>
+        <h3 id="cal-title"></h3>
         <button id="cal-next">▶</button>
       </div>
       <div id="calendar-grid" class="calendar-grid"></div>
-      <div id="event-popup" class="popup hidden">
-        <h3 id="event-date-title"></h3>
+
+      <div id="event-popup" class="popup hidden" aria-hidden="true">
+        <h4 id="event-date-title"></h4>
         <div id="event-details"></div>
         <div id="event-admin-controls" class="hidden">
-          <button id="edit-event-btn">Editar</button>
-          <button id="delete-event-btn">Eliminar</button>
+          <button id="edit-event-btn" class="main-btn">Editar</button>
+          <button id="delete-event-btn" class="danger">Eliminar</button>
         </div>
       </div>
     </div>
   </div>
 
   <!-- Notifications -->
-  <div id="notifications"></div>
+  <div id="notifications" aria-live="polite"></div>
 
   <footer>
-    <p>&copy; 2024 Clear Blue Blog</p>
-    <button id="dark-toggle">🌙/☀️</button>
+    <small>&copy; <span id="year"></span> Clear Blue Blog</small>
   </footer>
 </body>
 </html>
-
