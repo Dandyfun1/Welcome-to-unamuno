@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>UNAMUNO</title>
+  <title>Clear Blue Blog</title>
   <link rel="stylesheet" href="style.css" />
   <script src="https://unpkg.com/@supabase/supabase-js"></script>
   <script defer src="script.js"></script>
@@ -10,7 +10,7 @@
 <body>
   <header>
     <img id="site-logo" alt="Logo" />
-    <h1 id="site-title">UNAMUNO</h1>
+    <h1 id="site-title">Clear Blue Blog</h1>
     <p id="site-sub"></p>
     <div id="status-pill">Público</div>
     <div id="login-area">
@@ -28,35 +28,35 @@
   <main>
     <!-- Search -->
     <section id="search-section">
-      <input type="text" id="search-input" placeholder="Buscar..." />
+      <input type="text" id="search-input" placeholder="Buscar publicaciones..." />
       <button id="search-btn">🔍</button>
     </section>
 
-    <!-- Items -->
+    <!-- Posts -->
     <section id="pinned-area"></section>
     <section id="items-grid"></section>
     <div id="items-list"></div>
 
     <!-- Public post -->
-    <button id="public-post-btn">Nueva publicación</button>
+    <button id="public-post-btn" class="main-btn">Nueva publicación</button>
   </main>
 
   <!-- Admin Panel -->
   <div id="admin-panel" class="panel hidden">
     <div id="admin-drag" class="drag-handle">⚙️ Admin Panel <button id="admin-close">✖</button></div>
-    <h2>Site Settings</h2>
+    <h2>Configuración del Sitio</h2>
     <label>Título <input id="edit-title" /></label>
     <label>Subtítulo <input id="edit-sub" /></label>
-    <label>Accent <input type="color" id="edit-accent" value="#79c1d9" /></label>
+    <label>Accent <input type="color" id="edit-accent" value="#1e90ff" /></label>
     <label>Logo URL <input id="edit-logo" /></label>
     <label>Hero URL <input id="edit-hero" /></label>
-    <button id="save-changes">Guardar</button>
-    <button id="new-item-btn">+ Nuevo Item</button>
+    <button id="save-changes" class="main-btn">Guardar</button>
+    <button id="new-item-btn">+ Nueva Publicación</button>
   </div>
 
   <!-- Calendar Panel -->
   <div id="calendar-panel" class="panel hidden">
-    <div id="calendar-drag" class="drag-handle">📅 Calendar <button id="calendar-close">✖</button></div>
+    <div id="calendar-drag" class="drag-handle">📅 Calendario <button id="calendar-close">✖</button></div>
     <div class="calendar-nav">
       <button id="cal-prev">&lt;</button>
       <span id="cal-title"></span>
@@ -71,7 +71,7 @@
     <div id="event-details"></div>
     <div id="event-admin-controls">
       <button id="edit-event-btn">Editar</button>
-      <button id="delete-event-btn">Eliminar</button>
+      <button id="delete-event-btn" class="danger">Eliminar</button>
     </div>
   </div>
 
@@ -79,7 +79,7 @@
   <div id="notifications"></div>
 
   <footer>
-    <p>&copy; 2025 UNAMUNO</p>
+    <p>&copy; 2025 Clear Blue Blog</p>
   </footer>
 </body>
 </html>
