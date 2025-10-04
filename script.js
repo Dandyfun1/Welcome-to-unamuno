@@ -1,7 +1,7 @@
-// UNAMUNO polished final - full features
-// IMPORTANT: Replace SUPABASE_URL and SUPABASE_ANON_KEY with your Supabase values
-const SUPABASE_URL = "https://ddpqzpexcktjtzaqradg.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkcHF6cGV4Y2t0anR6YXFyYWRnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkyMjczOTcsImV4cCI6MjA3NDgwMzM5N30.yIEsfMgq1SN_M0Un5w1tHj76agBL8Fr9L3dSUtk4hVQ";
+// UNAMUNO polished final - clear green theme with infinite calendar
+// IMPORTANT: Replace SUPABASE_URL and SUPABASE_ANON_KEY with your Supabase project values
+const SUPABASE_URL = "https://ddpqzpexcktjtzaqradg.supabase.co"; // <-- REPLACE
+const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";               // <-- REPLACE
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const $ = (s) => document.querySelector(s);
@@ -9,33 +9,52 @@ const $$ = (s) => Array.from(document.querySelectorAll(s));
 
 let loggedIn = false;
 let eventsCache = [];
-let calendarCursor = new Date();
+let calendarCursor = new Date(); // month view cursor
 
 document.addEventListener("DOMContentLoaded", () => {
-  // Panels
+  // Element refs
+  const adminPanel = $("#admin-panel");
+  const calendarPanel = $("#calendar-panel");
+  const publicPostBtn = $("#public-post-btn");
+  const adminToggle = $("#admin-toggle");
+  const calendarToggle = $("#calendar-toggle");
+  const searchBtn = $("#search-btn");
+  const searchInput = $("#search-input");
+  const itemsGrid = $("#items-grid");
+  const pinnedArea = $("#pinned-area");
+  const notifications = $("#notifications");
+
+  // Calendar refs
+  const calPrev = $("#cal-prev");
+  const calNext = $("#cal-next");
+  const calTitle = $("#cal-title");
+  const calGrid = $("#calendar-grid");
+  const eventPopup = $("#event-popup");
+  const eventDateTitle = $("#event-date-title");
+  const eventDetails = $("#event-details");
+  const eventAdminControls = $("#event-admin-controls");
+
+  // Draggable panels
   enableDrag("#admin-panel", "#admin-drag");
   enableDrag("#calendar-panel", "#calendar-drag");
 
+  // Init session & data
   init();
 
-  // Panel toggles
-  $("#admin-toggle")?.addEventListener("click", async () => {
+  // UI bindings
+  adminToggle.addEventListener("click", async () => {
     showPanel("#admin-panel");
     await populateAdmin();
   });
-  $("#calendar-toggle")?.addEventListener("click", async () => {
+  $("#admin-close")?.addEventListener("click", () => hidePanel("#admin-panel"));
+  calendarToggle.addEventListener("click", async () => {
     showPanel("#calendar-panel");
     await loadEvents();
     renderCalendar(calendarCursor);
   });
-  $("#admin-close")?.addEventListener("click", () =>
-    hidePanel("#admin-panel")
-  );
   $("#calendar-close")?.addEventListener("click", () =>
     hidePanel("#calendar-panel")
   );
-
-  // Calendar navigation
   $("#cal-prev")?.addEventListener("click", () => {
     calendarCursor.setMonth(calendarCursor.getMonth() - 1);
     renderCalendar(calendarCursor);
@@ -45,7 +64,6 @@ document.addEventListener("DOMContentLoaded", () => {
     renderCalendar(calendarCursor);
   });
 
-  // Auth
   $("#login-btn")?.addEventListener("click", async () => {
     const email = ($("#pw-input")?.value || "").trim();
     if (!email) return alert("Introduce el email del admin.");
@@ -70,7 +88,6 @@ document.addEventListener("DOMContentLoaded", () => {
     toast("Sesión cerrada");
   });
 
-  // Save site settings
   $("#save-changes")?.addEventListener("click", async () => {
     if (!loggedIn) return alert("Solo admin.");
     const title = $("#edit-title").value || "UNAMUNO";
@@ -94,7 +111,6 @@ document.addEventListener("DOMContentLoaded", () => {
     toast("Configuración guardada");
   });
 
-  // Export data
   $("#export-btn")?.addEventListener("click", async () => {
     if (!loggedIn) return alert("Solo admin.");
     const { data: items } = await supabaseClient.from("items").select("*");
@@ -118,7 +134,6 @@ document.addEventListener("DOMContentLoaded", () => {
     URL.revokeObjectURL(url);
   });
 
-  // New item (admin)
   $("#new-item-btn")?.addEventListener("click", async () => {
     if (!loggedIn) return alert("Solo admin.");
     const title = prompt("Título del post:");
@@ -127,43 +142,46 @@ document.addEventListener("DOMContentLoaded", () => {
     const category = prompt("Categoría (opcional):") || null;
     const description = prompt("Descripción (opcional):") || null;
     const { error } = await supabaseClient.from("items").insert([
-      { title, description, username, category },
+      {
+        title,
+        description,
+        username,
+        category,
+      },
     ]);
     if (error) return alert("Create failed: " + error.message);
     await loadItems();
   });
 
-  // Public post
-  $("#public-post-btn")?.addEventListener("click", async () => {
+  publicPostBtn?.addEventListener("click", async () => {
     const username = prompt("Nombre visible (ej: María):") || "Anon";
     const title = prompt("Título de la publicación:");
     if (!title) return;
     const category = prompt("Categoría (opcional):") || null;
     const description = prompt("Descripción (opcional):") || null;
     const { error } = await supabaseClient.from("items").insert([
-      { title, description, username, category },
+      {
+        title,
+        description,
+        username,
+        category,
+      },
     ]);
     if (error) {
-      if (
-        error.message &&
-        error.message.toLowerCase().includes("permission")
-      )
-        return alert("Permiso denegado: ejecuta setup.sql.");
       return alert("Create failed: " + error.message);
     }
     toast("Publicación creada");
     await loadItems();
   });
 
-  // Search
-  $("#search-btn")?.addEventListener("click", async () => {
-    const q = ($("#search-input").value || "").trim();
+  searchBtn?.addEventListener("click", async () => {
+    const q = (searchInput.value || "").trim();
     if (!q) return loadItems();
     const { data, error } = await supabaseClient
       .from("items")
       .select("*")
       .or(
-        `title.ilike.%${q}%,description.ilike.%${q}%,username.ilike.%${q}%`
+        `title.ilike.%${q}%,description.ilike.%${q}%,username.ilike.%${q}%,category.ilike.%${q}%`
       )
       .order("pinned", { ascending: false })
       .order("created_at", { ascending: false });
@@ -171,9 +189,7 @@ document.addEventListener("DOMContentLoaded", () => {
     renderItems(data || []);
   });
 
-  // ========================
-  // INIT
-  // ========================
+  // init
   async function init() {
     try {
       const { data } = await supabaseClient.auth.getSession();
@@ -204,9 +220,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function updateAuthUI() {
-    document
-      .getElementById("controls-area")
-      ?.classList.toggle("hidden", !loggedIn);
+    document.getElementById("controls-area")?.classList.toggle("hidden", !loggedIn);
     const status = document.getElementById("status-pill");
     if (status) status.textContent = loggedIn ? "Admin" : "Público";
     document.getElementById("login-area") &&
@@ -219,9 +233,6 @@ document.addEventListener("DOMContentLoaded", () => {
     await Promise.all([loadSiteSettings(), loadItems(), loadEvents()]);
   }
 
-  // ========================
-  // LOADERS
-  // ========================
   async function loadSiteSettings() {
     const { data, error } = await supabaseClient
       .from("site_settings")
@@ -234,17 +245,11 @@ document.addEventListener("DOMContentLoaded", () => {
       $("#site-sub").textContent = data.description || "";
       $("#edit-title") && ($("#edit-title").value = data.title || "");
       $("#edit-sub") && ($("#edit-sub").value = data.description || "");
-      $("#edit-accent") &&
-        ($("#edit-accent").value = data.accent || "#16a34a");
+      $("#edit-accent") && ($("#edit-accent").value = data.accent || "#16a34a");
       if (data.logo_url) $("#site-logo").src = data.logo_url;
       if (data.hero_url)
-        document.querySelector(
-          ".hero"
-        ).style.backgroundImage = `url(${data.hero_url})`;
-      document.documentElement.style.setProperty(
-        "--accent",
-        data.accent || "#16a34a"
-      );
+        document.querySelector(".hero").style.backgroundImage = `url(${data.hero_url})`;
+      document.documentElement.style.setProperty("--accent", data.accent || "#16a34a");
     }
   }
 
@@ -256,11 +261,6 @@ document.addEventListener("DOMContentLoaded", () => {
       .order("created_at", { ascending: false });
     if (error) {
       console.error("loadItems", error);
-      if (
-        error.message &&
-        error.message.toLowerCase().includes("permission")
-      )
-        return alert("Permiso denegado: ejecuta setup.sql.");
       return alert("Error cargando publicaciones: " + error.message);
     }
     const pinned = (data || []).filter((i) => i.pinned);
@@ -269,29 +269,15 @@ document.addEventListener("DOMContentLoaded", () => {
     renderItems(normal);
   }
 
-  async function loadEvents() {
-    const { data, error } = await supabaseClient
-      .from("calendar_events")
-      .select("*");
-    if (error) return console.error("loadEvents", error);
-    eventsCache = data || [];
-    if (!$("#calendar-panel").classList.contains("hidden"))
-      renderCalendar(calendarCursor);
-  }
-
-  // ========================
-  // RENDERERS
-  // ========================
   function renderPinned(items = []) {
-    const pinnedArea = $("#pinned-area");
     pinnedArea.innerHTML = "";
     if (!items.length) return;
     items.forEach((item) => {
       const el = document.createElement("div");
       el.className = "card";
-      el.innerHTML = `<h3>📌 ${escapeHtml(item.title)}</h3>
-        <p>${escapeHtml(item.description || "")}</p>
-        <div class="meta">${escapeHtml(item.username || "Anon")} • ${new Date(
+      el.innerHTML = `<h3>📌 ${escapeHtml(item.title)}</h3><p>${escapeHtml(
+        item.description || ""
+      )}</p><div class="meta">${escapeHtml(item.username || "Anon")} • ${new Date(
         item.created_at
       ).toLocaleString()}</div>`;
       if (loggedIn) {
@@ -301,10 +287,7 @@ document.addEventListener("DOMContentLoaded", () => {
         unpin.className = "ghost small";
         unpin.textContent = "Despinear";
         unpin.onclick = async () => {
-          await supabaseClient
-            .from("items")
-            .update({ pinned: false })
-            .eq("id", item.id);
+          await supabaseClient.from("items").update({ pinned: false }).eq("id", item.id);
           await loadItems();
         };
         const del = document.createElement("button");
@@ -324,14 +307,13 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function renderItems(items = []) {
-    const itemsGrid = $("#items-grid");
     itemsGrid.innerHTML = "";
     items.forEach((item) => {
       const card = document.createElement("article");
       card.className = "card";
-      card.innerHTML = `<h3>${escapeHtml(item.title)}</h3>
-        <p>${escapeHtml(item.description || "")}</p>
-        <div class="meta">${escapeHtml(item.username || "Anon")} • ${new Date(
+      card.innerHTML = `<h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(
+        item.description || ""
+      )}</p><div class="meta">${escapeHtml(item.username || "Anon")} • ${new Date(
         item.created_at
       ).toLocaleString()} ${
         item.category ? " • " + escapeHtml(item.category) : ""
@@ -355,10 +337,7 @@ document.addEventListener("DOMContentLoaded", () => {
         del.style.marginLeft = "8px";
         del.onclick = async () => {
           if (!confirm("Eliminar?")) return;
-          const { error } = await supabaseClient
-            .from("items")
-            .delete()
-            .eq("id", item.id);
+          const { error } = await supabaseClient.from("items").delete().eq("id", item.id);
           if (error) return alert("Delete failed: " + error.message);
           await loadItems();
         };
@@ -370,13 +349,21 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  async function loadEvents() {
+    const { data, error } = await supabaseClient.from("calendar_events").select("*");
+    if (error) return console.error("loadEvents", error);
+    eventsCache = data || [];
+    if (!$("#calendar-panel").classList.contains("hidden"))
+      renderCalendar(calendarCursor);
+  }
+
   function renderCalendar(baseDate) {
-    const calGrid = $("#calendar-grid");
     calGrid.innerHTML = "";
-    $("#cal-title").textContent = `${baseDate.toLocaleString("es-ES", {
-      month: "long",
-      year: "numeric",
-    })}`;
+    $("#cal-title") &&
+      ($("#cal-title").textContent = `${baseDate.toLocaleString("es-ES", {
+        month: "long",
+        year: "numeric",
+      })}`);
     ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"].forEach((w) => {
       const el = document.createElement("div");
       el.textContent = w;
@@ -390,16 +377,16 @@ document.addEventListener("DOMContentLoaded", () => {
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     for (let i = 0; i < firstDay; i++) calGrid.appendChild(document.createElement("div"));
     for (let d = 1; d <= daysInMonth; d++) {
-      const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(
-        d
-      ).padStart(2, "0")}`;
+      const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(d).padStart(
+        2,
+        "0"
+      )}`;
       const ev = eventsCache.find((e) => e.event_date === dateStr);
       const dayEl = document.createElement("div");
       dayEl.className = "day";
       const today = new Date();
       const dayDate = new Date(year, month, d);
-      if (dayDate.toDateString() === today.toDateString())
-        dayEl.classList.add("today");
+      if (dayDate.toDateString() === today.toDateString()) dayEl.classList.add("today");
       else if (dayDate < today) dayEl.classList.add("past");
       else dayEl.classList.add("future");
       if (ev) dayEl.classList.add("has-event");
@@ -410,16 +397,10 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function openEventPopup(dateStr, ev) {
-    const eventPopup = $("#event-popup");
-    const eventDateTitle = $("#event-date-title");
-    const eventDetails = $("#event-details");
-    const eventAdminControls = $("#event-admin-controls");
     eventPopup.classList.remove("hidden");
     eventDateTitle.textContent = new Date(dateStr).toLocaleDateString("es-ES");
     eventDetails.innerHTML = ev
-      ? `<strong>${escapeHtml(ev.title || "")}</strong><p>${escapeHtml(
-          ev.note || ""
-        )}</p>`
+      ? `<strong>${escapeHtml(ev.title || "")}</strong><p>${escapeHtml(ev.note || "")}</p>`
       : "<em>No hay evento</em>";
     if (loggedIn) {
       eventAdminControls.classList.remove("hidden");
@@ -428,10 +409,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const note = prompt("Detalles del evento:", ev ? ev.note : "") || "";
         if (!title && !note) {
           if (ev) {
-            await supabaseClient
-              .from("calendar_events")
-              .delete()
-              .eq("event_date", dateStr);
+            await supabaseClient.from("calendar_events").delete().eq("event_date", dateStr);
             await loadEvents();
             eventPopup.classList.add("hidden");
             return;
@@ -440,9 +418,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         const { error } = await supabaseClient
           .from("calendar_events")
-          .upsert([{ event_date: dateStr, title, note }], {
-            onConflict: "event_date",
-          });
+          .upsert([{ event_date: dateStr, title, note }], { onConflict: "event_date" });
         if (error) return alert("Save failed: " + error.message);
         await loadEvents();
         eventPopup.classList.add("hidden");
@@ -515,7 +491,9 @@ document.addEventListener("DOMContentLoaded", () => {
     setTimeout(() => el.remove(), t);
   }
   function escapeHtml(s) {
-    return String(s || "").replace(/[&<>\"']/g, (m) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]));
+    return String(s || "").replace(/[&<>\"']/g, (m) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m])
+    );
   }
   async function populateAdmin() {
     await loadSiteSettings();
