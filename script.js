@@ -1,6 +1,6 @@
 // UNAMUNO polished final - clear green theme with infinite calendar
 // IMPORTANT: Replace SUPABASE_URL and SUPABASE_ANON_KEY with your Supabase project values
-const SUPABASE_URL = "https://YOUR_PROJECT.supabase.co"; // <-- REPLACE
+const SUPABASE_URL = "https://ddpqzpexcktjtzaqradg.supabase.co"; // <-- REPLACE
 const SUPABASE_ANON_KEY = "YOUR_ANON_KEY";               // <-- REPLACE
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
