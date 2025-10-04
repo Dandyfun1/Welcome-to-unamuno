@@ -1,123 +1,86 @@
-<!doctype html>
-<html lang="es">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="UTF-8" />
   <title>UNAMUNO</title>
   <link rel="stylesheet" href="style.css" />
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://unpkg.com/@supabase/supabase-js"></script>
+  <script defer src="script.js"></script>
 </head>
 <body>
-  <header class="hero">
-    <div class="wrap hero-inner">
-      <div class="brand">
-        <img id="site-logo" class="logo" alt="UNAMUNO logo" src="" />
-        <div>
-          <h1 id="site-title">UNAMUNO</h1>
-          <p id="site-sub" class="sub">Editable site • posts + events</p>
-        </div>
-      </div>
-      <div class="hero-actions">
-        <button id="calendar-toggle" class="ghost">Calendario</button>
-        <button id="admin-toggle" class="ghost">Admin</button>
-      </div>
+  <header>
+    <img id="site-logo" alt="Logo" />
+    <h1 id="site-title">UNAMUNO</h1>
+    <p id="site-sub"></p>
+    <div id="status-pill">Público</div>
+    <div id="login-area">
+      <input type="email" id="pw-input" placeholder="Admin email" />
+      <button id="login-btn">Login</button>
+    </div>
+    <div id="controls-area" class="hidden">
+      <button id="logout-btn">Logout</button>
+      <button id="admin-toggle">⚙️ Admin</button>
+      <button id="calendar-toggle">📅 Calendar</button>
+      <button id="export-btn">⬇️ Export</button>
     </div>
   </header>
 
-  <main class="wrap main">
-    <section class="controls-row">
-      <input id="search-input" type="text" placeholder="Buscar publicaciones, autor o categoría..." />
-      <button id="search-btn" class="btn">Buscar</button>
+  <main>
+    <!-- Search -->
+    <section id="search-section">
+      <input type="text" id="search-input" placeholder="Buscar..." />
+      <button id="search-btn">🔍</button>
     </section>
 
-    <section id="pinned-area" class="pinned-area"></section>
-    <section id="items-grid" class="grid" aria-live="polite"></section>
+    <!-- Items -->
+    <section id="pinned-area"></section>
+    <section id="items-grid"></section>
+    <div id="items-list"></div>
+
+    <!-- Public post -->
+    <button id="public-post-btn">Nueva publicación</button>
   </main>
 
-  <footer class="site-footer">© UNAMUNO • Lightweight CMS • Built with Supabase</footer>
+  <!-- Admin Panel -->
+  <div id="admin-panel" class="panel hidden">
+    <div id="admin-drag" class="drag-handle">⚙️ Admin Panel <button id="admin-close">✖</button></div>
+    <h2>Site Settings</h2>
+    <label>Título <input id="edit-title" /></label>
+    <label>Subtítulo <input id="edit-sub" /></label>
+    <label>Accent <input type="color" id="edit-accent" value="#79c1d9" /></label>
+    <label>Logo URL <input id="edit-logo" /></label>
+    <label>Hero URL <input id="edit-hero" /></label>
+    <button id="save-changes">Guardar</button>
+    <button id="new-item-btn">+ Nuevo Item</button>
+  </div>
 
-  <!-- Floating public post button -->
-  <button id="public-post-btn" class="fab" title="Nueva publicación">+</button>
-
-  <!-- Admin Panel (draggable) -->
-  <div id="admin-panel" class="panel hidden" role="dialog" aria-hidden="true">
-    <div id="admin-drag" class="panel-header">
-      <div><strong>Admin Panel</strong></div>
-      <div class="panel-controls">
-        <button id="admin-close" class="ghost small">✕</button>
-      </div>
+  <!-- Calendar Panel -->
+  <div id="calendar-panel" class="panel hidden">
+    <div id="calendar-drag" class="drag-handle">📅 Calendar <button id="calendar-close">✖</button></div>
+    <div class="calendar-nav">
+      <button id="cal-prev">&lt;</button>
+      <span id="cal-title"></span>
+      <button id="cal-next">&gt;</button>
     </div>
-    <div class="panel-body">
-      <div id="login-area">
-        <label>Email (admin)</label>
-        <input id="pw-input" type="text" placeholder="admin@example.com" />
-        <div style="margin-top:8px">
-          <button id="login-btn" class="btn">Entrar</button>
-        </div>
-        <p class="small muted">Introduce tu email; a continuación se te pedirá la contraseña.</p>
-      </div>
+    <div id="calendar-grid" class="calendar-grid"></div>
+  </div>
 
-      <div id="controls-area" class="hidden">
-        <h3>Site Settings</h3>
-        <label>Título</label>
-        <input id="edit-title" type="text" />
-        <label>Subtítulo</label>
-        <input id="edit-sub" type="text" />
-        <label>Accent color (hex)</label>
-        <input id="edit-accent" type="text" placeholder="#16a34a" />
-        <label>Logo URL</label>
-        <input id="edit-logo" type="text" placeholder="https://..." />
-        <label>Hero background URL</label>
-        <input id="edit-hero" type="text" placeholder="https://..." />
-        <div style="display:flex;gap:8px;margin-top:10px">
-          <button id="save-changes" class="btn">Guardar</button>
-          <button id="export-btn" class="ghost">Exportar JSON</button>
-          <button id="logout-btn" class="ghost" style="margin-left:auto">Cerrar sesión</button>
-        </div>
-
-        <p class="hint">Los botones peligrosos mostrarán confirmación y una animación.</p>
-
-        <hr/>
-
-        <h3>Posts Manager</h3>
-        <div id="items-list" class="items-list small muted"></div>
-
-        <hr/>
-
-        <h3>Calendar Manager</h3>
-        <div id="calendar-admin" class="small muted"></div>
-      </div>
+  <!-- Event Popup -->
+  <div id="event-popup" class="popup hidden">
+    <h3 id="event-date-title"></h3>
+    <div id="event-details"></div>
+    <div id="event-admin-controls">
+      <button id="edit-event-btn">Editar</button>
+      <button id="delete-event-btn">Eliminar</button>
     </div>
   </div>
 
-  <!-- Calendar Panel (draggable) -->
-  <div id="calendar-panel" class="panel hidden" role="dialog" aria-hidden="true">
-    <div id="calendar-drag" class="panel-header">
-      <div><strong>Calendario</strong></div>
-      <div class="panel-controls">
-        <button id="calendar-close" class="ghost small">✕</button>
-      </div>
-    </div>
-    <div class="panel-body">
-      <div class="cal-nav" style="display:flex;justify-content:space-between;align-items:center">
-        <button id="cal-prev" class="ghost small">◀</button>
-        <div id="cal-title" class="muted small"></div>
-        <button id="cal-next" class="ghost small">▶</button>
-      </div>
-      <div id="calendar-grid" class="calendar-grid" style="margin-top:12px"></div>
-      <div id="event-popup" class="event-popup hidden">
-        <h4 id="event-date-title"></h4>
-        <div id="event-details"></div>
-        <div id="event-admin-controls" class="hidden" style="margin-top:8px">
-          <button id="edit-event-btn" class="btn" data-tooltip="Editar evento (admin)">Editar</button>
-          <button id="delete-event-btn" class="danger" data-tooltip="Eliminar evento (admin)">Eliminar</button>
-        </div>
-      </div>
-    </div>
-  </div>
+  <!-- Notifications -->
+  <div id="notifications"></div>
 
-  <div id="notifications" class="notifications"></div>
-
-  <script src="script.js" defer></script>
+  <footer>
+    <p>&copy; 2025 UNAMUNO</p>
+  </footer>
 </body>
 </html>
+
