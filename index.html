@@ -1,83 +1,78 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Clear Blue Blog</title>
-  <link rel="stylesheet" href="style.css" />
-  <script src="https://unpkg.com/@supabase/supabase-js"></script>
+  <link rel="stylesheet" href="style.css">
   <script defer src="script.js"></script>
 </head>
 <body>
   <header>
-    <!-- Dark/Light mode toggle -->
-    <button id="theme-toggle">🌙</button>
-
-    <img id="site-logo" alt="Logo" />
-    <h1 id="site-title">Clear Blue Blog</h1>
-    <p id="site-sub"></p>
-
-    <div id="status-pill">Público</div>
-
-    <div id="login-area">
-      <input type="email" id="pw-input" placeholder="Admin email" />
-      <button id="login-btn">Login</button>
+    <div class="logo-area">
+      <img id="site-logo" src="" alt="Logo">
+      <h1 id="site-title">Clear Blue Blog</h1>
     </div>
-
-    <div id="controls-area" class="hidden">
-      <button id="logout-btn">Logout</button>
-      <button id="admin-toggle">⚙️ Admin</button>
-      <button id="calendar-toggle">📅 Calendar</button>
-      <button id="export-btn">⬇️ Export</button>
+    <p id="site-sub">Bienvenido a tu blog con calendario público</p>
+    <div class="search-bar">
+      <input type="text" id="search-input" placeholder="Buscar publicaciones...">
+      <button id="search-btn">🔍</button>
+    </div>
+    <div class="nav-controls">
+      <button id="calendar-toggle">📅 Calendario</button>
+      <button id="public-post-btn">➕ Nueva publicación</button>
+      <div id="login-area">
+        <input type="email" id="pw-input" placeholder="Admin email">
+        <button id="login-btn">Login</button>
+      </div>
+      <div id="controls-area" class="hidden">
+        <button id="admin-toggle">⚙️ Admin</button>
+        <button id="export-btn">⬇ Export</button>
+        <button id="logout-btn">Logout</button>
+      </div>
     </div>
   </header>
 
   <main>
-    <!-- Search -->
-    <section id="search-section">
-      <input type="text" id="search-input" placeholder="Buscar publicaciones..." />
-      <button id="search-btn">🔍</button>
-    </section>
-
-    <!-- Posts -->
     <section id="pinned-area"></section>
-    <section id="items-grid"></section>
-    <div id="items-list"></div>
-
-    <!-- Public post -->
-    <button id="public-post-btn" class="main-btn">Nueva publicación</button>
+    <section id="items-grid" class="grid"></section>
   </main>
 
   <!-- Admin Panel -->
   <div id="admin-panel" class="panel hidden">
-    <div id="admin-drag" class="drag-handle">⚙️ Admin Panel <button id="admin-close">✖</button></div>
-    <h2>Configuración del Sitio</h2>
-    <label>Título <input id="edit-title" /></label>
-    <label>Subtítulo <input id="edit-sub" /></label>
-    <label>Accent <input type="color" id="edit-accent" value="#1e90ff" /></label>
-    <label>Logo URL <input id="edit-logo" /></label>
-    <label>Hero URL <input id="edit-hero" /></label>
-    <button id="save-changes" class="main-btn">Guardar</button>
-    <button id="new-item-btn">+ Nueva Publicación</button>
+    <div id="admin-drag" class="drag-bar">⚙️ Admin Panel <button id="admin-close">✖</button></div>
+    <div class="panel-body">
+      <h2>Configuración del sitio</h2>
+      <label>Título <input id="edit-title" type="text"></label>
+      <label>Subtítulo <input id="edit-sub" type="text"></label>
+      <label>Color principal <input id="edit-accent" type="color"></label>
+      <label>Logo URL <input id="edit-logo" type="text"></label>
+      <label>Hero URL <input id="edit-hero" type="text"></label>
+      <button id="save-changes">Guardar</button>
+      <h2>Posts</h2>
+      <div id="items-list"></div>
+      <button id="new-item-btn">➕ Nuevo Post</button>
+    </div>
   </div>
 
   <!-- Calendar Panel -->
   <div id="calendar-panel" class="panel hidden">
-    <div id="calendar-drag" class="drag-handle">📅 Calendario <button id="calendar-close">✖</button></div>
-    <div class="calendar-nav">
-      <button id="cal-prev">&lt;</button>
-      <span id="cal-title"></span>
-      <button id="cal-next">&gt;</button>
-    </div>
-    <div id="calendar-grid" class="calendar-grid"></div>
-  </div>
-
-  <!-- Event Popup -->
-  <div id="event-popup" class="popup hidden">
-    <h3 id="event-date-title"></h3>
-    <div id="event-details"></div>
-    <div id="event-admin-controls">
-      <button id="edit-event-btn">Editar</button>
-      <button id="delete-event-btn" class="danger">Eliminar</button>
+    <div id="calendar-drag" class="drag-bar">📅 Calendario <button id="calendar-close">✖</button></div>
+    <div class="panel-body">
+      <div class="calendar-header">
+        <button id="cal-prev">◀</button>
+        <h2 id="cal-title"></h2>
+        <button id="cal-next">▶</button>
+      </div>
+      <div id="calendar-grid" class="calendar-grid"></div>
+      <div id="event-popup" class="popup hidden">
+        <h3 id="event-date-title"></h3>
+        <div id="event-details"></div>
+        <div id="event-admin-controls" class="hidden">
+          <button id="edit-event-btn">Editar</button>
+          <button id="delete-event-btn">Eliminar</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -85,7 +80,8 @@
   <div id="notifications"></div>
 
   <footer>
-    <p>&copy; 2025 Clear Blue Blog</p>
+    <p>&copy; 2024 Clear Blue Blog</p>
+    <button id="dark-toggle">🌙/☀️</button>
   </footer>
 </body>
 </html>
