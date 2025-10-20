@@ -3,25 +3,37 @@
 // ===============================
 
 // 💾 Connect to Supabase
-const SUPABASE_URL = 'https://ddpqzpexcktjtzaqradg.supabase.co';   // <-- Replace with your Supabase project URL
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkcHF6cGV4Y2t0anR6YXFyYWRnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkyMjczOTcsImV4cCI6MjA3NDgwMzM5N30.yIEsfMgq1SN_M0Un5w1tHj76agBL8Fr9L3dSUtk4hVQ';              // <-- Replace with your anon key
+const SUPABASE_URL = 'https://ddpqzpexcktjtzaqradg.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkcHF6cGV4Y2t0anR6YXFyYWRnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkyMjczOTcsImV4cCI6MjA3NDgwMzM5N30.yIEsfMgq1SN_M0Un5w1tHj76agBL8Fr9L3dSUtk4hVQ';
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // ===============================
 // UTILITIES
 // ===============================
 function el(id) { return document.getElementById(id); }
-function show(msg) { alert(msg); }
+function toast(msg) {
+  const n = document.createElement('div');
+  n.className = 'toast';
+  n.textContent = msg;
+  el('notifications').appendChild(n);
+  setTimeout(() => n.remove(), 3000);
+}
 
 // ===============================
 // SITE SETTINGS
 // ===============================
 async function loadSiteSettings() {
-  const { data, error } = await supabase.from('site_settings').select('*').eq('id', '00000000-0000-0000-0000-000000000001').single();
+  const { data, error } = await supabase
+    .from('site_settings')
+    .select('*')
+    .eq('id', '00000000-0000-0000-0000-000000000001')
+    .single();
+
   if (error) {
     console.error('Failed to load site settings:', error.message);
     return;
   }
+
   const s = data || {};
   el('site-title').textContent = s.title || 'UNAMUNO';
   el('site-description').textContent = s.description || '';
@@ -51,12 +63,12 @@ async function loadPosts() {
 
   data.forEach(post => {
     const div = document.createElement('div');
-    div.className = 'post';
+    div.className = 'card';
     div.innerHTML = `
+      ${post.thumbnail_url ? `<img src="${post.thumbnail_url}" class="thumb" alt="thumbnail">` : ''}
       <h3>${post.title}</h3>
-      <p>${post.description || ''}</p>
-      ${post.category ? `<span class="category">${post.category}</span>` : ''}
-      <small>${new Date(post.created_at).toLocaleString()}</small>
+      ${post.link ? `<p><a href="${post.link}" target="_blank">${post.link}</a></p>` : ''}
+      <div class="meta">${new Date(post.created_at).toLocaleString()}</div>
     `;
     container.appendChild(div);
   });
@@ -65,31 +77,66 @@ async function loadPosts() {
 // Create a new post
 async function createPost() {
   const title = el('post-title').value.trim();
-  const description = el('post-description').value.trim();
-  const username = el('post-username')?.value?.trim() || '';
-  const category = el('post-category')?.value?.trim() || '';
-  const pinned = el('post-pinned')?.checked || false;
+  const link = el('post-link').value.trim();
+  const thumbnail = el('post-thumbnail').value.trim();
+  const pinned = el('post-pinned').checked;
 
-  if (!title) return show('Please enter a title.');
+  if (!title) return toast('Please enter a title.');
 
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from('items')
-    .insert([{ title, description, username, category, pinned }])
-    .select();
+    .insert([{ title, link, thumbnail_url: thumbnail, pinned }]);
 
   if (error) {
     console.error('Create failed:', error.message);
-    return show(`Create failed: ${error.message}`);
+    return toast(`Create failed: ${error.message}`);
   }
 
-  show('Post created successfully!');
+  toast('✅ Post created successfully!');
   el('post-title').value = '';
-  el('post-description').value = '';
-  el('post-category').value = '';
+  el('post-link').value = '';
+  el('post-thumbnail').value = '';
   el('post-pinned').checked = false;
 
+  togglePanel(false);
   loadPosts();
 }
+
+// ===============================
+// POPUP PANEL LOGIC
+// ===============================
+function togglePanel(show = true) {
+  const panel = el('post-panel');
+  if (show) panel.classList.remove('hidden');
+  else panel.classList.add('hidden');
+}
+
+// Dragging
+(function makeDraggable() {
+  const panel = el('post-panel');
+  const header = el('panel-header');
+  let offsetX, offsetY, dragging = false;
+
+  header.addEventListener('mousedown', e => {
+    dragging = true;
+    offsetX = e.clientX - panel.offsetLeft;
+    offsetY = e.clientY - panel.offsetTop;
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  });
+
+  function onMove(e) {
+    if (!dragging) return;
+    panel.style.left = e.clientX - offsetX + 'px';
+    panel.style.top = e.clientY - offsetY + 'px';
+  }
+
+  function onUp() {
+    dragging = false;
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup', onUp);
+  }
+})();
 
 // ===============================
 // CALENDAR EVENTS
@@ -118,31 +165,6 @@ async function loadCalendar() {
   });
 }
 
-async function createEvent() {
-  const date = el('event-date').value;
-  const title = el('event-title').value.trim();
-  const note = el('event-note').value.trim();
-
-  if (!date || !title) return show('Please fill in event date and title.');
-
-  const { data, error } = await supabase
-    .from('calendar_events')
-    .insert([{ event_date: date, title, note }])
-    .select();
-
-  if (error) {
-    console.error('Failed to create event:', error.message);
-    return show(`Create failed: ${error.message}`);
-  }
-
-  show('Event added successfully!');
-  el('event-date').value = '';
-  el('event-title').value = '';
-  el('event-note').value = '';
-
-  loadCalendar();
-}
-
 // ===============================
 // INIT
 // ===============================
@@ -150,9 +172,7 @@ document.addEventListener('DOMContentLoaded', () => {
   loadPosts();
   loadCalendar();
 
-  const postBtn = el('create-post-btn');
-  if (postBtn) postBtn.addEventListener('click', createPost);
-
-  const eventBtn = el('create-event-btn');
-  if (eventBtn) eventBtn.addEventListener('click', createEvent);
+  el('create-post-btn').addEventListener('click', createPost);
+  el('open-panel-btn').addEventListener('click', () => togglePanel(true));
+  el('close-panel-btn').addEventListener('click', () => togglePanel(false));
 });
