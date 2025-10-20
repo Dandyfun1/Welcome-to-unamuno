@@ -1,81 +1,79 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>UNAMUNO</title>
-
-  <!-- Supabase client -->
-  <script src="https://unpkg.com/@supabase/supabase-js"></script>
-
-  <!-- CSS -->
-  <link rel="stylesheet" href="styles.css" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UNAMUNO</title>
+<link rel="stylesheet" href="styles.css">
+<script src="https://unpkg.com/@supabase/supabase-js"></script>
 </head>
 <body>
-  <div id="notifications" class="notifications" aria-live="polite"></div>
 
-  <!-- HEADER -->
-  <header>
-    <img id="site-logo" src="" alt="Logo" />
-    <h1 id="site-title">UNAMUNO</h1>
-    <p id="site-description">Welcome to the official page.</p>
-  </header>
-
-  <main>
-    <!-- POST SECTION -->
-    <section id="posts-section">
-      <h2>📝 Create a Post</h2>
-      <!-- Button opens the draggable creation panel -->
-      <button id="open-panel-btn" class="btn">Open Post Panel</button>
-      <!-- Quick note: panel is hidden by default to preserve layout -->
-    </section>
-
-    <section>
-      <h2>📢 Recent Posts</h2>
-      <div id="posts" class="grid">Loading posts...</div>
-    </section>
-
-    <!-- CALENDAR SECTION -->
-    <section id="calendar-section">
-      <h2>📅 Calendar</h2>
-
-      <div id="calendar-controls">
-        <input id="event-date" type="date" />
-        <input id="event-title" type="text" placeholder="Event title" />
-        <textarea id="event-note" placeholder="Event note (optional)"></textarea>
-        <button id="create-event-btn" class="btn">Add Event</button>
-      </div>
-
-      <div id="calendar">Loading events...</div>
-    </section>
-  </main>
-
-  <div class="footer">
-    © 2025 UNAMUNO — <a href="admin.html">Admin panel</a>
-  </div>
-
-  <!-- DRAGGABLE POST PANEL -->
-  <div id="post-panel" class="panel hidden" style="left:20px; top:100px;">
-    <div id="panel-header" class="panel-header">
-      <span>Create a New Post</span>
-      <button id="close-panel-btn" class="ghost small">✖</button>
+<header class="header">
+  <div class="header-inner">
+    <img id="site-logo" src="" alt="Logo">
+    <div>
+      <h1 id="site-title">UNAMUNO</h1>
+      <p id="site-description">Welcome to the official page.</p>
     </div>
-    <div class="panel-body">
-      <input id="post-title" type="text" placeholder="Post title" />
-      <input id="post-link" type="text" placeholder="Link (optional)" />
-      <input id="post-thumbnail" type="text" placeholder="Thumbnail image URL (optional)" />
-      <label><input type="checkbox" id="post-pinned" /> Pin this post</label>
-
-      <div style="display:flex;gap:8px;margin-top:8px;">
-        <button id="create-post-btn" class="btn">Publish Post</button>
-        <button id="clear-panel-btn" class="ghost small">Clear</button>
-      </div>
-
-      <div id="thumb-preview" style="margin-top:8px;"></div>
-    </div>
+    <button id="admin-login-btn" class="btn" style="margin-left:auto;">Admin Login</button>
   </div>
+</header>
 
-  <!-- MAIN JS -->
-  <script src="main.js"></script>
+<main class="wrap">
+
+  <!-- Posts Section -->
+  <section class="section">
+    <div class="section-header">
+      <h2>📢 Posts</h2>
+      <button id="open-panel-btn" class="btn">New Post</button>
+    </div>
+    <div id="posts" class="grid">Loading posts...</div>
+  </section>
+
+  <!-- Calendar Section -->
+  <section class="section">
+    <h2>📅 Calendar</h2>
+    <div class="controls-row">
+      <input id="event-date" type="date" />
+      <input id="event-title" type="text" placeholder="Event title" />
+      <button id="create-event-btn" class="btn">Add Event</button>
+    </div>
+    <textarea id="event-note" placeholder="Event note (optional)"></textarea>
+    <div id="calendar" class="grid">Loading events...</div>
+  </section>
+
+</main>
+
+<footer class="site-footer">© 2025 UNAMUNO — Powered by Supabase</footer>
+
+<!-- Draggable Post Panel -->
+<div class="panel" id="post-panel">
+  <div class="panel-header">
+    Create / Edit Post
+    <span id="close-panel" style="float:right;cursor:pointer;">✖</span>
+  </div>
+  <div class="panel-body">
+    <input id="post-title" type="text" placeholder="Post title" />
+    <input id="post-link" type="text" placeholder="Optional link (URL)" />
+    <input id="post-thumbnail" type="text" placeholder="Thumbnail image URL" />
+    <label><input type="checkbox" id="post-pinned" /> Pin this post</label>
+    <button id="create-post-btn" class="btn">Publish Post</button>
+    <button id="update-post-btn" class="btn" style="display:none;">Update Post</button>
+    <input type="hidden" id="editing-post-id" />
+  </div>
+</div>
+
+<!-- Admin Login Modal -->
+<div class="panel" id="admin-login-panel" style="width:300px;top:150px;right:50%;transform:translateX(50%);">
+  <div class="panel-header">Admin Login <span id="close-admin-login" style="float:right;cursor:pointer;">✖</span></div>
+  <div class="panel-body">
+    <input id="admin-username" type="text" placeholder="Username" />
+    <input id="admin-password" type="password" placeholder="Password" />
+    <button id="admin-login-submit" class="btn">Login</button>
+  </div>
+</div>
+
+<script src="main.js"></script>
 </body>
 </html>
