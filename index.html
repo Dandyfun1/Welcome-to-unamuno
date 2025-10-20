@@ -4,58 +4,77 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>UNAMUNO</title>
-  <link rel="stylesheet" href="styles.css" />
+
+  <!-- Supabase client -->
   <script src="https://unpkg.com/@supabase/supabase-js"></script>
+
+  <!-- main stylesheet -->
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div id="notifications" class="notifications"></div>
+
+  <!-- Notifications -->
+  <div id="notifications" class="notifications" aria-live="polite"></div>
 
   <!-- HEADER -->
-  <header class="hero">
-    <div class="hero-inner wrap">
-      <div class="brand">
-        <img id="site-logo" class="logo" src="" alt="Logo">
-        <div>
-          <h1 id="site-title">UNAMUNO</h1>
-          <p id="site-description" class="sub">Welcome to the official UNAMUNO page.</p>
-        </div>
-      </div>
-      <div class="hero-actions">
-        <button id="open-panel-btn" class="btn">+ New Post</button>
-      </div>
-    </div>
+  <header>
+    <img id="site-logo" src="" alt="Logo" />
+    <h1 id="site-title">UNAMUNO</h1>
+    <p id="site-description">Welcome to the official page.</p>
   </header>
 
-  <!-- MAIN -->
-  <main class="wrap">
-    <h2>📢 Recent Posts</h2>
-    <div id="posts" class="grid">Loading posts...</div>
+  <!-- MAIN CONTENT -->
+  <main>
+    <!-- POST SECTION (kept visually similar to your original layout) -->
+    <section id="posts-section">
+      <h2>📝 Create a Post</h2>
+      <!-- The inline inputs were removed as requested. Use the popup panel instead. -->
+      <button id="open-panel-btn">Open Post Panel</button>
+    </section>
 
+    <section>
+      <h2>📢 Recent Posts</h2>
+      <div id="posts">Loading posts...</div>
+    </section>
+
+    <!-- CALENDAR SECTION -->
     <section id="calendar-section">
       <h2>📅 Calendar</h2>
+      <div id="calendar-controls">
+        <input id="event-date" type="date" />
+        <input id="event-title" type="text" placeholder="Event title" />
+        <textarea id="event-note" placeholder="Event note (optional)"></textarea>
+        <button id="create-event-btn">Add Event</button>
+      </div>
       <div id="calendar">Loading events...</div>
     </section>
   </main>
 
-  <footer class="site-footer">
+  <!-- FOOTER -->
+  <div class="footer">
     © 2025 UNAMUNO — Powered by Supabase
-  </footer>
+  </div>
 
-  <!-- POST CREATION PANEL -->
-  <div id="post-panel" class="panel hidden" style="left:20px;top:120px;">
+  <!-- DRAGGABLE POST PANEL (hidden by default) -->
+  <div id="post-panel" class="panel hidden" style="left:20px; top:100px;">
     <div id="panel-header" class="panel-header">
-      <span>📝 Create a New Post</span>
+      <span>Create a New Post</span>
       <button id="close-panel-btn" class="ghost small">✖</button>
     </div>
     <div class="panel-body">
       <input id="post-title" type="text" placeholder="Post title" />
-      <input id="post-link" type="text" placeholder="Link (optional)" />
+      <input id="post-link" type="text" placeholder="External link (optional)" />
       <input id="post-thumbnail" type="text" placeholder="Thumbnail image URL (optional)" />
       <label><input type="checkbox" id="post-pinned" /> Pin this post</label>
-      <button id="create-post-btn" class="btn">Publish</button>
+      <div style="display:flex;gap:8px;margin-top:8px;">
+        <button id="create-post-btn" class="btn">Publish Post</button>
+        <button id="clear-panel-btn" class="ghost small">Clear</button>
+      </div>
+      <div id="thumb-preview" style="margin-top:8px;"></div>
     </div>
   </div>
 
+  <!-- Script -->
   <script src="main.js"></script>
 </body>
 </html>
