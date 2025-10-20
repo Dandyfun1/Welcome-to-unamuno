@@ -1,121 +1,151 @@
-<!doctype html>
-<html lang="es">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>UNAMUNO</title>
-  <link rel="stylesheet" href="style.css" />
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://unpkg.com/@supabase/supabase-js"></script>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    :root {
+      --accent: #007bff;
+      --bg: rgba(255, 255, 255, 0.85);
+      --text: #0b0b0b;
+    }
+
+    body {
+      font-family: "Segoe UI", Roboto, sans-serif;
+      margin: 0;
+      background: linear-gradient(120deg, rgba(0,123,255,0.3), rgba(255,255,255,0.6));
+      color: var(--text);
+      backdrop-filter: blur(10px);
+    }
+
+    header {
+      text-align: center;
+      padding: 2rem;
+      background: transparent;
+    }
+
+    #site-logo {
+      height: 80px;
+      margin-bottom: 0.5rem;
+    }
+
+    #site-title {
+      font-size: 2rem;
+      margin: 0.5rem 0;
+      color: var(--accent);
+    }
+
+    #site-description {
+      font-size: 1rem;
+      color: #333;
+    }
+
+    main {
+      max-width: 800px;
+      margin: 0 auto;
+      background: var(--bg);
+      padding: 2rem;
+      border-radius: 20px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 0.3rem;
+      color: var(--accent);
+    }
+
+    input, textarea, button {
+      width: 100%;
+      padding: 0.75rem;
+      margin: 0.5rem 0;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+
+    button {
+      background: var(--accent);
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.3s;
+    }
+    button:hover { background: #0056b3; }
+
+    .post, .calendar-event {
+      background: white;
+      border-radius: 12px;
+      padding: 1rem;
+      margin: 1rem 0;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .category {
+      background: var(--accent);
+      color: white;
+      padding: 0.2rem 0.6rem;
+      border-radius: 5px;
+      font-size: 0.8rem;
+      margin-right: 0.5rem;
+    }
+
+    .footer {
+      text-align: center;
+      font-size: 0.9rem;
+      padding: 2rem;
+      color: #555;
+    }
+
+    label { font-size: 0.9rem; display: flex; align-items: center; gap: 0.4rem; }
+  </style>
 </head>
 <body>
-  <header class="hero">
-    <div class="wrap hero-inner">
-      <div class="brand">
-        <img id="site-logo" class="logo" alt="UNAMUNO logo" src="" />
-        <div>
-          <h1 id="site-title">UNAMUNO</h1>
-          <p id="site-sub" class="sub">Editable site • posts + events</p>
-        </div>
-      </div>
-      <div class="hero-actions">
-        <button id="calendar-toggle" class="ghost">Calendario</button>
-        <button id="admin-toggle" class="ghost">Admin</button>
-      </div>
-    </div>
+
+  <!-- HEADER -->
+  <header>
+    <img id="site-logo" src="" alt="Logo">
+    <h1 id="site-title">UNAMUNO</h1>
+    <p id="site-description">Welcome to the official page.</p>
   </header>
 
-  <main class="wrap main">
-    <section class="controls-row">
-      <input id="search-input" type="text" placeholder="Buscar publicaciones, autor o categoría..." />
-      <button id="search-btn" class="btn">Buscar</button>
+  <!-- MAIN CONTENT -->
+  <main>
+    <!-- POST SECTION -->
+    <section id="posts-section">
+      <h2>📝 Create a Post</h2>
+      <input id="post-title" type="text" placeholder="Post title" />
+      <textarea id="post-description" placeholder="Write your post..."></textarea>
+      <input id="post-category" type="text" placeholder="Category (optional)" />
+      <label><input type="checkbox" id="post-pinned" /> Pin this post</label>
+      <button id="create-post-btn">Publish Post</button>
     </section>
 
-    <section id="pinned-area" class="pinned-area"></section>
-    <section id="items-grid" class="grid" aria-live="polite"></section>
+    <section>
+      <h2>📢 Recent Posts</h2>
+      <div id="posts">Loading posts...</div>
+    </section>
+
+    <!-- CALENDAR SECTION -->
+    <section id="calendar-section">
+      <h2>📅 Calendar</h2>
+      <input id="event-date" type="date" />
+      <input id="event-title" type="text" placeholder="Event title" />
+      <textarea id="event-note" placeholder="Event note (optional)"></textarea>
+      <button id="create-event-btn">Add Event</button>
+      <div id="calendar">Loading events...</div>
+    </section>
   </main>
 
-  <footer class="site-footer">© UNAMUNO • Lightweight CMS • Built with Supabase</footer>
-
-  <!-- Floating public post button -->
-  <button id="public-post-btn" class="fab" title="Nueva publicación">+</button>
-
-  <!-- Admin Panel (draggable) -->
-  <div id="admin-panel" class="panel hidden" role="dialog" aria-hidden="true">
-    <div id="admin-drag" class="panel-header">
-      <div><strong>Admin Panel</strong></div>
-      <div class="panel-controls">
-        <button id="admin-close" class="ghost small">✕</button>
-      </div>
-    </div>
-    <div class="panel-body">
-      <div id="login-area">
-        <label>Email (admin)</label>
-        <input id="pw-input" type="text" placeholder="admin@example.com" />
-        <div style="margin-top:8px">
-          <button id="login-btn" class="btn">Entrar</button>
-        </div>
-        <p class="small muted">Introduce tu email; a continuación se te pedirá la contraseña.</p>
-      </div>
-
-      <div id="controls-area" class="hidden">
-        <h3>Site Settings</h3>
-        <label>Título</label>
-        <input id="edit-title" type="text" />
-        <label>Subtítulo</label>
-        <input id="edit-sub" type="text" />
-        <label>Accent color (hex)</label>
-        <input id="edit-accent" type="text" placeholder="#16a34a" />
-        <label>Logo URL</label>
-        <input id="edit-logo" type="text" placeholder="https://..." />
-        <label>Hero background URL</label>
-        <input id="edit-hero" type="text" placeholder="https://..." />
-        <div style="display:flex;gap:8px;margin-top:10px">
-          <button id="save-changes" class="btn">Guardar</button>
-          <button id="export-btn" class="ghost">Exportar JSON</button>
-          <button id="logout-btn" class="ghost" style="margin-left:auto">Cerrar sesión</button>
-        </div>
-
-        <hr/>
-
-        <h3>Posts Manager</h3>
-        <div id="items-list" class="items-list small muted"></div>
-
-        <hr/>
-
-        <h3>Calendar Manager</h3>
-        <div id="calendar-admin" class="small muted"></div>
-      </div>
-    </div>
+  <!-- FOOTER -->
+  <div class="footer">
+    © 2025 UNAMUNO — Powered by Supabase
   </div>
 
-  <!-- Calendar Panel (draggable) -->
-  <div id="calendar-panel" class="panel hidden" role="dialog" aria-hidden="true">
-    <div id="calendar-drag" class="panel-header">
-      <div><strong>Calendario</strong></div>
-      <div class="panel-controls">
-        <button id="calendar-close" class="ghost small">✕</button>
-      </div>
-    </div>
-    <div class="panel-body">
-      <div class="cal-nav" style="display:flex;justify-content:space-between;align-items:center">
-        <button id="cal-prev" class="ghost small">◀</button>
-        <div id="cal-title" class="muted small"></div>
-        <button id="cal-next" class="ghost small">▶</button>
-      </div>
-      <div id="calendar-grid" class="calendar-grid" style="margin-top:12px"></div>
-      <div id="event-popup" class="event-popup hidden">
-        <h4 id="event-date-title"></h4>
-        <div id="event-details"></div>
-        <div id="event-admin-controls" class="hidden" style="margin-top:8px">
-          <button id="edit-event-btn" class="btn">Editar</button>
-          <button id="delete-event-btn" class="danger">Eliminar</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div id="notifications" class="notifications"></div>
-
-  <script src="script.js" defer></script>
+  <!-- MAIN SCRIPT -->
+  <script src="main.js"></script>
 </body>
 </html>
