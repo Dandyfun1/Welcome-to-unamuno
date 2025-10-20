@@ -4,11 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>UNAMUNO</title>
-  <script src="https://unpkg.com/@supabase/supabase-js"></script>
   <link rel="stylesheet" href="styles.css" />
+  <script src="https://unpkg.com/@supabase/supabase-js"></script>
 </head>
 <body>
-  <div class="notifications" id="notifications"></div>
+  <div id="notifications" class="notifications"></div>
 
   <!-- HEADER -->
   <header class="hero">
@@ -17,7 +17,7 @@
         <img id="site-logo" class="logo" src="" alt="Logo">
         <div>
           <h1 id="site-title">UNAMUNO</h1>
-          <p id="site-description" class="sub">Welcome to the official page</p>
+          <p id="site-description" class="sub">Welcome to the official UNAMUNO page.</p>
         </div>
       </div>
       <div class="hero-actions">
@@ -26,6 +26,7 @@
     </div>
   </header>
 
+  <!-- MAIN -->
   <main class="wrap">
     <h2>📢 Recent Posts</h2>
     <div id="posts" class="grid">Loading posts...</div>
@@ -36,18 +37,20 @@
     </section>
   </main>
 
-  <div class="site-footer">© 2025 UNAMUNO — Powered by Supabase</div>
+  <footer class="site-footer">
+    © 2025 UNAMUNO — Powered by Supabase
+  </footer>
 
-  <!-- POST PANEL -->
-  <div id="post-panel" class="panel hidden" style="left:20px;top:100px;">
+  <!-- POST CREATION PANEL -->
+  <div id="post-panel" class="panel hidden" style="left:20px;top:120px;">
     <div id="panel-header" class="panel-header">
-      <span>Create a New Post</span>
+      <span>📝 Create a New Post</span>
       <button id="close-panel-btn" class="ghost small">✖</button>
     </div>
     <div class="panel-body">
       <input id="post-title" type="text" placeholder="Post title" />
       <input id="post-link" type="text" placeholder="Link (optional)" />
-      <input id="post-thumbnail" type="text" placeholder="Thumbnail image URL" />
+      <input id="post-thumbnail" type="text" placeholder="Thumbnail image URL (optional)" />
       <label><input type="checkbox" id="post-pinned" /> Pin this post</label>
       <button id="create-post-btn" class="btn">Publish</button>
     </div>
