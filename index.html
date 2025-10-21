@@ -1,36 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Login Demo</title>
-<style>
-body { font-family: sans-serif; background: #f0f0f0; display:flex; flex-direction:column; align-items:center; padding:2rem; }
-input { padding:0.5rem; margin:0.5rem 0; width:200px; }
-button { padding:0.5rem 1rem; margin:0.5rem; cursor:pointer; }
-#admin-panel { display:none; margin-top:2rem; padding:1rem; background:#fff; border:1px solid #ccc; border-radius:0.5rem; }
-#logout-btn { display:none; }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dandyfun1's Post Board</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <h1>📝 Public Post Board</h1>
 
-<h1>Admin Login Demo</h1>
+  <div id="postForm" class="hidden">
+    <textarea id="postContent" placeholder="Write something..."></textarea>
+    <button onclick="submitPost()">Post</button>
+  </div>
 
-<div id="login-area">
-  <input id="email-input" type="email" placeholder="Admin Email">
-  <input id="password-input" type="password" placeholder="Password">
-  <button id="login-btn">Login</button>
-</div>
+  <div id="posts"></div>
 
-<button id="logout-btn">Logout</button>
+  <hr />
+  <h2>🔐 Admin Login</h2>
+  <form id="loginForm">
+    <input type="email" id="email" placeholder="Email" required />
+    <input type="password" id="password" placeholder="Password" required />
+    <button type="submit">Login</button>
+  </form>
+  <p id="loginMessage"></p>
 
-<div id="admin-panel">
-  <h2>Admin Panel</h2>
-  <p>You are logged in!</p>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js/dist/supabase.min.js"></script>
-<script src="app.js"></script>
-
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
