@@ -1,12 +1,10 @@
 const SUPABASE_URL="https://ddpqzpexcktjtzaqradg.supabase.co";
-const SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkcHF6cGV4Y2t0anR6YXFyYWRnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkyMjczOTcsImV4cCI6MjA3NDgwMzM5N30.yIEsfMgq1SN_M0Un5w1tHj76agBL8Fr9L3dSUtk4hVQ";
+const SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkcHF6cGV4Y2t0anR6YXFyYWRnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkyMjczOTcsImV4cCI6MjA3NDgwMzM5N30.yIEsfMgq1SN_M0Un5w1tHj76agBL8Fr9L3dSUtk4hVQ"; // Replace with your Supabase anon key
 const supabase=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 
 const $=s=>document.querySelector(s);
 let loggedIn=false;
-
-// Sample posts array (replace with Supabase fetch later)
-let posts=[];
+let posts=[]; // Will fetch from Supabase later
 
 document.addEventListener('DOMContentLoaded',()=>{
   enableDrag('#post-panel');
@@ -22,7 +20,8 @@ document.addEventListener('DOMContentLoaded',()=>{
   $('#save-changes').addEventListener('click',saveSettings);
   $('#post-submit').addEventListener('click',createPost);
 
-  renderPosts();
+  checkSession();
+  loadPosts();
 });
 
 function enableDrag(panelSelector){
@@ -34,30 +33,64 @@ function enableDrag(panelSelector){
   document.addEventListener('mouseup',e=>{dragging=false;handle.style.cursor='grab';});
 }
 
-function login(){
-  const email=($('#pw-input').value||'').trim();
-  if(!email) return alert('Ingrese email');
-  loggedIn=true;
-  updateAuthUI();
-  toast('Sesión iniciada');
+// ---------------- Auth ----------------
+async function checkSession(){
+  const {data}=await supabase.auth.getSession();
+  if(data.session){
+    loggedIn=true;
+    updateAuthUI();
+  }
 }
 
-function logout(){loggedIn=false;updateAuthUI();toast('Sesión cerrada');}
+async function login(){
+  const email=($('#pw-input').value||'').trim();
+  if(!email) return alert('Ingrese email');
+  const password=prompt('Contraseña:');
+  if(!password) return;
+
+  const {data,error}=await supabase.auth.signInWithPassword({email,password});
+  if(error) return alert('Error: '+error.message);
+  if(data.session){
+    loggedIn=true;
+    updateAuthUI();
+    toast('Sesión iniciada');
+  } else {
+    alert('No se pudo iniciar sesión');
+  }
+}
+
+async function logout(){
+  await supabase.auth.signOut();
+  loggedIn=false;
+  updateAuthUI();
+  toast('Sesión cerrada');
+}
 
 function updateAuthUI(){
   $('#login-area').classList.toggle('hidden',loggedIn);
   $('#controls-area').classList.toggle('hidden',!loggedIn);
 }
 
-function createPost(){
+// ---------------- Posts ----------------
+async function loadPosts(){
+  const {data,error}=await supabase.from('items').select('*').order('created_at',{ascending:false});
+  if(error) return toast('Error cargando publicaciones');
+  posts=data||[];
+  renderPosts();
+}
+
+async function createPost(){
   const title=($('#post-title').value||'').trim();
-  const user=($('#post-username').value||'Anon').trim();
+  const username=($('#post-username').value||'Anon').trim();
   if(!title) return alert('Ingrese título');
-  posts.unshift({title,username:user});
+
+  const {error}=await supabase.from('items').insert([{title,username}]);
+  if(error) return toast('Error al crear publicación');
+  
   $('#post-panel').classList.add('hidden');
   $('#post-title').value=''; $('#post-username').value='';
-  renderPosts();
   toast('Publicación creada');
+  loadPosts();
 }
 
 function renderPosts(){
@@ -71,15 +104,25 @@ function renderPosts(){
   });
 }
 
-function saveSettings(){
+// ---------------- Settings ----------------
+async function saveSettings(){
   const title=$('#edit-title').value||'UNAMUNO';
   const accent=$('#edit-accent').value||'#16a34a';
+
+  const {error}=await supabase.from('site_settings').upsert([{
+    id:'00000000-0000-0000-0000-000000000001',
+    title,
+    accent
+  }]);
+
+  if(error) return toast('Error guardando configuración');
   $('#site-title').textContent=title;
   document.documentElement.style.setProperty('--accent',accent);
   $('#admin-panel').classList.add('hidden');
   toast('Configuración guardada');
 }
 
+// ---------------- Toast ----------------
 function toast(msg){
   const t=$('#toast');
   t.textContent=msg;
