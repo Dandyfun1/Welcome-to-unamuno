@@ -21,7 +21,6 @@
   <div id="controls-area" class="hidden">
     <button id="create-post-btn">Nueva publicación</button>
     <button id="open-settings-btn">Ajustes del sitio</button>
-    <button id="create-event-btn">Nuevo Evento</button>
     <button id="logout-btn">Logout</button>
   </div>
 </header>
@@ -32,30 +31,26 @@
     <button id="search-btn">Buscar</button>
   </section>
 
-  <div id="panels-container">
-    <!-- Post Panel -->
-    <div id="post-panel-drag" class="drag-panel hidden">
-      <div class="drag-handle">📰 Publicaciones</div>
-      <div id="items-list" class="posts"></div>
-    </div>
+  <div id="posts-list">
+    <!-- Posts will render here -->
+  </div>
 
-    <!-- Calendar Panel -->
-    <div id="calendar-panel-drag" class="drag-panel hidden">
-      <div class="drag-handle">📅 Calendario</div>
-      <div id="upcoming-events" class="events-list"></div>
-    </div>
+  <!-- Post Panel -->
+  <div id="post-panel" class="drag-panel hidden">
+    <div class="drag-handle">Nueva Publicación</div>
+    <input id="post-title" placeholder="Título">
+    <input id="post-username" placeholder="Usuario">
+    <button id="post-submit">Crear</button>
+    <button id="post-close">Cerrar</button>
+  </div>
 
-    <!-- Admin Panel -->
-    <div id="admin-panel-drag" class="drag-panel hidden">
-      <div class="drag-handle">⚙️ Ajustes</div>
-      <input id="edit-title" placeholder="Título del sitio">
-      <input id="edit-sub" placeholder="Descripción">
-      <input id="edit-accent" type="color">
-      <input id="edit-logo" placeholder="Logo URL">
-      <input id="edit-hero" placeholder="Hero URL">
-      <button id="save-changes">Guardar</button>
-      <button id="admin-close">Cerrar</button>
-    </div>
+  <!-- Admin Panel -->
+  <div id="admin-panel" class="drag-panel hidden">
+    <div class="drag-handle">Ajustes del sitio</div>
+    <input id="edit-title" placeholder="Título del sitio">
+    <input id="edit-accent" type="color">
+    <button id="save-changes">Guardar</button>
+    <button id="admin-close">Cerrar</button>
   </div>
 </main>
 
