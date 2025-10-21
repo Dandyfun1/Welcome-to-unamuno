@@ -4,13 +4,12 @@ const supabase=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 
 const $=s=>document.querySelector(s);
 let loggedIn=false;
-let posts=[]; // Will fetch from Supabase later
+let posts=[];
 
 document.addEventListener('DOMContentLoaded',()=>{
   enableDrag('#post-panel');
   enableDrag('#admin-panel');
 
-  // Buttons
   $('#login-btn').addEventListener('click',login);
   $('#logout-btn').addEventListener('click',logout);
   $('#create-post-btn').addEventListener('click',()=>$('#post-panel').classList.remove('hidden'));
@@ -48,14 +47,16 @@ async function login(){
   const password=prompt('Contraseña:');
   if(!password) return;
 
-  const {data,error}=await supabase.auth.signInWithPassword({email,password});
-  if(error) return alert('Error: '+error.message);
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  if(error) return alert('Error al iniciar sesión: '+error.message);
+
   if(data.session){
     loggedIn=true;
     updateAuthUI();
     toast('Sesión iniciada');
+    loadPosts();
   } else {
-    alert('No se pudo iniciar sesión');
+    alert('No se pudo iniciar sesión. Verifica email/contraseña.');
   }
 }
 
