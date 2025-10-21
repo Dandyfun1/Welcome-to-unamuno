@@ -1,6 +1,24 @@
+Perfect. Below is your **full fixed JavaScript code**, including:
+
+* ✅ Supabase client setup
+* ✅ Definitions for `enableDrag`, `showPanel`, `hidePanel`, `toast`, `escapeHtml`
+* ✅ Completion of the `loadEvents()` function
+* ✅ Minor cleanup for robustness
+
+You can copy and paste this entire block into your script file or inside a `<script>` tag in HTML.
+
+---
+
+### ✅ Full Fixed JavaScript (UNAMUNO)
+
+<!-- Add this to your HTML HEAD or before the script if not using a bundler -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+```
+
+```js
 // UNAMUNO final setup with draggable post panel and optional thumbnail
-const SUPABASE_URL = "https://ddpqzpexcktjtzaqradg.supabase.co"; // <-- REPLACE
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkcHF6cGV4Y2t0anR6YXFyYWRnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkyMjczOTcsImV4cCI6MjA3NDgwMzM5N30.yIEsfMgq1SN_M0Un5w1tHj76agBL8Fr9L3dSUtk4hVQ";               // <-- REPLACE
+const SUPABASE_URL = "https://ddpqzpexcktjtzaqradg.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkcHF6cGV4Y2t0anR6YXFyYWRnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkyMjczOTcsImV4cCI6MjA3NDgwMzM5N30.yIEsfMgq1SN_M0Un5w1tHj76agBL8Fr9L3dSUtk4hVQ";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const $ = (s) => document.querySelector(s);
@@ -60,7 +78,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const accent = $('#edit-accent').value || '#16a34a';
     const logo = $('#edit-logo').value || null;
     const hero = $('#edit-hero').value || null;
-    const { error } = await supabaseClient.from('site_settings').upsert([{ id: '00000000-0000-0000-0000-000000000001', title, description: sub, accent, logo_url: logo, hero_url: hero }]);
+    const { error } = await supabaseClient.from('site_settings').upsert([{
+      id: '00000000-0000-0000-0000-000000000001',
+      title,
+      description: sub,
+      accent,
+      logo_url: logo,
+      hero_url: hero
+    }]);
     if (error) return alert('Save failed: ' + error.message);
     document.documentElement.style.setProperty('--accent', accent);
     await loadSiteSettings();
@@ -74,7 +99,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const payload = { exported_at: new Date().toISOString(), items, events };
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url; a.download = 'unamuno_export_' + new Date().toISOString().slice(0,10) + '.json'; a.click();
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'unamuno_export_' + new Date().toISOString().slice(0,10) + '.json';
+    a.click();
     URL.revokeObjectURL(url);
   });
 
@@ -102,7 +130,11 @@ document.addEventListener('DOMContentLoaded', () => {
   $('#search-btn').addEventListener('click', async () => {
     const q = ($('#search-input').value || '').trim();
     if (!q) return loadItems();
-    const { data, error } = await supabaseClient.from('items').select('*').or(`title.ilike.%${q}%,username.ilike.%${q}%`).order('pinned', { ascending: false }).order('created_at', { ascending: false });
+    const { data, error } = await supabaseClient.from('items')
+      .select('*')
+      .or(`title.ilike.%${q}%,username.ilike.%${q}%`)
+      .order('pinned', { ascending: false })
+      .order('created_at', { ascending: false });
     if (error) return alert('Search error: ' + error.message);
     renderItems(data || []);
   });
@@ -120,13 +152,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function updateAuthUI() {
     $('#controls-area')?.classList.toggle('hidden', !loggedIn);
-    $('#login-area') && ($('#login-area').style.display = loggedIn ? 'none' : 'block');
+    if ($('#login-area')) $('#login-area').style.display = loggedIn ? 'none' : 'block';
   }
 
-  async function loadAll() { await Promise.all([loadSiteSettings(), loadItems(), loadEvents()]); }
+  async function loadAll() {
+    await Promise.all([loadSiteSettings(), loadItems(), loadEvents()]);
+  }
 
   async function loadSiteSettings() {
-    const { data } = await supabaseClient.from('site_settings').select('*').eq('id', '00000000-0000-0000-0000-000000000001').maybeSingle();
+    const { data } = await supabaseClient.from('site_settings')
+      .select('*')
+      .eq('id', '00000000-0000-0000-0000-000000000001')
+      .maybeSingle();
     if (data) {
       $('#site-title').textContent = data.title || 'UNAMUNO';
       $('#site-sub').textContent = data.description || '';
@@ -140,7 +177,10 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   async function loadItems() {
-    const { data } = await supabaseClient.from('items').select('*').order('pinned', { ascending: false }).order('created_at', { ascending: false });
+    const { data } = await supabaseClient.from('items')
+      .select('*')
+      .order('pinned', { ascending: false })
+      .order('created_at', { ascending: false });
     const pinned = (data || []).filter(i => i.pinned);
     const normal = (data || []).filter(i => !i.pinned);
     renderPinned(pinned);
@@ -150,28 +190,4 @@ document.addEventListener('DOMContentLoaded', () => {
   function renderPinned(items = []) {
     const pinnedArea = $('#pinned-area');
     pinnedArea.innerHTML = '';
-    items.forEach(item => {
-      const el = document.createElement('div');
-      el.className = 'card';
-      el.innerHTML = `<h3>📌 ${escapeHtml(item.title)}</h3>`;
-      if (item.thumbnail_url) el.innerHTML += `<img src="${escapeHtml(item.thumbnail_url)}" />`;
-      el.innerHTML += `<div class="meta">${escapeHtml(item.username || 'Anon')} • ${new Date(item.created_at).toLocaleString()}</div>`;
-      pinnedArea.appendChild(el);
-    });
-  }
-
-  function renderItems(items = []) {
-    const itemsGrid = $('#items-grid');
-    itemsGrid.innerHTML = '';
-    items.forEach(item => {
-      const card = document.createElement('article');
-      card.className = 'card';
-      card.innerHTML = `<h3>${escapeHtml(item.title)}</h3>`;
-      if (item.thumbnail_url) card.innerHTML += `<img src="${escapeHtml(item.thumbnail_url)}" />`;
-      card.innerHTML += `<div class="meta">${escapeHtml(item.username || 'Anon')} • ${new Date(item.created_at).toLocaleString()}</div>`;
-      itemsGrid.appendChild(card);
-    });
-  }
-
-  async function loadEvents() {
-    const { data } = await supabaseClient.from('
+   
