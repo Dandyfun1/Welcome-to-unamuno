@@ -3,159 +3,72 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>UNAMUNO — Dashboard</title>
+  <title>UNAMUNO</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div id="app" class="layout">
-    <!-- SIDEBAR -->
-    <aside class="sidebar">
-      <div class="brand">
-        <img id="site-logo" src="" alt="logo" />
-        <div>
-          <div id="site-title" class="brand-title">UNAMUNO</div>
-          <div id="site-sub" class="brand-sub">Sitio experimental</div>
-        </div>
+  <!-- HERO / Header -->
+  <header class="hero">
+    <img id="site-logo" src="" alt="logo" class="logo"/>
+    <div class="hero-text">
+      <h1 id="site-title">UNAMUNO</h1>
+      <p id="site-sub">Sitio experimental</p>
+    </div>
+    <div class="auth-area">
+      <div id="login-area" class="login">
+        <input id="email-input" placeholder="admin email" />
+        <button id="login-btn" class="btn primary">Login</button>
       </div>
-      <nav class="nav">
-        <button class="nav-btn active" data-view="posts">Publicaciones</button>
-        <button class="nav-btn" data-view="calendar">Calendario</button>
-        <button class="nav-btn" data-view="settings">Ajustes</button>
-      </nav>
-
-      <div class="sidebar-foot">
-        <div id="auth-area" class="auth">
-          <div id="login-area" class="login">
-            <input id="email-input" type="email" placeholder="admin email" />
-            <button id="login-btn" class="btn primary">Entrar</button>
-          </div>
-          <div id="user-area" class="user hidden">
-            <div class="user-info"><span id="user-email"></span></div>
-            <div style="display:flex;gap:8px">
-              <button id="logout-btn" class="btn">Salir</button>
-            </div>
-          </div>
-        </div>
+      <div id="user-area" class="user hidden">
+        <span id="user-email"></span>
+        <button id="logout-btn" class="btn">Logout</button>
       </div>
-    </aside>
+    </div>
+  </header>
 
-    <!-- MAIN -->
-    <main class="main">
-      <header class="topbar">
-        <div class="search-area">
-          <input id="search-input" placeholder="Buscar publicaciones..." />
-          <button id="search-btn" class="btn ghost">Buscar</button>
-        </div>
-        <div style="display:flex;gap:8px;align-items:center">
-          <button id="create-post-btn" class="btn primary">Nueva publicación</button>
-          <button id="open-calendar-btn" class="btn ghost">Abrir calendario</button>
-        </div>
-      </header>
+  <!-- MAIN CONTENT -->
+  <main class="main">
+    <section class="posts-section">
+      <h2>Publicaciones</h2>
+      <div id="pinned-area" class="posts pinned"></div>
+      <div id="items-list" class="posts"></div>
+    </section>
 
-      <section id="view-posts" class="view active">
-        <div class="grid">
-          <div class="col">
-            <div class="card">
-              <div class="card-head">
-                <h3>Fijados</h3>
-              </div>
-              <div id="pinned-area" class="pinned list"></div>
-            </div>
+    <section class="calendar-section">
+      <h2>Calendario</h2>
+      <div id="upcoming-events" class="events-list"></div>
+    </section>
 
-            <div class="card" style="margin-top:14px">
-              <div class="card-head">
-                <h3>Publicaciones</h3>
-              </div>
-              <div id="items-list" class="list"></div>
-            </div>
-          </div>
+    <button id="create-post-btn" class="btn primary hidden">Nueva publicación</button>
+    <button id="open-settings-btn" class="btn ghost hidden">Ajustes del sitio</button>
+  </main>
 
-          <aside class="col-side">
-            <div class="card">
-              <h4>Próximos eventos</h4>
-              <div id="upcoming-events" class="list small"></div>
-              <div class="month-controls">
-                <button id="cal-prev" class="btn ghost">◀</button>
-                <div id="cal-month-label" class="muted"></div>
-                <button id="cal-next" class="btn ghost">▶</button>
-              </div>
-            </div>
-            <div class="card" style="margin-top:12px">
-              <h4>Acciones rápidas</h4>
-              <div style="display:flex;flex-direction:column;gap:8px">
-                <button id="export-btn" class="btn">Exportar JSON</button>
-                <button id="open-settings-btn" class="btn ghost">Ajustes</button>
-              </div>
-            </div>
-          </aside>
-        </div>
-      </section>
-
-      <section id="view-calendar" class="view">
-        <div class="card">
-          <div class="card-head">
-            <h3>Calendario</h3>
-            <div class="muted" id="calendar-month"></div>
-          </div>
-          <div id="calendar-grid" class="cal-grid"></div>
-          <div id="day-events" class="events-list card" style="margin-top:12px"></div>
-        </div>
-      </section>
-
-      <section id="view-settings" class="view">
-        <div class="card">
-          <div class="card-head">
-            <h3>Ajustes del sitio</h3>
-            <div class="muted">Solo admin</div>
-          </div>
-
-          <div class="form-row">
-            <label>Título del sitio</label>
-            <input id="edit-title" type="text" />
-          </div>
-          <div class="form-row">
-            <label>Descripción</label>
-            <textarea id="edit-sub"></textarea>
-          </div>
-          <div class="form-row grid-2">
-            <div>
-              <label>Acento</label>
-              <input id="edit-accent" type="color" />
-            </div>
-            <div>
-              <label>Logo URL</label>
-              <input id="edit-logo" type="text" />
-            </div>
-          </div>
-          <div class="form-row">
-            <label>Hero URL</label>
-            <input id="edit-hero" type="text" />
-          </div>
-          <div style="display:flex;gap:8px;margin-top:8px">
-            <button id="save-changes" class="btn primary">Guardar</button>
-            <button id="revert-changes" class="btn ghost">Revertir</button>
-          </div>
-
-          <hr style="margin:12px 0;opacity:0.06" />
-
-          <h4>Publicaciones (admin)</h4>
-          <div id="admin-items" class="list small"></div>
-        </div>
-      </section>
-
-    </main>
-  </div>
-
-  <!-- MODAL: Create Post -->
+  <!-- MODAL: Create/Edit Post -->
   <div id="modal-backdrop" class="modal-backdrop hidden">
     <div class="modal">
       <h3>Nueva publicación</h3>
       <input id="post-title" placeholder="Título" />
       <input id="post-username" placeholder="Nombre (opcional)" />
       <input id="post-thumbnail" placeholder="URL thumbnail (opcional)" />
-      <div style="display:flex;gap:8px;margin-top:8px">
+      <div class="modal-actions">
         <button id="post-submit" class="btn primary">Publicar</button>
         <button id="post-cancel" class="btn ghost">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Site Settings -->
+  <div id="settings-backdrop" class="modal-backdrop hidden">
+    <div class="modal">
+      <h3>Ajustes del sitio</h3>
+      <input id="edit-title" placeholder="Título del sitio" />
+      <input id="edit-sub" placeholder="Descripción" />
+      <input id="edit-accent" type="color" />
+      <input id="edit-logo" placeholder="Logo URL" />
+      <input id="edit-hero" placeholder="Hero URL" />
+      <div class="modal-actions">
+        <button id="save-changes" class="btn primary">Guardar</button>
+        <button id="revert-changes" class="btn ghost">Cancelar</button>
       </div>
     </div>
   </div>
