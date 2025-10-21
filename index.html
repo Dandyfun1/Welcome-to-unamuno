@@ -1,62 +1,36 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>UNAMUNO</title>
-<link rel="stylesheet" href="style.css">
+<title>Admin Login Demo</title>
+<style>
+body { font-family: sans-serif; background: #f0f0f0; display:flex; flex-direction:column; align-items:center; padding:2rem; }
+input { padding:0.5rem; margin:0.5rem 0; width:200px; }
+button { padding:0.5rem 1rem; margin:0.5rem; cursor:pointer; }
+#admin-panel { display:none; margin-top:2rem; padding:1rem; background:#fff; border:1px solid #ccc; border-radius:0.5rem; }
+#logout-btn { display:none; }
+</style>
 </head>
 <body>
 
-<header class="hero">
-  <img id="site-logo" src="" alt="logo" class="logo">
-  <div class="hero-text">
-    <h1 id="site-title">UNAMUNO</h1>
-    <p id="site-sub">Sitio experimental</p>
-  </div>
-  <div id="login-area">
-    <input id="pw-input" placeholder="Email admin">
-    <button id="login-btn">Login</button>
-  </div>
-  <div id="controls-area" class="hidden">
-    <button id="create-post-btn">Nueva publicación</button>
-    <button id="open-settings-btn">Ajustes del sitio</button>
-    <button id="logout-btn">Logout</button>
-  </div>
-</header>
+<h1>Admin Login Demo</h1>
 
-<main>
-  <section class="search-section">
-    <input id="search-input" placeholder="Buscar publicaciones...">
-    <button id="search-btn">Buscar</button>
-  </section>
+<div id="login-area">
+  <input id="email-input" type="email" placeholder="Admin Email">
+  <input id="password-input" type="password" placeholder="Password">
+  <button id="login-btn">Login</button>
+</div>
 
-  <div id="posts-list">
-    <!-- Posts will render here -->
-  </div>
+<button id="logout-btn">Logout</button>
 
-  <!-- Post Panel -->
-  <div id="post-panel" class="drag-panel hidden">
-    <div class="drag-handle">Nueva Publicación</div>
-    <input id="post-title" placeholder="Título">
-    <input id="post-username" placeholder="Usuario">
-    <button id="post-submit">Crear</button>
-    <button id="post-close">Cerrar</button>
-  </div>
+<div id="admin-panel">
+  <h2>Admin Panel</h2>
+  <p>You are logged in!</p>
+</div>
 
-  <!-- Admin Panel -->
-  <div id="admin-panel" class="drag-panel hidden">
-    <div class="drag-handle">Ajustes del sitio</div>
-    <input id="edit-title" placeholder="Título del sitio">
-    <input id="edit-accent" type="color">
-    <button id="save-changes">Guardar</button>
-    <button id="admin-close">Cerrar</button>
-  </div>
-</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js/dist/supabase.min.js"></script>
+<script src="app.js"></script>
 
-<div id="toast" class="toast hidden"></div>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js/dist/supabase.min.js" defer></script>
-<script src="app.js" defer></script>
 </body>
 </html>
