@@ -1,21 +1,3 @@
-Perfect. Below is your **full fixed JavaScript code**, including:
-
-* ✅ Supabase client setup
-* ✅ Definitions for `enableDrag`, `showPanel`, `hidePanel`, `toast`, `escapeHtml`
-* ✅ Completion of the `loadEvents()` function
-* ✅ Minor cleanup for robustness
-
-You can copy and paste this entire block into your script file or inside a `<script>` tag in HTML.
-
----
-
-### ✅ Full Fixed JavaScript (UNAMUNO)
-
-<!-- Add this to your HTML HEAD or before the script if not using a bundler -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-```
-
-```js
 // UNAMUNO final setup with draggable post panel and optional thumbnail
 const SUPABASE_URL = "https://ddpqzpexcktjtzaqradg.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkcHF6cGV4Y2t0anR6YXFyYWRnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkyMjczOTcsImV4cCI6MjA3NDgwMzM5N30.yIEsfMgq1SN_M0Un5w1tHj76agBL8Fr9L3dSUtk4hVQ";
