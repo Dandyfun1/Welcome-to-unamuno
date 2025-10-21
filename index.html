@@ -1,81 +1,67 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>UNAMUNO</title>
-  <link rel="stylesheet" href="style.css" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>UNAMUNO</title>
+<link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <!-- HERO / Header -->
-  <header class="hero">
-    <img id="site-logo" src="" alt="logo" class="logo"/>
-    <div class="hero-text">
-      <h1 id="site-title">UNAMUNO</h1>
-      <p id="site-sub">Sitio experimental</p>
-    </div>
-    <div class="auth-area">
-      <div id="login-area" class="login">
-        <input id="email-input" placeholder="admin email" />
-        <button id="login-btn" class="btn primary">Login</button>
-      </div>
-      <div id="user-area" class="user hidden">
-        <span id="user-email"></span>
-        <button id="logout-btn" class="btn">Logout</button>
-      </div>
-    </div>
-  </header>
 
-  <!-- MAIN CONTENT -->
-  <main class="main">
-    <section class="posts-section">
-      <h2>Publicaciones</h2>
-      <div id="pinned-area" class="posts pinned"></div>
-      <div id="items-list" class="posts"></div>
-    </section>
-
-    <section class="calendar-section">
-      <h2>Calendario</h2>
-      <div id="upcoming-events" class="events-list"></div>
-    </section>
-
-    <button id="create-post-btn" class="btn primary hidden">Nueva publicación</button>
-    <button id="open-settings-btn" class="btn ghost hidden">Ajustes del sitio</button>
-  </main>
-
-  <!-- MODAL: Create/Edit Post -->
-  <div id="modal-backdrop" class="modal-backdrop hidden">
-    <div class="modal">
-      <h3>Nueva publicación</h3>
-      <input id="post-title" placeholder="Título" />
-      <input id="post-username" placeholder="Nombre (opcional)" />
-      <input id="post-thumbnail" placeholder="URL thumbnail (opcional)" />
-      <div class="modal-actions">
-        <button id="post-submit" class="btn primary">Publicar</button>
-        <button id="post-cancel" class="btn ghost">Cancelar</button>
-      </div>
-    </div>
+<header class="hero">
+  <img id="site-logo" src="" alt="logo" class="logo"/>
+  <div class="hero-text">
+    <h1 id="site-title">UNAMUNO</h1>
+    <p id="site-sub">Sitio experimental</p>
   </div>
+  <div id="login-area">
+    <input id="pw-input" placeholder="Email admin" />
+    <button id="login-btn">Login</button>
+  </div>
+  <div id="controls-area" class="hidden">
+    <button id="create-post-btn">Nueva publicación</button>
+    <button id="open-settings-btn">Ajustes del sitio</button>
+    <button id="create-event-btn">Nuevo Evento</button>
+    <button id="logout-btn">Logout</button>
+  </div>
+</header>
 
-  <!-- MODAL: Site Settings -->
-  <div id="settings-backdrop" class="modal-backdrop hidden">
-    <div class="modal">
-      <h3>Ajustes del sitio</h3>
+<main>
+  <section class="search-section">
+    <input id="search-input" placeholder="Buscar publicaciones..." />
+    <button id="search-btn">Buscar</button>
+  </section>
+
+  <div id="panels-container">
+    <!-- Draggable Posts Panel -->
+    <div id="post-panel-drag" class="drag-panel hidden">
+      <div class="drag-handle">📰 Publicaciones</div>
+      <div id="items-list" class="posts"></div>
+    </div>
+
+    <!-- Draggable Calendar Panel -->
+    <div id="calendar-panel-drag" class="drag-panel hidden">
+      <div class="drag-handle">📅 Calendario</div>
+      <div id="upcoming-events" class="events-list"></div>
+    </div>
+
+    <!-- Draggable Admin Panel -->
+    <div id="admin-panel-drag" class="drag-panel hidden">
+      <div class="drag-handle">⚙️ Ajustes</div>
       <input id="edit-title" placeholder="Título del sitio" />
       <input id="edit-sub" placeholder="Descripción" />
       <input id="edit-accent" type="color" />
       <input id="edit-logo" placeholder="Logo URL" />
       <input id="edit-hero" placeholder="Hero URL" />
-      <div class="modal-actions">
-        <button id="save-changes" class="btn primary">Guardar</button>
-        <button id="revert-changes" class="btn ghost">Cancelar</button>
-      </div>
+      <button id="save-changes">Guardar</button>
+      <button id="admin-close">Cerrar</button>
     </div>
   </div>
+</main>
 
-  <div id="toast" class="toast hidden"></div>
+<div id="toast" class="toast hidden"></div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js/dist/supabase.min.js"></script>
-  <script src="app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js/dist/supabase.min.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
