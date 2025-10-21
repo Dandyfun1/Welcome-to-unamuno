@@ -1,21 +1,21 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>UNAMUNO</title>
-<link rel="stylesheet" href="style.css" />
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <header class="hero">
-  <img id="site-logo" src="" alt="logo" class="logo"/>
+  <img id="site-logo" src="" alt="logo" class="logo">
   <div class="hero-text">
     <h1 id="site-title">UNAMUNO</h1>
     <p id="site-sub">Sitio experimental</p>
   </div>
   <div id="login-area">
-    <input id="pw-input" placeholder="Email admin" />
+    <input id="pw-input" placeholder="Email admin">
     <button id="login-btn">Login</button>
   </div>
   <div id="controls-area" class="hidden">
@@ -28,31 +28,31 @@
 
 <main>
   <section class="search-section">
-    <input id="search-input" placeholder="Buscar publicaciones..." />
+    <input id="search-input" placeholder="Buscar publicaciones...">
     <button id="search-btn">Buscar</button>
   </section>
 
   <div id="panels-container">
-    <!-- Draggable Posts Panel -->
+    <!-- Post Panel -->
     <div id="post-panel-drag" class="drag-panel hidden">
       <div class="drag-handle">📰 Publicaciones</div>
       <div id="items-list" class="posts"></div>
     </div>
 
-    <!-- Draggable Calendar Panel -->
+    <!-- Calendar Panel -->
     <div id="calendar-panel-drag" class="drag-panel hidden">
       <div class="drag-handle">📅 Calendario</div>
       <div id="upcoming-events" class="events-list"></div>
     </div>
 
-    <!-- Draggable Admin Panel -->
+    <!-- Admin Panel -->
     <div id="admin-panel-drag" class="drag-panel hidden">
       <div class="drag-handle">⚙️ Ajustes</div>
-      <input id="edit-title" placeholder="Título del sitio" />
-      <input id="edit-sub" placeholder="Descripción" />
-      <input id="edit-accent" type="color" />
-      <input id="edit-logo" placeholder="Logo URL" />
-      <input id="edit-hero" placeholder="Hero URL" />
+      <input id="edit-title" placeholder="Título del sitio">
+      <input id="edit-sub" placeholder="Descripción">
+      <input id="edit-accent" type="color">
+      <input id="edit-logo" placeholder="Logo URL">
+      <input id="edit-hero" placeholder="Hero URL">
       <button id="save-changes">Guardar</button>
       <button id="admin-close">Cerrar</button>
     </div>
@@ -61,7 +61,7 @@
 
 <div id="toast" class="toast hidden"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js/dist/supabase.min.js"></script>
-<script src="app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js/dist/supabase.min.js" defer></script>
+<script src="app.js" defer></script>
 </body>
 </html>
