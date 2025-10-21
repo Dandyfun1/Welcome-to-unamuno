@@ -1,11 +1,33 @@
-:root{--accent:#16a34a;}
-body{margin:0;font-family:sans-serif;background:#f9f9f9;color:#333;}
-header.hero{background:var(--accent);color:#fff;padding:1rem;display:flex;align-items:center;gap:1rem;}
-header.hero img.logo{height:50px;}
-.drag-panel{position:absolute;top:100px;left:100px;width:300px;background:#fff;border-radius:0.5rem;box-shadow:0 0 10px rgba(0,0,0,0.3);padding:0.5rem;z-index:1000;}
-.drag-handle{cursor:grab;padding:0.3rem;background:var(--accent);color:#fff;border-radius:0.5rem 0.5rem 0 0;font-weight:bold;}
-.drag-panel.hidden{display:none;}
-#posts-list{padding:1rem;}
-.post{background:#fff;margin-bottom:0.5rem;padding:0.5rem;border-radius:0.5rem;}
-.toast{position:fixed;bottom:1rem;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:0.5rem 1rem;border-radius:0.5rem;z-index:2000;opacity:0.9;}
-.hidden{display:none;}
+body {
+  font-family: sans-serif;
+  max-width: 600px;
+  margin: auto;
+  padding: 20px;
+  background: #f4f4f4;
+}
+
+textarea {
+  width: 100%;
+  height: 100px;
+  margin-bottom: 10px;
+}
+
+button {
+  padding: 10px 20px;
+  cursor: pointer;
+}
+
+.hidden {
+  display: none;
+}
+
+#posts {
+  margin-top: 20px;
+}
+
+.post {
+  background: white;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-left: 4px solid #0077cc;
+}
