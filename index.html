@@ -3,27 +3,39 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dandyfun1's Post Board</title>
+  <title>Dandyfun1's Showcase</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>📝 Public Post Board</h1>
+  <header>
+    <h1>🎨 Dandyfun1's Creative Board</h1>
+    <div id="clock"></div>
+  </header>
 
-  <div id="postForm" class="hidden">
-    <textarea id="postContent" placeholder="Write something..."></textarea>
-    <button onclick="submitPost()">Post</button>
+  <main>
+    <button id="newPostBtn">➕ Create Post</button>
+    <div id="posts"></div>
+  </main>
+
+  <aside id="calendarContainer">
+    <input type="date" id="calendar" />
+  </aside>
+
+  <div id="postTablet" class="hidden" draggable="true">
+    <h2>Create a Post</h2>
+    <input type="text" id="thumbnail" placeholder="Thumbnail Title" />
+    <input type="url" id="link" placeholder="Link (optional)" />
+    <input type="file" id="imageUpload" accept="image/*" />
+    <div id="imagePreview"></div>
+    <button onclick="submitPost()">📤 Post</button>
+    <button onclick="closeTablet()">❌ Cancel</button>
   </div>
 
-  <div id="posts"></div>
-
-  <hr />
-  <h2>🔐 Admin Login</h2>
-  <form id="loginForm">
-    <input type="email" id="email" placeholder="Email" required />
-    <input type="password" id="password" placeholder="Password" required />
-    <button type="submit">Login</button>
-  </form>
-  <p id="loginMessage"></p>
+  <div id="settingsPanel" class="hidden">
+    <h2>⚙️ Site Settings</h2>
+    <p>Edit site content, styles, or admin tools here.</p>
+    <!-- Add editable settings here -->
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   <script src="script.js"></script>
