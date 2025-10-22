@@ -5,7 +5,11 @@ const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // Load posts
 async function loadPosts() {
-  const { data, error } = await supabase.from('posts').select('*').order('created_at', { ascending: false });
+  const { data, error } = await supabase
+    .from('posts')
+    .select('*')
+    .order('created_at', { ascending: false });
+
   const postsDiv = document.getElementById('posts');
   postsDiv.innerHTML = '';
 
@@ -42,7 +46,7 @@ document.getElementById('loginForm').addEventListener('submit', async function (
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (data.session) {
-    document.getElementById('loginMessage').textContent = '✅ Logged in!';
+    document.getElementById('loginMessage').textContent = '✅ Login successful!';
     document.getElementById('postForm').classList.remove('hidden');
   } else {
     document.getElementById('loginMessage').textContent = '❌ Login failed.';
