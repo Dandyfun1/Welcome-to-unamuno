@@ -9,7 +9,15 @@
 <body>
   <header>
     <h1>🎨 Dandyfun1's Creative Board</h1>
-    <div id="clock"></div>
+    <div id="clockContainer">
+      <svg id="analogClock" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="48" stroke="black" stroke-width="2" fill="white"/>
+        <line id="hourHand" x1="50" y1="50" x2="50" y2="30" stroke="black" stroke-width="4"/>
+        <line id="minuteHand" x1="50" y1="50" x2="50" y2="20" stroke="black" stroke-width="3"/>
+        <line id="secondHand" x1="50" y1="50" x2="50" y2="15" stroke="red" stroke-width="2"/>
+      </svg>
+    </div>
+    <button id="themeToggle">🌓 Toggle Theme</button>
   </header>
 
   <main>
@@ -18,23 +26,27 @@
   </main>
 
   <aside id="calendarContainer">
+    <h2>📅 Calendar</h2>
     <input type="date" id="calendar" />
+    <div id="eventList"></div>
+    <input type="text" id="eventInput" placeholder="Add event..." />
+    <button id="addEventBtn">➕ Add Event</button>
   </aside>
 
-  <div id="postTablet" class="hidden" draggable="true">
+  <div id="postTablet" class="hidden">
     <h2>Create a Post</h2>
     <input type="text" id="thumbnail" placeholder="Thumbnail Title" />
     <input type="url" id="link" placeholder="Link (optional)" />
-    <input type="file" id="imageUpload" accept="image/*" />
+    <div id="dropZone">📂 Drop image here or click to select</div>
+    <input type="file" id="imageUpload" accept="image/*" hidden />
     <div id="imagePreview"></div>
-    <button onclick="submitPost()">📤 Post</button>
+    <button id="submitBtn">📤 Post</button>
     <button onclick="closeTablet()">❌ Cancel</button>
   </div>
 
   <div id="settingsPanel" class="hidden">
-    <h2>⚙️ Site Settings</h2>
-    <p>Edit site content, styles, or admin tools here.</p>
-    <!-- Add editable settings here -->
+    <h2>⚙️ Admin Settings</h2>
+    <p>Site configuration and moderation tools.</p>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
