@@ -1,52 +1,39 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dandyfun1's Showcase</title>
+  <title>Dandyfun1 | Publicador Moderno</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <header>
-    <h1>🎨 Dandyfun1's Creative Board</h1>
-    <div id="clockContainer">
-      <svg id="analogClock" viewBox="0 0 100 100">
-        <circle cx="50" cy="50" r="48" stroke="black" stroke-width="2" fill="white"/>
-        <line id="hourHand" x1="50" y1="50" x2="50" y2="30" stroke="black" stroke-width="4"/>
-        <line id="minuteHand" x1="50" y1="50" x2="50" y2="20" stroke="black" stroke-width="3"/>
-        <line id="secondHand" x1="50" y1="50" x2="50" y2="15" stroke="red" stroke-width="2"/>
-      </svg>
-    </div>
-    <button id="themeToggle">🌓 Toggle Theme</button>
+    <h1>📝 Publicador Moderno</h1>
+    <div id="liveTime"></div>
   </header>
 
   <main>
-    <button id="newPostBtn">➕ Create Post</button>
+    <button id="newPostBtn">➕ Crear Publicación</button>
     <div id="posts"></div>
   </main>
 
-  <aside id="calendarContainer">
-    <h2>📅 Calendar</h2>
-    <input type="date" id="calendar" />
-    <div id="eventList"></div>
-    <input type="text" id="eventInput" placeholder="Add event..." />
-    <button id="addEventBtn">➕ Add Event</button>
+  <aside id="calendarPanel">
+    <h2>📅 Calendario</h2>
+    <div id="calendar"></div>
+    <input type="text" id="eventInput" placeholder="Añadir evento..." />
+    <button id="addEventBtn">➕ Añadir Evento</button>
   </aside>
 
-  <div id="postTablet" class="hidden">
-    <h2>Create a Post</h2>
-    <input type="text" id="thumbnail" placeholder="Thumbnail Title" />
-    <input type="url" id="link" placeholder="Link (optional)" />
-    <div id="dropZone">📂 Drop image here or click to select</div>
+  <div id="postTablet" class="hidden" draggable="true">
+    <h2>Crear Publicación</h2>
+    <input type="text" id="thumbnail" placeholder="Título" />
+    <input type="url" id="link" placeholder="Enlace (opcional)" />
+    <textarea id="description" placeholder="Descripción..."></textarea>
+    <div id="dropZone">📂 Arrastra una imagen o haz clic</div>
     <input type="file" id="imageUpload" accept="image/*" hidden />
     <div id="imagePreview"></div>
-    <button id="submitBtn">📤 Post</button>
-    <button onclick="closeTablet()">❌ Cancel</button>
-  </div>
-
-  <div id="settingsPanel" class="hidden">
-    <h2>⚙️ Admin Settings</h2>
-    <p>Site configuration and moderation tools.</p>
+    <button id="submitBtn">📤 Publicar</button>
+    <button onclick="closeTablet()">❌ Cancelar</button>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
