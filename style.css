@@ -1,22 +1,21 @@
 :root {
-  --bg: #f0f0f0;
-  --text: #222;
-  --accent: #0077cc;
+  --bg: #f9f9f9;
+  --text: #333;
+  --accent: #0055aa;
+  --event-day: #ffcc00;
 }
 
 body {
   font-family: 'Segoe UI', sans-serif;
   margin: 0;
-  padding: 0;
   background: var(--bg);
   color: var(--text);
-  transition: background 0.3s, color 0.3s;
 }
 
 header {
   background: var(--accent);
   color: white;
-  padding: 10px;
+  padding: 15px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -26,10 +25,14 @@ main {
   padding: 20px;
 }
 
-#newPostBtn, #themeToggle, #addEventBtn, #submitBtn {
+button {
   padding: 10px;
   margin: 5px;
   cursor: pointer;
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 5px;
 }
 
 #posts .post {
@@ -37,16 +40,35 @@ main {
   margin: 10px 0;
   padding: 10px;
   border-left: 4px solid var(--accent);
-  animation: fadeIn 0.5s ease-in;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
-#calendarContainer {
+#calendarPanel {
   position: fixed;
   right: 10px;
-  top: 60px;
+  top: 80px;
   background: white;
   padding: 10px;
   border: 1px solid var(--accent);
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+#calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+  margin-bottom: 10px;
+}
+
+.calendar-day {
+  padding: 10px;
+  text-align: center;
+  border: 1px solid #ccc;
+  cursor: pointer;
+}
+
+.event-day {
+  background: var(--event-day);
 }
 
 #postTablet {
@@ -76,26 +98,4 @@ main {
 
 .hidden {
   display: none;
-}
-
-#settingsPanel {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  background: #fff;
-  border-top: 2px solid var(--accent);
-  padding: 20px;
-  width: 100%;
-  box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.dark {
-  --bg: #222;
-  --text: #eee;
-  --accent: #00cc99;
 }
