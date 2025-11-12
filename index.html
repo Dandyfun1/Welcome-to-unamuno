@@ -1,152 +1,84 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Presentaciones & Calendario</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Centro de Presentaciones</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 </head>
 <body>
-  <!-- Top search (long, centered) -->
-  <header class="topbar">
-    <form id="google-search" action="https://www.google.com/search" method="get" target="_blank" aria-label="buscar en google">
-      <input id="search-input" name="q" placeholder="Buscar en Google..." />
-      <button type="submit" id="search-btn">Buscar</button>
+  <header>
+    <form id="google-search" action="https://www.google.com/search" method="get" target="_blank">
+      <input type="text" name="q" placeholder="Buscar en Google...">
+      <button type="submit"><i class="fas fa-search"></i></button>
     </form>
   </header>
 
-  <!-- Main layout -->
-  <main class="layout">
-    <section class="col presentations-col">
-      <h2>Presentaciones</h2>
-      <p class="hint">Pega un enlace de Google Slides y verás una vista previa pequeña antes de abrirla.</p>
-
-      <div class="row controls">
-        <input id="slides-link" placeholder="https://docs.google.com/presentation/d/..." aria-label="enlace de presentacion" />
-        <button id="add-presentation" class="btn primary">Agregar</button>
-      </div>
-
-      <div id="presentations" class="cards" aria-live="polite"></div>
-    </section>
-
-    <section class="col right-col">
-      <h2>Herramientas</h2>
-
-      <div class="tool-grid">
-        <button id="open-calendar" class="btn">Abrir Calendario</button>
-        <button id="open-settings" class="btn">Configuración</button>
-        <button id="export-data" class="btn ghost">Exportar Datos</button>
-        <label class="btn ghost" for="import-file">Importar Datos</label>
-        <input id="import-file" type="file" accept="application/json" style="display:none" />
-      </div>
-
-      <div class="panel quick-info">
-        <h3>Consejos</h3>
-        <ul>
-          <li>Pega enlaces de Google Slides (compartidos) — se mostrarán en mini-visor.</li>
-          <li>Haz clic en un día del calendario para añadir o ver eventos.</li>
-          <li>Usa Configuración para cambiar tema o fondo (imagen/GIF).</li>
-        </ul>
-      </div>
-    </section>
+  <main>
+    <div class="icon-bar">
+      <button id="open-presentations" title="Presentaciones"><i class="fas fa-file-powerpoint"></i></button>
+      <button id="open-calendar" title="Calendario"><i class="fas fa-calendar-alt"></i></button>
+      <button id="open-settings" title="Configuración"><i class="fas fa-cog"></i></button>
+    </div>
   </main>
 
-  <!-- Presentation Modal (centered) -->
-  <div id="presentation-modal" class="modal" role="dialog" aria-hidden="true" aria-labelledby="presentation-title">
-    <div class="modal-card">
-      <header class="modal-header">
-        <h3 id="presentation-title">Presentación</h3>
-        <button class="close-modal" data-close="presentation-modal">✖</button>
-      </header>
-      <div class="modal-body" id="presentation-body">
-        <!-- Inserted dynamically: larger iframe preview -->
+  <!-- PRESENTATION POPUP -->
+  <div id="presentation-popup" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2><i class="fas fa-file-powerpoint"></i> Presentaciones</h2>
+        <span class="close">&times;</span>
       </div>
-      <footer class="modal-footer">
-        <a id="presentation-open" class="btn primary" target="_blank" rel="noopener">Abrir en nueva pestaña</a>
-        <button class="btn ghost" data-close="presentation-modal">Cerrar</button>
-      </footer>
+      <div class="modal-body">
+        <input id="slides-link" type="text" placeholder="Pega tu enlace de Google Presentaciones...">
+        <button id="add-presentation"><i class="fas fa-plus"></i> Agregar</button>
+        <div id="presentations"></div>
+      </div>
     </div>
   </div>
 
-  <!-- Calendar Modal -->
-  <div id="calendar-modal" class="modal" role="dialog" aria-hidden="true" aria-labelledby="calendar-title">
-    <div class="modal-card wide">
-      <header class="modal-header">
-        <h3 id="calendar-title">Calendario</h3>
-        <div class="month-controls">
-          <button id="prev-month" class="small">◀</button>
-          <div id="month-label" class="month-label"></div>
-          <button id="next-month" class="small">▶</button>
-          <button id="today-btn" class="small">Hoy</button>
-        </div>
-        <button class="close-modal" data-close="calendar-modal">✖</button>
-      </header>
-
-      <div class="modal-body">
-        <div id="calendar" class="calendar-grid" role="grid"></div>
+  <!-- CALENDAR POPUP -->
+  <div id="calendar-popup" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2><i class="fas fa-calendar-alt"></i> Calendario</h2>
+        <span class="close">&times;</span>
       </div>
-
-      <footer class="modal-footer">
-        <button class="btn ghost" data-close="calendar-modal">Cerrar</button>
-      </footer>
+      <div class="modal-body">
+        <div class="calendar-controls">
+          <button id="prev-month"><i class="fas fa-chevron-left"></i></button>
+          <span id="month-year"></span>
+          <button id="next-month"><i class="fas fa-chevron-right"></i></button>
+        </div>
+        <div id="calendar"></div>
+        <div id="event-form">
+          <input type="date" id="event-date">
+          <input type="text" id="event-title" placeholder="Título del evento">
+          <button id="add-event"><i class="fas fa-plus"></i> Añadir</button>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- Day Events Modal -->
-  <div id="day-modal" class="modal" role="dialog" aria-hidden="true" aria-labelledby="day-title">
-    <div class="modal-card">
-      <header class="modal-header">
-        <h3 id="day-title">Eventos</h3>
-        <button class="close-modal" data-close="day-modal">✖</button>
-      </header>
-      <div class="modal-body">
-        <div id="day-date" class="muted"></div>
-        <ul id="day-events" class="events-list"></ul>
-
-        <hr/>
-
-        <h4>Añadir evento</h4>
-        <input id="event-title" placeholder="Título del evento" />
-        <textarea id="event-notes" placeholder="Notas (opcional)"></textarea>
-        <div class="row">
-          <input id="event-color" type="color" value="#1e6ed8" />
-          <button id="save-event" class="btn primary">Guardar evento</button>
-        </div>
+  <!-- SETTINGS POPUP -->
+  <div id="settings-popup" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2><i class="fas fa-cog"></i> Configuración</h2>
+        <span class="close">&times;</span>
       </div>
-      <footer class="modal-footer">
-        <button class="btn ghost" data-close="day-modal">Cerrar</button>
-      </footer>
-    </div>
-  </div>
-
-  <!-- Settings Modal -->
-  <div id="settings-modal" class="modal" role="dialog" aria-hidden="true" aria-labelledby="settings-title">
-    <div class="modal-card">
-      <header class="modal-header">
-        <h3 id="settings-title">Configuración</h3>
-        <button class="close-modal" data-close="settings-modal">✖</button>
-      </header>
       <div class="modal-body">
-        <h4>Tema</h4>
-        <div class="row">
-          <button id="theme-dark" class="btn">Oscuro</button>
-          <button id="theme-light" class="btn">Claro</button>
+        <h3>Tema</h3>
+        <div class="theme-switch">
+          <button id="light-theme"><i class="fas fa-sun"></i></button>
+          <button id="dark-theme"><i class="fas fa-moon"></i></button>
         </div>
-
-        <hr/>
-
-        <h4>Fondo (imagen o GIF)</h4>
-        <input id="bg-url" placeholder="Pega URL de imagen o GIF..." />
-        <div class="row">
-          <button id="bg-preview-btn" class="btn">Previsualizar</button>
-          <button id="bg-apply-btn" class="btn primary">Aplicar</button>
-          <button id="bg-reset-btn" class="btn ghost">Restablecer</button>
-        </div>
-        <div id="bg-preview" class="bg-preview muted">Vista previa</div>
+        <h3>Fondo personalizado</h3>
+        <input id="background-url" type="text" placeholder="Pega URL de imagen o GIF">
+        <button id="set-background"><i class="fas fa-check"></i> Aplicar</button>
+        <button id="reset-background"><i class="fas fa-undo"></i> Restablecer</button>
       </div>
-      <footer class="modal-footer">
-        <button class="btn ghost" data-close="settings-modal">Cerrar</button>
-      </footer>
     </div>
   </div>
 
