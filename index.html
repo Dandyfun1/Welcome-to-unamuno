@@ -1,157 +1,64 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calendario Moderno - Eventos y Publicaciones</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calendario y Muro Público</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <div class="container">
-        <header class="header">
-            <h1><i class="fas fa-calendar-alt"></i> Calendario Moderno</h1>
-            <div class="header-buttons">
-                <button id="todayBtn" class="btn btn-primary">
-                    <i class="fas fa-calendar-day"></i> Hoy
-                </button>
-                <button id="toggleView" class="btn btn-secondary">
-                    <i class="fas fa-comments"></i> Publicaciones
-                </button>
-            </div>
-        </header>
+  <header>
+    <h1>📅 Calendario y Muro Público</h1>
+    <nav>
+      <button id="btnCalendario">Ver Calendario</button>
+      <button id="btnMuro">Ver Muro</button>
+    </nav>
+  </header>
 
-        <main class="main-content">
-            <!-- Calendar Section -->
-            <section id="calendarSection" class="calendar-section">
-                <div class="calendar-header">
-                    <button id="prevMonth" class="nav-btn">
-                        <i class="fas fa-chevron-left"></i>
-                    </button>
-                    <h2 id="currentMonth" class="month-title"></h2>
-                    <button id="nextMonth" class="nav-btn">
-                        <i class="fas fa-chevron-right"></i>
-                    </button>
-                </div>
+  <!-- Calendario -->
+  <section id="calendarioSection" class="visible">
+    <div id="calendar"></div>
+    <button id="addEventBtn">➕ Agregar Evento</button>
+  </section>
 
-                <div class="calendar-grid">
-                    <div class="weekdays">
-                        <div class="weekday">Dom</div>
-                        <div class="weekday">Lun</div>
-                        <div class="weekday">Mar</div>
-                        <div class="weekday">Mié</div>
-                        <div class="weekday">Jue</div>
-                        <div class="weekday">Vie</div>
-                        <div class="weekday">Sáb</div>
-                    </div>
-                    <div id="calendarDays" class="days-grid"></div>
-                </div>
+  <!-- Muro Público -->
+  <section id="muroSection" class="hidden">
+    <div id="muroPosts"></div>
+    <button id="addPostBtn">🖋️ Nueva Publicación</button>
+  </section>
 
-                <div class="events-sidebar">
-                    <h3><i class="fas fa-list"></i> Eventos del Día</h3>
-                    <div id="selectedDate" class="selected-date"></div>
-                    <div id="dayEvents" class="day-events"></div>
-                    <button id="addEventBtn" class="btn btn-success">
-                        <i class="fas fa-plus"></i> Agregar Evento
-                    </button>
-                </div>
-            </section>
-
-            <!-- Posts Section -->
-            <section id="postsSection" class="posts-section hidden">
-                <div class="posts-header">
-                    <h2><i class="fas fa-comments"></i> Publicaciones Públicas</h2>
-                    <button id="newPostBtn" class="btn btn-primary">
-                        <i class="fas fa-plus"></i> Nueva Publicación
-                    </button>
-                </div>
-                <div id="postsContainer" class="posts-container"></div>
-            </section>
-        </main>
+  <!-- Modal Agregar Evento -->
+  <div id="modalEvento" class="modal hidden">
+    <div class="modal-content">
+      <h2>Agregar Evento</h2>
+      <label>Fecha:</label>
+      <input type="date" id="eventDate">
+      <label>Descripción:</label>
+      <input type="text" id="eventDesc" placeholder="Descripción del evento">
+      <div class="modal-actions">
+        <button id="saveEvent">Guardar</button>
+        <button class="closeModal">Cancelar</button>
+      </div>
     </div>
+  </div>
 
-    <!-- Event Modal -->
-    <div id="eventModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="modalTitle">Agregar Evento</h3>
-                <button id="closeModal" class="close-btn">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <form id="eventForm" class="modal-body">
-                <div class="form-group">
-                    <label for="eventTitle">Título del Evento</label>
-                    <input type="text" id="eventTitle" required>
-                </div>
-                <div class="form-group">
-                    <label for="eventDescription">Descripción</label>
-                    <textarea id="eventDescription" rows="3"></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="eventTime">Hora</label>
-                    <input type="time" id="eventTime">
-                </div>
-                <div class="form-group">
-                    <label for="eventColor">Color</label>
-                    <select id="eventColor">
-                        <option value="red">Rojo</option>
-                        <option value="blue">Azul</option>
-                        <option value="green">Verde</option>
-                        <option value="orange">Naranja</option>
-                        <option value="purple">Morado</option>
-                    </select>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" id="deleteEventBtn" class="btn btn-danger hidden">
-                        <i class="fas fa-trash"></i> Eliminar
-                    </button>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save"></i> Guardar
-                    </button>
-                </div>
-            </form>
-        </div>
+  <!-- Modal Nueva Publicación -->
+  <div id="modalPost" class="modal hidden">
+    <div class="modal-content">
+      <h2>Nueva Publicación</h2>
+      <textarea id="postText" placeholder="¿Qué quieres compartir?"></textarea>
+      <label>Imagen:</label>
+      <input type="file" id="postImage" accept="image/*">
+      <label>Enlace:</label>
+      <input type="url" id="postLink" placeholder="https://...">
+      <div id="linkPreview"></div>
+      <div class="modal-actions">
+        <button id="publishPost">Publicar</button>
+        <button class="closeModal">Cancelar</button>
+      </div>
     </div>
+  </div>
 
-    <!-- Post Modal -->
-    <div id="postModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Nueva Publicación</h3>
-                <button id="closePostModal" class="close-btn">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <form id="postForm" class="modal-body">
-                <div class="form-group">
-                    <label for="postTitle">Título</label>
-                    <input type="text" id="postTitle" required>
-                </div>
-                <div class="form-group">
-                    <label for="postContent">Contenido</label>
-                    <textarea id="postContent" rows="4" required></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="postImage">Imagen</label>
-                    <input type="file" id="postImage" accept="image/*">
-                    <div id="imagePreview" class="image-preview"></div>
-                </div>
-                <div class="form-group">
-                    <label for="postLink">Enlace (opcional)</label>
-                    <input type="url" id="postLink" placeholder="https://ejemplo.com">
-                    <div id="linkPreview" class="link-preview"></div>
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-paper-plane"></i> Publicar
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
