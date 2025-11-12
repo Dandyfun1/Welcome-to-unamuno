@@ -1,111 +1,143 @@
 * {
   box-sizing: border-box;
   font-family: 'Segoe UI', sans-serif;
+  transition: all 0.3s ease;
 }
 
 body {
-  background: linear-gradient(to right, #0b3d91, #1e90ff);
   margin: 0;
   padding: 0;
+  background: linear-gradient(to right, #003973, #E5E5BE);
   color: white;
   overflow-x: hidden;
 }
 
+/* Header */
 header {
   text-align: center;
-  padding: 20px;
+  padding: 25px;
+  backdrop-filter: blur(10px);
+  background: rgba(0, 0, 0, 0.3);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
 }
 
 header h1 {
   margin-bottom: 10px;
+  font-size: 2em;
+  letter-spacing: 1px;
 }
 
 #google-search {
   display: flex;
   justify-content: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 #google-search input {
-  padding: 8px;
-  border-radius: 6px;
+  padding: 10px;
+  border-radius: 8px;
   border: none;
-  width: 250px;
+  width: 280px;
+  outline: none;
 }
 
 #google-search button {
-  background-color: #004aad;
+  background: #007bff;
   border: none;
   color: white;
-  padding: 8px 15px;
-  border-radius: 6px;
+  padding: 10px 15px;
+  border-radius: 8px;
   cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
+#google-search button:hover {
+  background: #005dc1;
+}
+
+/* Main buttons */
 main {
   text-align: center;
-  margin-top: 40px;
+  margin-top: 50px;
 }
 
 main button {
-  background: #007bff;
+  background: rgba(255, 255, 255, 0.1);
   color: white;
-  border: none;
-  padding: 10px 20px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  padding: 12px 25px;
   margin: 10px;
-  border-radius: 8px;
+  border-radius: 12px;
   cursor: pointer;
-  font-size: 16px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-  transition: transform 0.2s;
+  font-size: 17px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
 main button:hover {
   transform: scale(1.1);
+  background: rgba(255, 255, 255, 0.25);
 }
 
-/* Popup styling */
+/* Popup */
 .popup {
   display: none;
   position: fixed;
-  top: 100px;
-  left: 100px;
-  width: 450px;
-  background: white;
+  top: 120px;
+  left: 120px;
+  width: 500px;
+  background: rgba(255, 255, 255, 0.95);
   color: black;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  border-radius: 15px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
   z-index: 999;
+  backdrop-filter: blur(8px);
 }
 
 .popup-header {
-  background: #007bff;
+  background: linear-gradient(to right, #007bff, #00c6ff);
   color: white;
-  padding: 10px;
-  border-top-left-radius: 12px;
-  border-top-right-radius: 12px;
+  padding: 10px 15px;
+  border-top-left-radius: 15px;
+  border-top-right-radius: 15px;
   display: flex;
   justify-content: space-between;
+  align-items: center;
   cursor: move;
 }
 
+.popup-header button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.2em;
+  cursor: pointer;
+}
+
 .popup-body {
-  padding: 15px;
+  padding: 20px;
 }
 
 .popup input, .popup button {
   margin-top: 10px;
-  padding: 8px;
+  padding: 10px;
   width: 100%;
-  border-radius: 6px;
+  border-radius: 8px;
   border: 1px solid #ccc;
+}
+
+.note {
+  font-size: 0.9em;
+  color: #444;
+  margin: 10px 0;
 }
 
 .popup iframe {
   width: 100%;
-  height: 300px;
+  height: 350px;
+  border-radius: 10px;
   margin-top: 10px;
-  border-radius: 8px;
+  border: 1px solid #ddd;
 }
 
 /* Calendar */
@@ -113,14 +145,14 @@ main button:hover {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 5px;
-  margin-top: 10px;
+  margin-top: 15px;
 }
 
 .day {
   padding: 10px;
   text-align: center;
   border-radius: 6px;
-  background: #f0f0f0;
+  background: #f5f5f5;
   cursor: pointer;
   color: black;
 }
@@ -130,6 +162,17 @@ main button:hover {
 }
 
 .event-day {
-  background: #4CAF50 !important;
+  background: #007bff !important;
+  color: white;
+}
+
+/* Footer */
+footer {
+  text-align: center;
+  margin-top: 60px;
+  padding: 15px;
+  font-size: 0.9em;
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
   color: white;
 }
