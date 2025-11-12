@@ -1,105 +1,168 @@
-// ---------- POPUP HANDLING ----------
-document.querySelectorAll(".feature-card").forEach(btn=>{
-  btn.addEventListener("click",()=>{
-    const id = btn.id.replace("open-","")+"-popup";
-    document.getElementById(id).style.display="block";
+// === POPUPS ===
+const popups = {
+  pres: document.getElementById('presentation-popup'),
+  cal: document.getElementById('calendar-popup'),
+  set: document.getElementById('settings-popup')
+};
+
+document.getElementById('open-presentations').onclick = () => showPopup(popups.pres);
+document.getElementById('open-calendar').onclick = () => showPopup(popups.cal);
+document.getElementById('open-settings').onclick = () => showPopup(popups.set);
+
+document.querySelectorAll('.close-popup').forEach(btn => {
+  btn.onclick = () => btn.closest('.popup').style.display = 'none';
+});
+
+function showPopup(popup) {
+  popup.style.display = 'block';
+  popup.style.opacity = 0;
+  popup.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 300 });
+  popup.style.opacity = 1;
+}
+
+// === DRAGGABLE POPUPS ===
+document.querySelectorAll('.popup').forEach(popup => {
+  const header = popup.querySelector('.popup-header');
+  let isDragging = false, offsetX, offsetY;
+  header.addEventListener('mousedown', e => {
+    isDragging = true;
+    offsetX = e.clientX - popup.offsetLeft;
+    offsetY = e.clientY - popup.offsetTop;
+  });
+  document.addEventListener('mouseup', () => isDragging = false);
+  document.addEventListener('mousemove', e => {
+    if (isDragging) {
+      popup.style.left = (e.clientX - offsetX) + 'px';
+      popup.style.top = (e.clientY - offsetY) + 'px';
+    }
   });
 });
-document.querySelectorAll(".close").forEach(c=>c.onclick=()=>c.closest(".modal").style.display="none");
-window.onclick=e=>{if(e.target.classList.contains("modal"))e.target.style.display="none";};
 
-// ---------- PRESENTATIONS ----------
-const linkInput=document.getElementById("slides-link");
-const addBtn=document.getElementById("add-presentation");
-const container=document.getElementById("presentations");
-let presentations=JSON.parse(localStorage.getItem("presentations")||"[]");
+// === PRESENTATIONS ===
+const addBtn = document.getElementById('add-presentation');
+const linkInput = document.getElementById('slides-link');
+const container = document.getElementById('presentations');
+let presentations = JSON.parse(localStorage.getItem('presentations')) || [];
 
-function renderPresentations(){
-  container.innerHTML="";
-  presentations.forEach(url=>{
-    const embed=url.replace(/\/edit.*$/,"/embed");
-    const card=document.createElement("div");
-    card.className="presentation-card";
-    card.innerHTML=`<iframe src="${embed}" allowfullscreen></iframe>
-      <a href="${url}" target="_blank"><i class="fas fa-external-link-alt"></i> Abrir</a>`;
+function renderPresentations() {
+  container.innerHTML = '';
+  presentations.forEach(url => {
+    const embed = url.replace(/\/edit.*$/, '/embed');
+    const card = document.createElement('div');
+    card.className = 'presentation-card';
+    card.innerHTML = `
+      <iframe src="${embed}" allowfullscreen></iframe>
+      <a href="${url}" target="_blank">Abrir Presentación</a>
+    `;
     container.appendChild(card);
   });
 }
-addBtn.onclick=()=>{
-  const link=linkInput.value.trim();
-  if(!link.includes("docs.google.com/presentation")) return alert("Enlace inválido");
+
+addBtn.onclick = () => {
+  const link = linkInput.value.trim();
+  if (!link.includes('docs.google.com/presentation')) {
+    alert('Pega un enlace válido de Google Presentaciones');
+    return;
+  }
   presentations.push(link);
-  localStorage.setItem("presentations",JSON.stringify(presentations));
-  linkInput.value="";
+  localStorage.setItem('presentations', JSON.stringify(presentations));
+  linkInput.value = '';
   renderPresentations();
 };
+
 renderPresentations();
 
-// ---------- CALENDAR ----------
-const calEl=document.getElementById("calendar");
-const monthYear=document.getElementById("month-year");
-const prev=document.getElementById("prev-month");
-const next=document.getElementById("next-month");
-let date=new Date();
-let events=JSON.parse(localStorage.getItem("events")||"{}");
+// === CALENDAR ===
+const calendarEl = document.getElementById('calendar');
+const eventDateInput = document.getElementById('event-date');
+const eventTitleInput = document.getElementById('event-title');
+const addEventBtn = document.getElementById('add-event');
+let events = JSON.parse(localStorage.getItem('events')) || {};
 
-function renderCalendar(){
-  calEl.innerHTML="";
-  const month=date.getMonth(), year=date.getFullYear();
-  monthYear.textContent=date.toLocaleString("es",{month:"long",year:"numeric"});
-  const first=new Date(year,month,1);
-  const last=new Date(year,month+1,0);
-  const offset=(first.getDay()+6)%7;
-  const days=["L","M","X","J","V","S","D"];
-  days.forEach(d=>{
-    const el=document.createElement("div");el.textContent=d;
-    el.style.fontWeight="bold";calEl.appendChild(el);
+function renderCalendar() {
+  const today = new Date();
+  const month = today.getMonth();
+  const year = today.getFullYear();
+  const firstDay = new Date(year, month, 1);
+  const lastDay = new Date(year, month + 1, 0);
+  calendarEl.innerHTML = '';
+
+  const daysOfWeek = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
+  daysOfWeek.forEach(d => {
+    const el = document.createElement('div');
+    el.textContent = d;
+    el.style.fontWeight = 'bold';
+    calendarEl.appendChild(el);
   });
-  for(let i=0;i<offset;i++)calEl.appendChild(document.createElement("div"));
-  for(let d=1;d<=last.getDate();d++){
-    const cell=document.createElement("div");
-    const ds=`${year}-${String(month+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
-    cell.className="day"+(events[ds]?" event":"");
-    cell.textContent=d;
-    cell.onclick=()=>alert(events[ds]?events[ds].join("\n"):"Sin eventos");
-    calEl.appendChild(cell);
+
+  const offset = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1;
+  for (let i = 0; i < offset; i++) calendarEl.appendChild(document.createElement('div'));
+
+  for (let day = 1; day <= lastDay.getDate(); day++) {
+    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    const cell = document.createElement('div');
+    cell.textContent = day;
+    cell.classList.add('day');
+    if (events[dateStr]) cell.classList.add('event-day');
+    cell.onclick = () => {
+      alert(events[dateStr] ? `Eventos:\n${events[dateStr].join('\n')}` : 'Sin eventos.');
+    };
+    calendarEl.appendChild(cell);
   }
 }
-renderCalendar();
-prev.onclick=()=>{date.setMonth(date.getMonth()-1);renderCalendar();}
-next.onclick=()=>{date.setMonth(date.getMonth()+1);renderCalendar();}
-document.getElementById("add-event").onclick=()=>{
-  const d=document.getElementById("event-date").value;
-  const t=document.getElementById("event-title").value.trim();
-  if(!d||!t)return alert("Completa los campos");
-  events[d]=events[d]||[];
-  events[d].push(t);
-  localStorage.setItem("events",JSON.stringify(events));
+
+addEventBtn.onclick = () => {
+  const date = eventDateInput.value;
+  const title = eventTitleInput.value.trim();
+  if (!date || !title) return alert('Completa todos los campos');
+  if (!events[date]) events[date] = [];
+  events[date].push(title);
+  localStorage.setItem('events', JSON.stringify(events));
   renderCalendar();
-  document.getElementById("event-date").value="";
-  document.getElementById("event-title").value="";
+  eventDateInput.value = '';
+  eventTitleInput.value = '';
 };
 
-// ---------- SETTINGS ----------
-const light=document.getElementById("light-theme");
-const dark=document.getElementById("dark-theme");
-const bgInput=document.getElementById("background-url");
-const setBg=document.getElementById("set-background");
-const resetBg=document.getElementById("reset-background");
+renderCalendar();
 
-function applySettings(){
-  const theme=localStorage.getItem("theme")||"light";
-  document.body.classList.toggle("dark",theme==="dark");
-  const bg=localStorage.getItem("background");
-  document.body.style.backgroundImage=bg?`url('${bg}')`:"";
-  document.body.style.backgroundSize="cover";
-  document.body.style.backgroundPosition="center";
+// === SETTINGS ===
+const lightBtn = document.getElementById('light-theme');
+const darkBtn = document.getElementById('dark-theme');
+const setBgBtn = document.getElementById('set-background');
+const resetBgBtn = document.getElementById('reset-background');
+const bgInput = document.getElementById('background-url');
+
+function applySettings() {
+  const theme = localStorage.getItem('theme') || 'dark';
+  const bg = localStorage.getItem('background');
+  document.body.classList.toggle('light', theme === 'light');
+  if (bg) document.body.style.backgroundImage = `url('${bg}')`;
+  else document.body.style.backgroundImage = '';
 }
-light.onclick=()=>{localStorage.setItem("theme","light");applySettings();}
-dark.onclick=()=>{localStorage.setItem("theme","dark");applySettings();}
-setBg.onclick=()=>{
-  const url=bgInput.value.trim();
-  if(url){localStorage.setItem("background",url);applySettings();}
+
+lightBtn.onclick = () => {
+  localStorage.setItem('theme', 'light');
+  applySettings();
 };
-resetBg.onclick=()=>{localStorage.removeItem("background");applySettings();}
+
+darkBtn.onclick = () => {
+  localStorage.setItem('theme', 'dark');
+  applySettings();
+};
+
+setBgBtn.onclick = () => {
+  const url = bgInput.value.trim();
+  if (url) {
+    localStorage.setItem('background', url);
+    applySettings();
+  } else {
+    alert('Pega un enlace válido de imagen o GIF.');
+  }
+};
+
+resetBgBtn.onclick = () => {
+  localStorage.removeItem('background');
+  applySettings();
+};
+
 applySettings();
