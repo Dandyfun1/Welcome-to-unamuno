@@ -8,26 +8,32 @@
 </head>
 <body>
   <header>
-    <h1>📅 Calendario y Muro Público</h1>
+    <h1>📅 Mi Calendario y Muro Público</h1>
     <nav>
-      <button id="btnCalendario">Ver Calendario</button>
-      <button id="btnMuro">Ver Muro</button>
+      <button id="btnCalendario">Calendario</button>
+      <button id="btnMuro">Muro</button>
     </nav>
   </header>
 
   <!-- Calendario -->
-  <section id="calendarioSection" class="visible">
+  <section id="calendarioSection" class="visible section">
+    <div id="calendarHeader">
+      <button id="prevMonth">⬅️</button>
+      <h2 id="monthYear"></h2>
+      <button id="nextMonth">➡️</button>
+    </div>
     <div id="calendar"></div>
-    <button id="addEventBtn">➕ Agregar Evento</button>
+    <button id="addEventBtn" class="floatingBtn">➕</button>
   </section>
 
-  <!-- Muro Público -->
-  <section id="muroSection" class="hidden">
+  <!-- Muro -->
+  <section id="muroSection" class="hidden section">
+    <h2>🖋️ Muro Público</h2>
     <div id="muroPosts"></div>
-    <button id="addPostBtn">🖋️ Nueva Publicación</button>
+    <button id="addPostBtn" class="floatingBtn">➕</button>
   </section>
 
-  <!-- Modal Agregar Evento -->
+  <!-- Modal Evento -->
   <div id="modalEvento" class="modal hidden">
     <div class="modal-content">
       <h2>Agregar Evento</h2>
@@ -42,11 +48,11 @@
     </div>
   </div>
 
-  <!-- Modal Nueva Publicación -->
+  <!-- Modal Publicación -->
   <div id="modalPost" class="modal hidden">
     <div class="modal-content">
       <h2>Nueva Publicación</h2>
-      <textarea id="postText" placeholder="¿Qué quieres compartir?"></textarea>
+      <textarea id="postText" placeholder="Escribe algo..."></textarea>
       <label>Imagen:</label>
       <input type="file" id="postImage" accept="image/*">
       <label>Enlace:</label>
@@ -58,6 +64,10 @@
       </div>
     </div>
   </div>
+
+  <footer>
+    <p>Hecho con 💙 por Tu Nombre</p>
+  </footer>
 
   <script src="script.js"></script>
 </body>
