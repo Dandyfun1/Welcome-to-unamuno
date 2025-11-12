@@ -1,36 +1,7 @@
-// --- Calendar Popup ---
-document.getElementById('open-calendar').addEventListener('click', () => {
-  document.getElementById('calendar-popup').style.display = 'block';
-});
-
-document.querySelector('.close-popup').addEventListener('click', () => {
-  document.getElementById('calendar-popup').style.display = 'none';
-});
-
-// --- Draggable Popup ---
-const popup = document.getElementById('calendar-popup');
-const header = popup.querySelector('.popup-header');
-let offsetX, offsetY, isDragging = false;
-
-header.addEventListener('mousedown', e => {
-  isDragging = true;
-  offsetX = e.clientX - popup.offsetLeft;
-  offsetY = e.clientY - popup.offsetTop;
-});
-
-document.addEventListener('mouseup', () => isDragging = false);
-document.addEventListener('mousemove', e => {
-  if (isDragging) {
-    popup.style.left = (e.clientX - offsetX) + 'px';
-    popup.style.top = (e.clientY - offsetY) + 'px';
-  }
-});
-
-// --- Google Slides Posting & Preview ---
+// ======= PRESENTATION HANDLING =======
 const addBtn = document.getElementById('add-presentation');
 const linkInput = document.getElementById('slides-link');
 const container = document.getElementById('presentations');
-
 let presentations = JSON.parse(localStorage.getItem('presentations')) || [];
 
 function renderPresentations() {
@@ -38,10 +9,14 @@ function renderPresentations() {
   presentations.forEach(url => {
     const card = document.createElement('div');
     card.className = 'presentation-card';
-
-    const embedUrl = url.includes('docs.google.com/presentation')
-      ? url.replace('/edit', '/embed')
-      : url;
+    
+    // Convert standard Google Slides link into embeddable one
+    let embedUrl = url;
+    if (url.includes('/edit')) {
+      embedUrl = url.replace('/edit', '/embed');
+    } else if (url.includes('/view')) {
+      embedUrl = url.replace('/view', '/embed');
+    }
 
     card.innerHTML = `
       <iframe src="${embedUrl}" allowfullscreen></iframe>
@@ -53,7 +28,7 @@ function renderPresentations() {
 
 addBtn.addEventListener('click', () => {
   const link = linkInput.value.trim();
-  if (!link.includes('docs.google.com/presentation')) {
+  if (!link || !link.includes('docs.google.com/presentation')) {
     alert('Por favor, pega un enlace válido de Google Presentaciones.');
     return;
   }
@@ -65,7 +40,37 @@ addBtn.addEventListener('click', () => {
 
 renderPresentations();
 
-// --- Calendar ---
+// ======= CALENDAR POPUP =======
+const openCalendarBtn = document.getElementById('open-calendar');
+const calendarPopup = document.getElementById('calendar-popup');
+const closePopup = document.querySelector('.close-popup');
+
+openCalendarBtn.addEventListener('click', () => {
+  calendarPopup.style.display = 'block';
+});
+closePopup.addEventListener('click', () => {
+  calendarPopup.style.display = 'none';
+});
+
+// ======= DRAGGABLE POPUP =======
+const header = calendarPopup.querySelector('.popup-header');
+let offsetX, offsetY, isDragging = false;
+
+header.addEventListener('mousedown', e => {
+  isDragging = true;
+  offsetX = e.clientX - calendarPopup.offsetLeft;
+  offsetY = e.clientY - calendarPopup.offsetTop;
+});
+
+document.addEventListener('mouseup', () => isDragging = false);
+document.addEventListener('mousemove', e => {
+  if (isDragging) {
+    calendarPopup.style.left = (e.clientX - offsetX) + 'px';
+    calendarPopup.style.top = (e.clientY - offsetY) + 'px';
+  }
+});
+
+// ======= CALENDAR =======
 const calendarEl = document.getElementById('calendar');
 const eventDateInput = document.getElementById('event-date');
 const eventTitleInput = document.getElementById('event-title');
@@ -90,7 +95,8 @@ function renderCalendar() {
     calendarEl.appendChild(div);
   });
 
-  for (let i = 0; i < firstDay.getDay() - 1; i++) {
+  const emptyDays = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1;
+  for (let i = 0; i < emptyDays; i++) {
     const empty = document.createElement('div');
     calendarEl.appendChild(empty);
   }
