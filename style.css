@@ -1,101 +1,182 @@
 * {
   box-sizing: border-box;
-  font-family: 'Segoe UI', sans-serif;
-  transition: all 0.3s ease;
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  transition: 0.3s ease;
 }
 
 body {
   margin: 0;
-  padding: 0;
-  background: linear-gradient(to right, #003973, #E5E5BE);
+  background: linear-gradient(135deg, #0d47a1, #1976d2);
   color: white;
   overflow-x: hidden;
+  min-height: 100vh;
 }
 
-/* Header */
+/* Header with centered search */
 header {
   text-align: center;
-  padding: 25px;
+  padding: 25px 0;
+  position: sticky;
+  top: 0;
+  background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
-  background: rgba(0, 0, 0, 0.3);
-  box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
-}
-
-header h1 {
-  margin-bottom: 10px;
-  font-size: 2em;
-  letter-spacing: 1px;
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.2);
 }
 
 #google-search {
   display: flex;
   justify-content: center;
-  gap: 8px;
+  align-items: center;
+  gap: 10px;
 }
 
 #google-search input {
-  padding: 10px;
-  border-radius: 8px;
+  width: 60%;
+  max-width: 700px;
+  padding: 12px 16px;
+  border-radius: 50px;
   border: none;
-  width: 280px;
   outline: none;
+  font-size: 16px;
+  background: rgba(255, 255, 255, 0.85);
+  color: #0d47a1;
 }
 
 #google-search button {
-  background: #007bff;
+  background: #1565c0;
   border: none;
   color: white;
-  padding: 10px 15px;
-  border-radius: 8px;
+  padding: 12px 20px;
+  border-radius: 50px;
+  font-size: 16px;
   cursor: pointer;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
 #google-search button:hover {
-  background: #005dc1;
+  background: #0d47a1;
 }
 
-/* Main buttons */
+/* Main layout */
 main {
-  text-align: center;
-  margin-top: 50px;
+  display: flex;
+  justify-content: space-between;
+  gap: 40px;
+  padding: 40px 10%;
+  flex-wrap: wrap;
 }
 
-main button {
+.left-panel, .right-panel {
   background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
+  border-radius: 20px;
+  padding: 30px;
+  flex: 1;
+  min-width: 300px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+.left-panel h2, .right-panel h2 {
+  text-align: center;
+  color: #fff;
+}
+
+.left-panel input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  outline: none;
+  margin-top: 10px;
+  font-size: 15px;
+}
+
+.left-panel button {
+  margin-top: 10px;
+  padding: 10px 20px;
+  border: none;
+  background: #42a5f5;
   color: white;
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  padding: 12px 25px;
-  margin: 10px;
-  border-radius: 12px;
+  border-radius: 8px;
   cursor: pointer;
-  font-size: 17px;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  width: 100%;
 }
 
-main button:hover {
-  transform: scale(1.1);
-  background: rgba(255, 255, 255, 0.25);
+.left-panel button:hover {
+  background: #2196f3;
 }
 
-/* Popup */
+/* Presentation cards */
+#presentations {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.presentation-card {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 15px;
+  overflow: hidden;
+  color: #0d47a1;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  text-align: center;
+}
+
+.presentation-card iframe {
+  width: 100%;
+  height: 180px;
+  border: none;
+}
+
+.presentation-card a {
+  display: block;
+  padding: 10px;
+  background: #1976d2;
+  color: white;
+  text-decoration: none;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.presentation-card a:hover {
+  background: #0d47a1;
+}
+
+/* Right panel */
+.right-panel {
+  text-align: center;
+}
+
+.right-panel button {
+  padding: 12px 25px;
+  background: #42a5f5;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 15px;
+}
+
+.right-panel button:hover {
+  background: #2196f3;
+}
+
+/* Popup Calendar */
 .popup {
   display: none;
   position: fixed;
-  top: 120px;
-  left: 120px;
-  width: 500px;
+  top: 100px;
+  left: 100px;
+  width: 450px;
   background: rgba(255, 255, 255, 0.95);
   color: black;
   border-radius: 15px;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
   z-index: 999;
-  backdrop-filter: blur(8px);
 }
 
 .popup-header {
-  background: linear-gradient(to right, #007bff, #00c6ff);
+  background: linear-gradient(to right, #1976d2, #42a5f5);
   color: white;
   padding: 10px 15px;
   border-top-left-radius: 15px;
@@ -118,34 +199,10 @@ main button:hover {
   padding: 20px;
 }
 
-.popup input, .popup button {
-  margin-top: 10px;
-  padding: 10px;
-  width: 100%;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-}
-
-.note {
-  font-size: 0.9em;
-  color: #444;
-  margin: 10px 0;
-}
-
-.popup iframe {
-  width: 100%;
-  height: 350px;
-  border-radius: 10px;
-  margin-top: 10px;
-  border: 1px solid #ddd;
-}
-
-/* Calendar */
 #calendar {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 5px;
-  margin-top: 15px;
 }
 
 .day {
@@ -162,17 +219,6 @@ main button:hover {
 }
 
 .event-day {
-  background: #007bff !important;
-  color: white;
-}
-
-/* Footer */
-footer {
-  text-align: center;
-  margin-top: 60px;
-  padding: 15px;
-  font-size: 0.9em;
-  background: rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(10px);
+  background: #42a5f5 !important;
   color: white;
 }
