@@ -16,10 +16,19 @@
   </header>
 
   <main>
-    <div class="icon-bar">
-      <button id="open-presentations" title="Presentaciones"><i class="fas fa-file-powerpoint"></i></button>
-      <button id="open-calendar" title="Calendario"><i class="fas fa-calendar-alt"></i></button>
-      <button id="open-settings" title="Configuración"><i class="fas fa-cog"></i></button>
+    <div class="dashboard">
+      <div class="feature-card" id="open-presentations">
+        <i class="fas fa-file-powerpoint"></i>
+        <span>Presentaciones</span>
+      </div>
+      <div class="feature-card" id="open-calendar">
+        <i class="fas fa-calendar-alt"></i>
+        <span>Calendario</span>
+      </div>
+      <div class="feature-card" id="open-settings">
+        <i class="fas fa-cog"></i>
+        <span>Configuración</span>
+      </div>
     </div>
   </main>
 
@@ -71,8 +80,8 @@
       <div class="modal-body">
         <h3>Tema</h3>
         <div class="theme-switch">
-          <button id="light-theme"><i class="fas fa-sun"></i></button>
-          <button id="dark-theme"><i class="fas fa-moon"></i></button>
+          <button id="light-theme"><i class="fas fa-sun"></i> Claro</button>
+          <button id="dark-theme"><i class="fas fa-moon"></i> Oscuro</button>
         </div>
         <h3>Fondo personalizado</h3>
         <input id="background-url" type="text" placeholder="Pega URL de imagen o GIF">
