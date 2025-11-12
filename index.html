@@ -1,35 +1,35 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Presentaciones y Calendario</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Centro de Herramientas</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <header>
     <h1>Centro de Herramientas</h1>
     <form id="google-search" action="https://www.google.com/search" method="get" target="_blank">
-      <input type="text" name="q" placeholder="Buscar en Google...">
+      <input type="text" name="q" placeholder="Buscar en Google..." />
       <button type="submit">🔍</button>
     </form>
   </header>
 
   <main>
-    <button id="open-presentation">🖼️ Vista de Presentación</button>
+    <button id="open-presentation">🖼️ Subir Presentación</button>
     <button id="open-calendar">📅 Calendario</button>
   </main>
 
-  <!-- Google Slides Popup -->
+  <!-- Presentation Popup -->
   <div id="presentation-popup" class="popup">
     <div class="popup-header">
       <span>Vista Previa de Presentación</span>
       <button class="close-popup">✖</button>
     </div>
     <div class="popup-body">
-      <input type="text" id="slides-url" placeholder="Pega el enlace de tu presentación aquí...">
-      <button id="preview-btn">Previsualizar</button>
-      <iframe id="slides-frame" src="" frameborder="0" allowfullscreen></iframe>
+      <input type="file" id="upload-file" accept=".pdf,.pptx,.ppt" />
+      <p class="note">Puedes subir un archivo PDF o PPTX. Se mostrará aquí una vista previa.</p>
+      <iframe id="file-frame" src=""></iframe>
     </div>
   </div>
 
@@ -43,12 +43,16 @@
       <div id="calendar"></div>
       <div id="event-form">
         <h3>Agregar Evento</h3>
-        <input type="date" id="event-date">
-        <input type="text" id="event-title" placeholder="Título del evento">
+        <input type="date" id="event-date" />
+        <input type="text" id="event-title" placeholder="Título del evento" />
         <button id="add-event">Añadir</button>
       </div>
     </div>
   </div>
+
+  <footer>
+    <p>Hecho con 💙 por ChatGPT • 2025</p>
+  </footer>
 
   <script src="script.js"></script>
 </body>
