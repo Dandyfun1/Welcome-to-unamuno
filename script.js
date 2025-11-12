@@ -1,7 +1,8 @@
-// --- Popup Handling ---
+// --- Popup Controls ---
 document.getElementById('open-presentation').addEventListener('click', () => {
   document.getElementById('presentation-popup').style.display = 'block';
 });
+
 document.getElementById('open-calendar').addEventListener('click', () => {
   document.getElementById('calendar-popup').style.display = 'block';
 });
@@ -32,24 +33,31 @@ document.querySelectorAll('.popup').forEach(popup => {
   });
 });
 
-// --- Google Slides Preview ---
-document.getElementById('preview-btn').addEventListener('click', () => {
-  const url = document.getElementById('slides-url').value.trim();
-  const iframe = document.getElementById('slides-frame');
-  if (url.includes('docs.google.com/presentation')) {
-    const embedUrl = url.replace('/edit', '/preview');
-    iframe.src = embedUrl;
+// --- File Upload Preview ---
+const uploadInput = document.getElementById('upload-file');
+const iframe = document.getElementById('file-frame');
+
+uploadInput.addEventListener('change', () => {
+  const file = uploadInput.files[0];
+  if (!file) return;
+
+  const fileURL = URL.createObjectURL(file);
+  if (file.type === "application/pdf") {
+    iframe.src = fileURL;
+  } else if (file.name.endsWith(".ppt") || file.name.endsWith(".pptx")) {
+    alert("Las presentaciones PPTX se mostrarán al convertirlas en línea o descargarlas.");
+    iframe.src = "https://view.officeapps.live.com/op/embed.aspx?src=" + encodeURIComponent(fileURL);
   } else {
-    alert('Por favor, pega un enlace válido de Google Presentaciones.');
+    alert("Por favor sube un archivo PDF o PPTX válido.");
   }
 });
 
-// --- Calendar Setup ---
+// --- Calendar ---
 const calendarEl = document.getElementById('calendar');
 const eventDateInput = document.getElementById('event-date');
 const eventTitleInput = document.getElementById('event-title');
 const addEventBtn = document.getElementById('add-event');
-let events = {};
+let events = JSON.parse(localStorage.getItem('events')) || {};
 
 function renderCalendar() {
   const today = new Date();
@@ -65,6 +73,8 @@ function renderCalendar() {
     const div = document.createElement('div');
     div.textContent = day;
     div.style.fontWeight = 'bold';
+    div.style.background = '#eee';
+    div.style.borderRadius = '4px';
     calendarEl.appendChild(div);
   });
 
@@ -99,6 +109,7 @@ addEventBtn.addEventListener('click', () => {
   if (date && title) {
     if (!events[date]) events[date] = [];
     events[date].push(title);
+    localStorage.setItem('events', JSON.stringify(events));
     renderCalendar();
     eventDateInput.value = '';
     eventTitleInput.value = '';
