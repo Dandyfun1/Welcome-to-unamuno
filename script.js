@@ -1,56 +1,69 @@
-// --- Popup Controls ---
-document.getElementById('open-presentation').addEventListener('click', () => {
-  document.getElementById('presentation-popup').style.display = 'block';
-});
-
+// --- Calendar Popup ---
 document.getElementById('open-calendar').addEventListener('click', () => {
   document.getElementById('calendar-popup').style.display = 'block';
 });
 
-document.querySelectorAll('.close-popup').forEach(btn => {
-  btn.addEventListener('click', e => {
-    e.target.closest('.popup').style.display = 'none';
-  });
+document.querySelector('.close-popup').addEventListener('click', () => {
+  document.getElementById('calendar-popup').style.display = 'none';
 });
 
-// --- Draggable Popups ---
-document.querySelectorAll('.popup').forEach(popup => {
-  const header = popup.querySelector('.popup-header');
-  let offsetX, offsetY, isDragging = false;
+// --- Draggable Popup ---
+const popup = document.getElementById('calendar-popup');
+const header = popup.querySelector('.popup-header');
+let offsetX, offsetY, isDragging = false;
 
-  header.addEventListener('mousedown', e => {
-    isDragging = true;
-    offsetX = e.clientX - popup.offsetLeft;
-    offsetY = e.clientY - popup.offsetTop;
-  });
-
-  document.addEventListener('mouseup', () => isDragging = false);
-  document.addEventListener('mousemove', e => {
-    if (isDragging) {
-      popup.style.left = (e.clientX - offsetX) + 'px';
-      popup.style.top = (e.clientY - offsetY) + 'px';
-    }
-  });
+header.addEventListener('mousedown', e => {
+  isDragging = true;
+  offsetX = e.clientX - popup.offsetLeft;
+  offsetY = e.clientY - popup.offsetTop;
 });
 
-// --- File Upload Preview ---
-const uploadInput = document.getElementById('upload-file');
-const iframe = document.getElementById('file-frame');
-
-uploadInput.addEventListener('change', () => {
-  const file = uploadInput.files[0];
-  if (!file) return;
-
-  const fileURL = URL.createObjectURL(file);
-  if (file.type === "application/pdf") {
-    iframe.src = fileURL;
-  } else if (file.name.endsWith(".ppt") || file.name.endsWith(".pptx")) {
-    alert("Las presentaciones PPTX se mostrarán al convertirlas en línea o descargarlas.");
-    iframe.src = "https://view.officeapps.live.com/op/embed.aspx?src=" + encodeURIComponent(fileURL);
-  } else {
-    alert("Por favor sube un archivo PDF o PPTX válido.");
+document.addEventListener('mouseup', () => isDragging = false);
+document.addEventListener('mousemove', e => {
+  if (isDragging) {
+    popup.style.left = (e.clientX - offsetX) + 'px';
+    popup.style.top = (e.clientY - offsetY) + 'px';
   }
 });
+
+// --- Google Slides Posting & Preview ---
+const addBtn = document.getElementById('add-presentation');
+const linkInput = document.getElementById('slides-link');
+const container = document.getElementById('presentations');
+
+let presentations = JSON.parse(localStorage.getItem('presentations')) || [];
+
+function renderPresentations() {
+  container.innerHTML = '';
+  presentations.forEach(url => {
+    const card = document.createElement('div');
+    card.className = 'presentation-card';
+
+    const embedUrl = url.includes('docs.google.com/presentation')
+      ? url.replace('/edit', '/embed')
+      : url;
+
+    card.innerHTML = `
+      <iframe src="${embedUrl}" allowfullscreen></iframe>
+      <a href="${url}" target="_blank">Abrir Presentación</a>
+    `;
+    container.appendChild(card);
+  });
+}
+
+addBtn.addEventListener('click', () => {
+  const link = linkInput.value.trim();
+  if (!link.includes('docs.google.com/presentation')) {
+    alert('Por favor, pega un enlace válido de Google Presentaciones.');
+    return;
+  }
+  presentations.push(link);
+  localStorage.setItem('presentations', JSON.stringify(presentations));
+  linkInput.value = '';
+  renderPresentations();
+});
+
+renderPresentations();
 
 // --- Calendar ---
 const calendarEl = document.getElementById('calendar');
@@ -74,7 +87,6 @@ function renderCalendar() {
     div.textContent = day;
     div.style.fontWeight = 'bold';
     div.style.background = '#eee';
-    div.style.borderRadius = '4px';
     calendarEl.appendChild(div);
   });
 
@@ -88,7 +100,6 @@ function renderCalendar() {
     const div = document.createElement('div');
     div.textContent = day;
     div.classList.add('day');
-
     if (events[dateStr]) div.classList.add('event-day');
 
     div.addEventListener('click', () => {
