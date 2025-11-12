@@ -1,6 +1,5 @@
 // ---------- POPUP HANDLING ----------
-const modals = document.querySelectorAll(".modal");
-document.querySelectorAll(".icon-bar button").forEach(btn=>{
+document.querySelectorAll(".feature-card").forEach(btn=>{
   btn.addEventListener("click",()=>{
     const id = btn.id.replace("open-","")+"-popup";
     document.getElementById(id).style.display="block";
