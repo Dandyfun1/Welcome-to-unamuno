@@ -46,13 +46,16 @@ let presentations = JSON.parse(localStorage.getItem('presentations')) || [];
 
 function renderPresentations() {
   container.innerHTML = '';
-  presentations.forEach(url => {
+  presentations.forEach((url, index) => {
     const embed = url.replace(/\/edit.*$/, '/embed');
     const card = document.createElement('div');
     card.className = 'presentation-card';
     card.innerHTML = `
       <iframe src="${embed}" allowfullscreen></iframe>
       <a href="${url}" target="_blank">Abrir Presentación</a>
+
+      <!-- DELETE BUTTON ADDED -->
+      <button class="delete-presentation" onclick="deletePresentation(${index})">❌ Eliminar</button>
     `;
     container.appendChild(card);
   });
@@ -71,6 +74,14 @@ addBtn.onclick = () => {
 };
 
 renderPresentations();
+
+// === NEW DELETE FUNCTION ===
+function deletePresentation(index) {
+  if (!confirm("¿Seguro que quieres eliminar esta presentación?")) return;
+  presentations.splice(index, 1);
+  localStorage.setItem('presentations', JSON.stringify(presentations));
+  renderPresentations();
+}
 
 // === CALENDAR ===
 const calendarEl = document.getElementById('calendar');
