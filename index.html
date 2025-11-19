@@ -5,23 +5,22 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Presentaciones & Calendario (Compartido)</title>
   <link rel="stylesheet" href="style.css" />
-  <!-- Font Awesome for icons -->
   <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 </head>
 <body>
   <header class="topbar">
     <form id="google-search" action="https://www.google.com/search" method="get" target="_blank" aria-label="buscar">
       <input id="search-input" name="q" placeholder="Buscar en Google..." />
-      <button type="submit" id="search-btn">Buscar</button>
+      <button type="submit" id="search-btn"><i class="fas fa-search"></i> Buscar</button>
     </form>
 
     <div class="user-area">
       <div id="user-info" class="user-info">
         <img id="user-avatar" src="" alt="avatar" />
-        <span id="user-name"></span>
+        <span id="user-name">Invitado</span>
       </div>
       <div class="auth-buttons">
-        <button id="btn-signin-google" class="auth-btn"><i class="fab fa-google"></i></button>
+        <button id="btn-signin-google" class="auth-btn" title="Iniciar con Google"><i class="fab fa-google"></i></button>
         <button id="btn-signout" class="auth-btn" title="Cerrar sesión"><i class="fas fa-sign-out-alt"></i></button>
       </div>
     </div>
@@ -29,18 +28,17 @@
 
   <main class="layout container">
     <section class="col presentations-col">
-      <div class="panel-top">
-        <div>
-          <h2>Presentaciones compartidas</h2>
-          <p class="hint">Pega un enlace de Google Slides o sube un archivo (PDF / PPTX). Todos los cambios son públicos y en tiempo real.</p>
-        </div>
+      <h2>Presentaciones compartidas</h2>
+      <p class="hint">Pega un enlace de Google Slides o sube un archivo (PDF / PPTX). Todos los cambios son públicos y en tiempo real.</p>
 
-        <div class="upload-area" id="upload-area">
-          <input id="slides-link" placeholder="Pega enlace de Google Slides..." />
-          <button id="add-presentation" class="btn primary"><i class="fas fa-plus"></i> Agregar</button>
-          <input id="file-input" type="file" accept=".pdf,.pptx,.ppt" />
-          <div class="drag-hint">o arrastra tu archivo aquí</div>
-        </div>
+      <div class="upload-row">
+        <input id="slides-link" placeholder="Pega enlace de Google Slides..." />
+        <button id="add-presentation" class="btn primary"><i class="fas fa-plus"></i> Agregar</button>
+      </div>
+
+      <div class="upload-row">
+        <input id="file-input" type="file" accept=".pdf,.pptx,.ppt" />
+        <div id="drag-area" class="drag-area">o arrastra tu archivo aquí</div>
       </div>
 
       <div id="presentations" class="cards" aria-live="polite"></div>
@@ -181,7 +179,7 @@
           <button id="bg-reset-btn" class="btn ghost">Restablecer</button>
         </div>
         <div style="margin-top:10px">
-          <input id="bg-file" type="file" accept="image/*,video/gif" />
+          <input id="bg-file" type="file" accept="image/*,image/gif,video/gif" />
           <button id="bg-upload-btn" class="btn">Subir fondo</button>
         </div>
 
@@ -200,7 +198,6 @@
     </div>
   </div>
 
-  <!-- module script -->
   <script type="module" src="script.js"></script>
 </body>
 </html>
