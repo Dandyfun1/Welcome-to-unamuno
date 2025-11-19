@@ -1,16 +1,16 @@
-/* script.js
-   Module script using Firebase v12.6.0.
+/* script.js — full module
+   Firebase v12.6.0 (Auth, Firestore, Storage)
    Features:
-   - Shared presentations (links + file uploads to Storage)
-   - Shared calendar (Firestore)
-   - Background upload & shared background (Firestore + Storage)
+   - Shared presentations (links + file uploads)
+   - Presentation preview modal
+   - Delete presentation (FireStore doc)
+   - Shared calendar (add/edit/delete events)
+   - Settings modal: background via URL or upload (saved to Firestore)
    - Anonymous + Google sign-in
-   - Clean UI wiring
+   - Export/Import JSON
 */
 
-/* ----------------------
-   Firebase imports
-   ---------------------- */
+/* ========= Firebase imports (v12.6.0) ========= */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
 import {
   getAuth, signInAnonymously, onAuthStateChanged, GoogleAuthProvider,
@@ -23,13 +23,12 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
 import {
-  getStorage, ref as storageRef, uploadBytes, getDownloadURL
+  getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject
 } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-storage.js";
 
-/* ----------------------
-   Your firebase config
-   (replace if you want to use another project)
-   ---------------------- */
+/* ========= Firebase config (your project) =========
+   Replace values if you want another project; these are from your earlier message.
+*/
 const firebaseConfig = {
   apiKey: "AIzaSyAPS7PPLTTGHFelB7ai4xfRhuQpK6_jRyY",
   authDomain: "namuno-website.firebaseapp.com",
@@ -45,26 +44,20 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-/* ----------------------
-   Auth: anonymous by default
-   ---------------------- */
-signInAnonymously(auth).catch(err => console.warn("Auth:", err));
+/* ========= Auth (anonymous by default) ========= */
+signInAnonymously(auth).catch(err => console.warn("Auth error:", err));
 let currentUser = null;
 onAuthStateChanged(auth, user => {
   currentUser = user;
-  loadLocalProfileToUI();
+  refreshUserUI();
 });
 
-/* ----------------------
-   Helpers
-   ---------------------- */
+/* ========= Helpers ========= */
 function escapeHtml(s=""){ return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[c])); }
 function extractSlidesId(url){ const m = url.match(/\/d\/([A-Za-z0-9_-]+)/); return m?m[1]:null; }
 function toEmbedUrl(url){ const id = extractSlidesId(url); if(id) return `https://docs.google.com/presentation/d/${id}/embed?start=false&loop=false&delayms=3000`; if(url.includes("/embed")) return url; return null; }
 
-/* ----------------------
-   DOM references
-   ---------------------- */
+/* ========= DOM elements ========= */
 const presentationsEl = document.getElementById("presentations");
 const addPresentationBtn = document.getElementById("add-presentation");
 const slidesLinkInput = document.getElementById("slides-link");
@@ -114,9 +107,7 @@ const importFile = document.getElementById("import-file");
 const userAvatarImg = document.getElementById("user-avatar");
 const userNameSpan = document.getElementById("user-name");
 
-/* ----------------------
-   Modal helpers
-   ---------------------- */
+/* ========= Modal helpers ========= */
 function openModal(id){ document.getElementById(id).style.display = "flex"; }
 function closeModal(id){ document.getElementById(id).style.display = "none"; }
 document.querySelectorAll(".close-modal").forEach(btn => btn.addEventListener("click", ()=> {
@@ -124,33 +115,19 @@ document.querySelectorAll(".close-modal").forEach(btn => btn.addEventListener("c
 }));
 window.onclick = e => { if(e.target.classList.contains("modal")) e.target.style.display = "none"; };
 
-/* ----------------------
-   Authentication actions
-   ---------------------- */
-btnSignInGoogle?.addEventListener("click", async ()=>{
+/* ========= Auth handlers ========= */
+btnSignInGoogle?.addEventListener("click", async ()=> {
   const provider = new GoogleAuthProvider();
-  try{
-    const res = await signInWithPopup(auth, provider);
-    currentUser = res.user;
-    loadLocalProfileToUI();
-  }catch(e){ console.error(e); alert("Error Google sign-in"); }
+  try{ const res = await signInWithPopup(auth, provider); currentUser = res.user; refreshUserUI(); }catch(e){ console.error(e); alert("Error Google sign-in"); }
 });
-btnSignInGoogle2?.addEventListener("click", async ()=>{
+btnSignInGoogle2?.addEventListener("click", async ()=> {
   const provider = new GoogleAuthProvider();
-  try{
-    const res = await signInWithPopup(auth, provider);
-    currentUser = res.user; loadLocalProfileToUI();
-  }catch(e){ console.error(e); alert("Error Google sign-in"); }
+  try{ const res = await signInWithPopup(auth, provider); currentUser = res.user; refreshUserUI(); }catch(e){ console.error(e); alert("Error Google sign-in"); }
 });
-btnAnon?.addEventListener("click", async ()=> {
-  try{ await signInAnonymously(auth); alert("Sesión anónima iniciada"); }catch(e){ console.warn(e); }
-});
-btnSignOut?.addEventListener("click", async ()=> {
-  try{ await signOut(auth); await signInAnonymously(auth); }catch(e){ console.warn(e); }
-});
+btnAnon?.addEventListener("click", async ()=> { try{ await signInAnonymously(auth); alert("Sesión anónima iniciada"); }catch(e){ console.warn(e); } });
+btnSignOut?.addEventListener("click", async ()=> { try{ await signOut(auth); await signInAnonymously(auth); }catch(e){ console.warn(e); } });
 
-/* Local profile UI */
-function loadLocalProfileToUI(){
+function refreshUserUI(){
   const local = JSON.parse(localStorage.getItem("local_profile")||"{}");
   const name = local.name || (currentUser && currentUser.displayName) || "Invitado";
   const avatar = local.avatar || (currentUser && currentUser.photoURL) || "";
@@ -158,19 +135,16 @@ function loadLocalProfileToUI(){
   userAvatarImg.src = avatar || "";
 }
 
-/* Save profile locally */
-saveProfileBtn?.addEventListener("click", ()=>{
+/* ========= Local profile ========= */
+saveProfileBtn?.addEventListener("click", ()=> {
   const name = profileNameInput.value.trim();
   const avatar = profileAvatarUrlInput.value.trim();
-  const obj = { name, avatar };
-  localStorage.setItem("local_profile", JSON.stringify(obj));
-  loadLocalProfileToUI();
-  alert("Perfil guardado localmente");
+  localStorage.setItem("local_profile", JSON.stringify({ name, avatar }));
+  refreshUserUI();
+  alert("Perfil guardado (local)");
 });
 
-/* ----------------------
-   Presentations: realtime (Firestore) + Storage uploads
-   ---------------------- */
+/* ========= Presentations (Firestore + Storage) ========= */
 const PRESENT_COLLECTION = "presentations";
 const EVENTS_COLLECTION = "events_by_date";
 const META_COLLECTION = "site_meta";
@@ -178,9 +152,10 @@ const SITE_SETTINGS_ID = "site_settings";
 
 const presentationsRef = collection(db, PRESENT_COLLECTION);
 const qPresent = query(presentationsRef, orderBy("createdAt","desc"));
-onSnapshot(qPresent, snap => {
-  const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-  renderPresentations(docs);
+
+onSnapshot(qPresent, snapshot => {
+  const list = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+  renderPresentations(list);
 });
 
 function renderPresentations(list){
@@ -189,21 +164,20 @@ function renderPresentations(list){
     presentationsEl.innerHTML = `<div class="muted">No hay presentaciones compartidas aún.</div>`;
     return;
   }
-
-  list.forEach(item=>{
+  list.forEach(item => {
     const card = document.createElement("div"); card.className = "presentation-card";
-    let frame = "";
-    if(item.type === "link") frame = `<iframe class="frame" src="${toEmbedUrl(item.url)}" loading="lazy"></iframe>`;
-    else if(item.type === "pdf") frame = `<iframe class="frame" src="${item.storageUrl}" loading="lazy"></iframe>`;
-    else if(item.type === "pptx") frame = `<iframe class="frame" src="https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(item.storageUrl)}" loading="lazy"></iframe>`;
-    else frame = `<div style="padding:40px;text-align:center">Vista previa no disponible</div>`;
+    let previewHtml = "";
+    if(item.type === "link") previewHtml = `<iframe class="frame" src="${toEmbedUrl(item.url)}" loading="lazy"></iframe>`;
+    else if(item.type === "pdf") previewHtml = `<iframe class="frame" src="${item.storageUrl}" loading="lazy"></iframe>`;
+    else if(item.type === "pptx") previewHtml = `<iframe class="frame" src="https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(item.storageUrl)}" loading="lazy"></iframe>`;
+    else previewHtml = `<div style="padding:40px;text-align:center">Vista previa no disponible</div>`;
 
     const uploaderName = escapeHtml(item.uploaderName || "Usuario");
     const avatar = item.uploaderPhoto || "";
     const title = escapeHtml(item.title || item.fileName || "Presentación");
 
     card.innerHTML = `
-      ${frame}
+      ${previewHtml}
       <div class="card-actions">
         <div class="card-meta">
           <img src="${avatar}" alt="u" onerror="this.style.display='none'"/>
@@ -212,10 +186,11 @@ function renderPresentations(list){
             <div style="font-size:12px;color:#666">${uploaderName}</div>
           </div>
         </div>
+
         <div class="right">
-          <button class="btn" data-open="${item.id}"><i class="fas fa-eye"></i></button>
-          <a class="btn primary" href="${item.url || item.storageUrl}" target="_blank" rel="noopener"><i class="fas fa-external-link-alt"></i></a>
-          <button class="btn ghost" data-delete="${item.id}"><i class="fas fa-trash-alt"></i></button>
+          <button class="btn" data-open="${item.id}" title="Vista"><i class="fas fa-eye"></i></button>
+          <a class="btn primary" href="${item.url || item.storageUrl}" target="_blank" rel="noopener" title="Abrir"><i class="fas fa-external-link-alt"></i></a>
+          <button class="btn ghost" data-delete="${item.id}" title="Eliminar"><i class="fas fa-trash-alt"></i></button>
         </div>
       </div>
     `;
@@ -239,39 +214,44 @@ function renderPresentations(list){
   });
 
   presentationsEl.querySelectorAll("[data-delete]").forEach(btn=>{
-    btn.addEventListener("click", async ()=>{
+    btn.addEventListener("click", async ()=> {
       const id = btn.dataset.delete;
       if(!confirm("Eliminar esta presentación públicamente?")) return;
       try{
-        // Firestore deletion
+        const snap = await getDoc(doc(db, PRESENT_COLLECTION, id));
+        const item = snap.exists()? snap.data() : null;
+        // delete Firestore doc
         await deleteDoc(doc(db, PRESENT_COLLECTION, id));
-        // Note: storage cleanup should be done server-side or with admin privileges
+        // optionally delete storage file if existed (requires storage rules / permission)
+        if(item && item.storagePath){
+          try{ await deleteObject(storageRef(storage, item.storagePath)); } catch(e){ console.warn("Storage delete failed:", e); }
+        }
       }catch(e){ console.error(e); alert("Error eliminando"); }
     });
   });
 }
 
 /* Add presentation by link */
-addPresentationBtn.addEventListener("click", async ()=>{
+addPresentationBtn.addEventListener("click", async ()=> {
   const raw = slidesLinkInput.value.trim();
   if(!raw) return alert("Pega la URL de Google Slides");
   const id = extractSlidesId(raw);
   if(!id) return alert("Enlace inválido");
   const titleCandidate = (raw.match(/\/d\/[A-Za-z0-9_-]+\/([^?\/]+)/) || [null,''])[1] || "";
-  const profile = JSON.parse(localStorage.getItem("local_profile")||"{}");
+  const local = JSON.parse(localStorage.getItem("local_profile")||"{}");
   await addDoc(collection(db, PRESENT_COLLECTION), {
     type: "link",
     url: raw,
     title: titleCandidate || "",
     createdAt: serverTimestamp(),
     uploader: currentUser?.uid || null,
-    uploaderName: profile.name || currentUser?.displayName || null,
-    uploaderPhoto: profile.avatar || currentUser?.photoURL || null
+    uploaderName: local.name || currentUser?.displayName || null,
+    uploaderPhoto: local.avatar || currentUser?.photoURL || null
   });
   slidesLinkInput.value = "";
 });
 
-/* File uploads */
+/* File upload for presentations */
 function uploadPresentationFile(file){
   const allowed = ["application/pdf","application/vnd.openxmlformats-officedocument.presentationml.presentation","application/vnd.ms-powerpoint"];
   if(!allowed.includes(file.type)) return alert("Formato no soportado (usa PDF o PPTX)");
@@ -279,7 +259,7 @@ function uploadPresentationFile(file){
   const r = storageRef(storage, path);
   uploadBytes(r, file).then(async ()=> {
     const url = await getDownloadURL(r);
-    const profile = JSON.parse(localStorage.getItem("local_profile")||"{}");
+    const local = JSON.parse(localStorage.getItem("local_profile")||"{}");
     const type = file.type === "application/pdf" ? "pdf" : "pptx";
     await addDoc(collection(db, PRESENT_COLLECTION), {
       type,
@@ -288,92 +268,91 @@ function uploadPresentationFile(file){
       fileName: file.name,
       createdAt: serverTimestamp(),
       uploader: currentUser?.uid || null,
-      uploaderName: profile.name || currentUser?.displayName || null,
-      uploaderPhoto: profile.avatar || currentUser?.photoURL || null
+      uploaderName: local.name || currentUser?.displayName || null,
+      uploaderPhoto: local.avatar || currentUser?.photoURL || null
     });
     alert("Subida completa y publicada.");
   }).catch(e => { console.error(e); alert("Error al subir"); });
 }
 
-/* file input & drag/drop */
-fileInput.addEventListener("change", e=> { const f = e.target.files[0]; if(f) uploadPresentationFile(f); });
-dragArea.addEventListener("dragover", e=>{ e.preventDefault(); dragArea.classList.add("dragover"); });
-dragArea.addEventListener("dragleave", e=>{ e.preventDefault(); dragArea.classList.remove("dragover"); });
-dragArea.addEventListener("drop", e=>{ e.preventDefault(); dragArea.classList.remove("dragover"); const f = e.dataTransfer.files[0]; if(f) uploadPresentationFile(f); });
+fileInput.addEventListener("change", e => { const f = e.target.files[0]; if(f) uploadPresentationFile(f); });
+dragArea.addEventListener("dragover", e => { e.preventDefault(); dragArea.classList.add("dragover"); });
+dragArea.addEventListener("dragleave", e => { e.preventDefault(); dragArea.classList.remove("dragover"); });
+dragArea.addEventListener("drop", e => { e.preventDefault(); dragArea.classList.remove("dragover"); const f = e.dataTransfer.files[0]; if(f) uploadPresentationFile(f); });
 
-/* ----------------------
-   Calendar (shared)
-   ---------------------- */
+/* ========= Calendar (shared) ========= */
 const eventsRef = collection(db, EVENTS_COLLECTION);
 onSnapshot(eventsRef, snap => {
   window._sharedEvents = {};
-  snap.forEach(s => { window._sharedEvents[s.id] = s.data().items || []; });
+  snap.forEach(s => window._sharedEvents[s.id] = s.data().items || []);
   renderCalendarView();
 });
 
 let view = { year: new Date().getFullYear(), month: new Date().getMonth() };
-
 function ymd(y,m,d){ return `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`; }
 
 function renderCalendarView(){
   calendarEl.innerHTML = "";
-  const monthName = new Date(view.year, view.month).toLocaleString('es-ES', { month: 'long', year: 'numeric' });
+  const monthName = new Date(view.year, view.month).toLocaleString('es-ES',{month:'long',year:'numeric'});
   monthLabel.textContent = monthName.charAt(0).toUpperCase() + monthName.slice(1);
 
   const days = ['L','M','X','J','V','S','D'];
-  days.forEach(d => { const el=document.createElement('div'); el.textContent=d; el.style.fontWeight='700'; el.style.textAlign='center'; calendarEl.appendChild(el); });
+  days.forEach(d => { const el = document.createElement('div'); el.textContent = d; el.style.fontWeight='700'; el.style.textAlign='center'; calendarEl.appendChild(el); });
 
   const first = new Date(view.year, view.month, 1);
-  const startOffset = (first.getDay() + 6) % 7;
-  for(let i=0;i<startOffset;i++) calendarEl.appendChild(document.createElement('div'));
+  const offset = (first.getDay() + 6) % 7;
+  for(let i=0;i<offset;i++) calendarEl.appendChild(document.createElement('div'));
 
   const total = new Date(view.year, view.month+1, 0).getDate();
   for(let d=1; d<=total; d++){
     const dateStr = ymd(view.year, view.month+1, d);
     const cell = document.createElement('div'); cell.className='day-cell'; cell.innerHTML = `<div class="day-num">${d}</div>`;
     const items = window._sharedEvents?.[dateStr] || [];
-    if(items.length){ const dot=document.createElement('div'); dot.className='events-dot'; dot.textContent = items.length + (items.length>1?' eventos':' evento'); cell.appendChild(dot); }
+    if(items.length){ const dot = document.createElement('div'); dot.className='events-dot'; dot.textContent = items.length + (items.length>1?' eventos':' evento'); cell.appendChild(dot); }
     cell.addEventListener('click', ()=> openDayModal(dateStr));
     calendarEl.appendChild(cell);
   }
 }
 
-/* calendar controls */
 document.getElementById('open-calendar').addEventListener('click', ()=> { openModal('calendar-modal'); renderCalendarView(); });
 prevMonthBtn.addEventListener('click', ()=> { view.month--; if(view.month<0){ view.month=11; view.year--; } renderCalendarView(); });
 nextMonthBtn.addEventListener('click', ()=> { view.month++; if(view.month>11){ view.month=0; view.year++; } renderCalendarView(); });
 todayBtn.addEventListener('click', ()=> { const n=new Date(); view.year=n.getFullYear(); view.month=n.getMonth(); renderCalendarView(); });
 
-/* Day modal operations */
+/* Day modal: view/add/edit events for a date */
 let currentDay = null;
 function openDayModal(dateStr){ currentDay = dateStr; dayDateEl.textContent = dateStr; loadDayEvents(); openModal('day-modal'); }
 
 async function loadDayEvents(){
-  dayEventsList.innerHTML = '';
+  dayEventsList.innerHTML = "";
   const ref = doc(db, EVENTS_COLLECTION, currentDay);
   const snap = await getDoc(ref);
   const items = snap.exists()? (snap.data().items || []) : [];
   if(items.length === 0){ dayEventsList.innerHTML = `<li class="muted">Sin eventos para este día.</li>`; return; }
-  items.forEach((ev, idx)=>{
+
+  items.forEach((ev, idx) => {
     const li = document.createElement('li');
     li.innerHTML = `<div><div class="title">${escapeHtml(ev.title)}</div><div class="muted" style="font-size:13px">${escapeHtml(ev.notes||'')}</div></div>
                     <div class="actions"><button class="btn small" data-edit="${idx}">Editar</button><button class="btn ghost small" data-del="${idx}">Eliminar</button></div>`;
     dayEventsList.appendChild(li);
   });
+
   dayEventsList.querySelectorAll('[data-del]').forEach(btn => {
     btn.addEventListener('click', async ()=> {
-      const idx = parseInt(btn.dataset.del, 10);
+      const idx = parseInt(btn.dataset.del,10);
       const ref = doc(db, EVENTS_COLLECTION, currentDay);
       const snap = await getDoc(ref);
       if(!snap.exists()) return;
       const items = snap.data().items || [];
-      items.splice(idx, 1);
+      items.splice(idx,1);
       await setDoc(ref, { items }, { merge: true });
+      loadDayEvents();
     });
   });
+
   dayEventsList.querySelectorAll('[data-edit]').forEach(btn => {
     btn.addEventListener('click', async ()=> {
-      const idx = parseInt(btn.dataset.edit, 10);
+      const idx = parseInt(btn.dataset.edit,10);
       const ref = doc(db, EVENTS_COLLECTION, currentDay);
       const snap = await getDoc(ref);
       const items = snap.exists()? (snap.data().items || []) : [];
@@ -407,9 +386,7 @@ saveEventBtn.addEventListener('click', async ()=> {
   loadDayEvents();
 });
 
-/* ----------------------
-   Site settings: shared background (meta doc)
-   ---------------------- */
+/* ========= Site settings: shared background & theme ========= */
 const metaRef = doc(db, META_COLLECTION, SITE_SETTINGS_ID);
 
 async function loadSiteSettings(){
@@ -420,7 +397,7 @@ async function loadSiteSettings(){
       if(data.theme) document.body.classList.toggle('light', data.theme === 'light');
       if(data.background) { document.body.style.backgroundImage = `url("${data.background}")`; document.body.style.backgroundSize = 'cover'; }
     } else {
-      const local = JSON.parse(localStorage.getItem('site_settings')||'{}');
+      const local = JSON.parse(localStorage.getItem('site_settings') || '{}');
       if(local.theme) document.body.classList.toggle('light', local.theme === 'light');
       if(local.background) document.body.style.backgroundImage = `url("${local.background}")`;
     }
@@ -456,9 +433,7 @@ bgUploadBtn.addEventListener('click', async ()=> {
   }catch(e){ console.error(e); alert('Error subiendo fondo'); }
 });
 
-/* ----------------------
-   Export / Import
-   ---------------------- */
+/* ========= Export / Import ========= */
 exportBtn?.addEventListener('click', async ()=> {
   const presSnap = await getDocs(collection(db, PRESENT_COLLECTION));
   const evSnap = await getDocs(collection(db, EVENTS_COLLECTION));
@@ -468,13 +443,12 @@ exportBtn?.addEventListener('click', async ()=> {
     events: evSnap.docs.map(d => ({ id: d.id, ...d.data() })),
     meta: metaSnap.exists()? metaSnap.data() : {}
   };
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const blob = new Blob([JSON.stringify(data,null,2)], { type: 'application/json' });
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'site-export.json'; a.click();
 });
 
 importFile?.addEventListener('change', async (e)=> {
-  const f = e.target.files[0];
-  if(!f) return;
+  const f = e.target.files[0]; if(!f) return;
   const reader = new FileReader();
   reader.onload = async ()=> {
     try{
@@ -496,7 +470,7 @@ importFile?.addEventListener('change', async (e)=> {
   reader.readAsText(f);
 });
 
-/* Initial UI refresh */
-loadLocalProfileToUI();
+/* ========= Initial UI refresh ========= */
+refreshUserUI();
 
-/* End of file */
+/* End of script.js */
