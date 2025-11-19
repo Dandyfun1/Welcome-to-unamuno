@@ -204,6 +204,19 @@ body.light .popup {
   background: rgba(0, 123, 255, 1);
 }
 
+/* DELETE BUTTON (ADDED) */
+.delete-presentation {
+  background: #ff3b3b;
+  padding: 10px;
+  display: block;
+  color: white;
+  text-decoration: none;
+  cursor: pointer;
+}
+.delete-presentation:hover {
+  background: #ff0000;
+}
+
 /* CALENDAR */
 #calendar {
   display: grid;
