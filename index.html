@@ -1,121 +1,138 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>UNAMUNO</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Centro de Presentaciones</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
   <link rel="stylesheet" href="style.css" />
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-  <header class="hero">
-    <div class="wrap hero-inner">
-      <div class="brand">
-        <img id="site-logo" class="logo" alt="UNAMUNO logo" src="" />
-        <div>
-          <h1 id="site-title">UNAMUNO</h1>
-          <p id="site-sub" class="sub">Editable site • posts + events</p>
-        </div>
-      </div>
-      <div class="hero-actions">
-        <button id="calendar-toggle" class="ghost">Calendario</button>
-        <button id="admin-toggle" class="ghost">Admin</button>
-      </div>
-    </div>
+  <!-- HEADER -->
+  <header>
+    <form id="google-search" action="https://www.google.com/search" method="get" target="_blank">
+      <input type="text" name="q" placeholder="Buscar en Google...">
+      <button type="submit"><i class="fas fa-search"></i></button>
+      <input type="text" name="q" placeholder="Buscar en Google..." />
+      <button type="submit">🔍</button>
+    </form>
   </header>
 
-  <main class="wrap main">
-    <section class="controls-row">
-      <input id="search-input" type="text" placeholder="Buscar publicaciones, autor o categoría..." />
-      <button id="search-btn" class="btn">Buscar</button>
-    </section>
-
-    <section id="pinned-area" class="pinned-area"></section>
-    <section id="items-grid" class="grid" aria-live="polite"></section>
+  <!-- MAIN -->
+  <main>
+    <div class="dashboard">
+      <div class="feature-card" id="open-presentations">
+        <i class="fas fa-file-powerpoint"></i>
+        <span>Presentaciones</span>
+      </div>
+      <div class="feature-card" id="open-calendar">
+        <i class="fas fa-calendar-alt"></i>
+        <span>Calendario</span>
+      </div>
+      <div class="feature-card" id="open-settings">
+        <i class="fas fa-cog"></i>
+        <span>Configuración</span>
+      </div>
+    <div class="controls">
+      <button id="open-presentations">📤 Publicar Presentación</button>
+      <button id="open-calendar">📅 Calendario</button>
+      <button id="open-settings">⚙️ Configuración</button>
+    </div>
   </main>
 
-  <footer class="site-footer">© UNAMUNO • Lightweight CMS • Built with Supabase</footer>
-
-  <!-- Floating public post button -->
-  <button id="public-post-btn" class="fab" title="Nueva publicación">+</button>
-
-  <!-- Admin Panel (draggable) -->
-  <div id="admin-panel" class="panel hidden" role="dialog" aria-hidden="true">
-    <div id="admin-drag" class="panel-header">
-      <div><strong>Admin Panel</strong></div>
-      <div class="panel-controls">
-        <button id="admin-close" class="ghost small">✕</button>
+  <!-- PRESENTATION POPUP -->
+  <div id="presentation-popup" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2><i class="fas fa-file-powerpoint"></i> Presentaciones</h2>
+        <span class="close">&times;</span>
       </div>
+      <div class="modal-body">
+        <input id="slides-link" type="text" placeholder="Pega tu enlace de Google Presentaciones...">
+        <button id="add-presentation"><i class="fas fa-plus"></i> Agregar</button>
+        <div id="presentations"></div>
+      </div>
+  <div id="presentation-popup" class="popup">
+    <div class="popup-header">
+      <span>Presentaciones Publicadas</span>
+      <button class="close-popup">✖</button>
     </div>
-    <div class="panel-body">
-      <div id="login-area">
-        <label>Email (admin)</label>
-        <input id="pw-input" type="text" placeholder="admin@example.com" />
-        <div style="margin-top:8px">
-          <button id="login-btn" class="btn">Entrar</button>
-        </div>
-        <p class="small muted">Introduce tu email; a continuación se te pedirá la contraseña.</p>
+    <div class="popup-body">
+      <input type="text" id="slides-link" placeholder="Pega tu enlace de Google Presentaciones..." />
+      <button id="add-presentation">Agregar</button>
+      <div id="presentations"></div>
+    </div>
+  </div>
+
+  <!-- CALENDAR POPUP -->
+  <div id="calendar-popup" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2><i class="fas fa-calendar-alt"></i> Calendario</h2>
+        <span class="close">&times;</span>
       </div>
-
-      <div id="controls-area" class="hidden">
-        <h3>Site Settings</h3>
-        <label>Título</label>
-        <input id="edit-title" type="text" />
-        <label>Subtítulo</label>
-        <input id="edit-sub" type="text" />
-        <label>Accent color (hex)</label>
-        <input id="edit-accent" type="text" placeholder="#16a34a" />
-        <label>Logo URL</label>
-        <input id="edit-logo" type="text" placeholder="https://..." />
-        <label>Hero background URL</label>
-        <input id="edit-hero" type="text" placeholder="https://..." />
-        <div style="display:flex;gap:8px;margin-top:10px">
-          <button id="save-changes" class="btn">Guardar</button>
-          <button id="export-btn" class="ghost">Exportar JSON</button>
-          <button id="logout-btn" class="ghost" style="margin-left:auto">Cerrar sesión</button>
+      <div class="modal-body">
+        <div class="calendar-controls">
+          <button id="prev-month"><i class="fas fa-chevron-left"></i></button>
+          <span id="month-year"></span>
+          <button id="next-month"><i class="fas fa-chevron-right"></i></button>
         </div>
-
-        <hr/>
-
-        <h3>Posts Manager</h3>
-        <div id="items-list" class="items-list small muted"></div>
-
-        <hr/>
-
-        <h3>Calendar Manager</h3>
-        <div id="calendar-admin" class="small muted"></div>
+        <div id="calendar"></div>
+        <div id="event-form">
+          <input type="date" id="event-date">
+          <input type="text" id="event-title" placeholder="Título del evento">
+          <button id="add-event"><i class="fas fa-plus"></i> Añadir</button>
+        </div>
+  <div id="calendar-popup" class="popup">
+    <div class="popup-header">
+      <span>Calendario en Español</span>
+      <button class="close-popup">✖</button>
+    </div>
+    <div class="popup-body">
+      <div id="calendar"></div>
+      <div id="event-form">
+        <h3>Agregar Evento</h3>
+        <input type="date" id="event-date" />
+        <input type="text" id="event-title" placeholder="Título del evento" />
+        <button id="add-event">Añadir</button>
       </div>
     </div>
   </div>
 
-  <!-- Calendar Panel (draggable) -->
-  <div id="calendar-panel" class="panel hidden" role="dialog" aria-hidden="true">
-    <div id="calendar-drag" class="panel-header">
-      <div><strong>Calendario</strong></div>
-      <div class="panel-controls">
-        <button id="calendar-close" class="ghost small">✕</button>
+  <!-- SETTINGS POPUP -->
+  <div id="settings-popup" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2><i class="fas fa-cog"></i> Configuración</h2>
+        <span class="close">&times;</span>
       </div>
-    </div>
-    <div class="panel-body">
-      <div class="cal-nav" style="display:flex;justify-content:space-between;align-items:center">
-        <button id="cal-prev" class="ghost small">◀</button>
-        <div id="cal-title" class="muted small"></div>
-        <button id="cal-next" class="ghost small">▶</button>
-      </div>
-      <div id="calendar-grid" class="calendar-grid" style="margin-top:12px"></div>
-      <div id="event-popup" class="event-popup hidden">
-        <h4 id="event-date-title"></h4>
-        <div id="event-details"></div>
-        <div id="event-admin-controls" class="hidden" style="margin-top:8px">
-          <button id="edit-event-btn" class="btn">Editar</button>
-          <button id="delete-event-btn" class="danger">Eliminar</button>
+      <div class="modal-body">
+        <h3>Tema</h3>
+        <div class="theme-switch">
+          <button id="light-theme"><i class="fas fa-sun"></i> Claro</button>
+          <button id="dark-theme"><i class="fas fa-moon"></i> Oscuro</button>
         </div>
+        <h3>Fondo personalizado</h3>
+        <input id="background-url" type="text" placeholder="Pega URL de imagen o GIF">
+        <button id="set-background"><i class="fas fa-check"></i> Aplicar</button>
+        <button id="reset-background"><i class="fas fa-undo"></i> Restablecer</button>
+  <div id="settings-popup" class="popup">
+    <div class="popup-header">
+      <span>Configuración</span>
+      <button class="close-popup">✖</button>
+    </div>
+    <div class="popup-body">
+      <h3>Tema</h3>
+      <div class="theme-options">
+        <button id="light-theme">🌞 Claro</button>
+        <button id="dark-theme">🌙 Oscuro</button>
       </div>
+      <h3>Fondo Personalizado</h3>
+      <input type="text" id="background-url" placeholder="Pega un enlace de imagen o GIF..." />
+      <button id="set-background">Aplicar Fondo</button>
+      <button id="reset-background">Restablecer Fondo</button>
     </div>
   </div>
-
-  <div id="notifications" class="notifications"></div>
-
-  <script src="script.js" defer></script>
-</body>
-</html>
