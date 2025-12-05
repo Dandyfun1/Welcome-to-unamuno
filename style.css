@@ -82,6 +82,10 @@ section, .card, .sheet{animation:fadeIn .6s ease}
 .header{animation:slideDown .5s ease}
 @keyframes slideDown{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:none}}
 
+/* Live-layer animations */
+@keyframes twinkle { 0% { opacity: 0.2 } 50% { opacity: 0.45 } 100% { opacity: 0.2 } }
+@keyframes float { 0% { transform: translateY(0) } 50% { transform: translateY(-6px) } 100% { transform: translateY(0) } }
+
 /* small helpers */
 .uploader-status{font-size:12px;color:var(--muted)}
 .label{margin-top:12px;font-size:13px;color:var(--muted)}
