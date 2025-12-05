@@ -1,138 +1,98 @@
-<!DOCTYPE html>
-<html lang="es">
+<!doctype html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Centro de Presentaciones</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Class Share & Calendar</title>
+
+  <link rel="stylesheet" href="styles.css" />
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.css" rel="stylesheet" />
 </head>
 <body>
-  <!-- HEADER -->
-  <header>
-    <form id="google-search" action="https://www.google.com/search" method="get" target="_blank">
-      <input type="text" name="q" placeholder="Buscar en Google...">
-      <button type="submit"><i class="fas fa-search"></i></button>
-      <input type="text" name="q" placeholder="Buscar en Google..." />
-      <button type="submit">🔍</button>
-    </form>
-  </header>
+  <div class="wallpaper" id="wallpaper">
+    <div class="anim live-stars" id="liveLayer"></div>
+  </div>
 
-  <!-- MAIN -->
-  <main>
-    <div class="dashboard">
-      <div class="feature-card" id="open-presentations">
-        <i class="fas fa-file-powerpoint"></i>
-        <span>Presentaciones</span>
+  <div class="app" id="app" data-theme="dark">
+    <header>
+      <div class="brand">
+        <div class="logo">CS</div>
+        <div>
+          <h1>Class Share</h1>
+          <div class="subtitle">Share presentations, docs & calendar — updates in real-time</div>
+        </div>
       </div>
-      <div class="feature-card" id="open-calendar">
-        <i class="fas fa-calendar-alt"></i>
-        <span>Calendario</span>
-      </div>
-      <div class="feature-card" id="open-settings">
-        <i class="fas fa-cog"></i>
-        <span>Configuración</span>
-      </div>
-    <div class="controls">
-      <button id="open-presentations">📤 Publicar Presentación</button>
-      <button id="open-calendar">📅 Calendario</button>
-      <button id="open-settings">⚙️ Configuración</button>
-    </div>
-  </main>
 
-  <!-- PRESENTATION POPUP -->
-  <div id="presentation-popup" class="modal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2><i class="fas fa-file-powerpoint"></i> Presentaciones</h2>
-        <span class="close">&times;</span>
+      <div class="controls">
+        <label class="btn" for="fileInput">Upload</label>
+        <input id="fileInput" type="file" />
+        <button class="btn" id="calendarBtn">Calendar</button>
+
+        <div class="theme-picker">
+          <div class="theme-swatch" data-theme="dark"></div>
+          <div class="theme-swatch" data-theme="light"></div>
+          <div class="theme-swatch" data-theme="mint"></div>
+        </div>
       </div>
-      <div class="modal-body">
-        <input id="slides-link" type="text" placeholder="Pega tu enlace de Google Presentaciones...">
-        <button id="add-presentation"><i class="fas fa-plus"></i> Agregar</button>
-        <div id="presentations"></div>
-      </div>
-  <div id="presentation-popup" class="popup">
-    <div class="popup-header">
-      <span>Presentaciones Publicadas</span>
-      <button class="close-popup">✖</button>
-    </div>
-    <div class="popup-body">
-      <input type="text" id="slides-link" placeholder="Pega tu enlace de Google Presentaciones..." />
-      <button id="add-presentation">Agregar</button>
-      <div id="presentations"></div>
+    </header>
+
+    <div class="grid">
+      <main class="card">
+        <h2>Shared files</h2>
+        <div class="uploader" id="userStatus"></div>
+        <div class="files-list" id="filesList"></div>
+      </main>
+
+      <aside class="card">
+        <h3>Quick actions</h3>
+        <button class="btn" id="newEventBtn">Add Event</button>
+        <button class="btn" id="refreshBtn">Refresh</button>
+
+        <label>Live wallpaper</label>
+        <select id="liveSelect" class="btn">
+          <option value="stars">Animated Stars</option>
+          <option value="waves">Soft Waves</option>
+          <option value="none">None</option>
+        </select>
+
+        <label>Upload wallpaper image</label>
+        <input type="file" id="wallUpload" accept="image/*" />
+      </aside>
     </div>
   </div>
 
-  <!-- CALENDAR POPUP -->
-  <div id="calendar-popup" class="modal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2><i class="fas fa-calendar-alt"></i> Calendario</h2>
-        <span class="close">&times;</span>
-      </div>
-      <div class="modal-body">
-        <div class="calendar-controls">
-          <button id="prev-month"><i class="fas fa-chevron-left"></i></button>
-          <span id="month-year"></span>
-          <button id="next-month"><i class="fas fa-chevron-right"></i></button>
-        </div>
-        <div id="calendar"></div>
-        <div id="event-form">
-          <input type="date" id="event-date">
-          <input type="text" id="event-title" placeholder="Título del evento">
-          <button id="add-event"><i class="fas fa-plus"></i> Añadir</button>
-        </div>
-  <div id="calendar-popup" class="popup">
-    <div class="popup-header">
-      <span>Calendario en Español</span>
-      <button class="close-popup">✖</button>
-    </div>
-    <div class="popup-body">
+  <!-- Calendar Modal -->
+  <div class="modal" id="calendarModal">
+    <div class="sheet">
+      <h3>Class Calendar</h3>
+      <button class="btn" id="closeCal">Close</button>
       <div id="calendar"></div>
-      <div id="event-form">
-        <h3>Agregar Evento</h3>
-        <input type="date" id="event-date" />
-        <input type="text" id="event-title" placeholder="Título del evento" />
-        <button id="add-event">Añadir</button>
+    </div>
+  </div>
+
+  <!-- Event Modal -->
+  <div class="modal" id="eventModal">
+    <div class="sheet small">
+      <h3>New Event</h3>
+      <input id="evTitle" placeholder="Title" class="btn" />
+      <input id="evDate" type="date" class="btn" />
+      <input id="evTime" type="time" class="btn" />
+      <textarea id="evDesc" placeholder="Description" class="btn"></textarea>
+
+      <div class="modal-actions">
+        <button class="btn" id="cancelEvent">Cancel</button>
+        <button class="btn primary" id="saveEvent">Save</button>
       </div>
     </div>
   </div>
 
-  <!-- SETTINGS POPUP -->
-  <div id="settings-popup" class="modal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2><i class="fas fa-cog"></i> Configuración</h2>
-        <span class="close">&times;</span>
-      </div>
-      <div class="modal-body">
-        <h3>Tema</h3>
-        <div class="theme-switch">
-          <button id="light-theme"><i class="fas fa-sun"></i> Claro</button>
-          <button id="dark-theme"><i class="fas fa-moon"></i> Oscuro</button>
-        </div>
-        <h3>Fondo personalizado</h3>
-        <input id="background-url" type="text" placeholder="Pega URL de imagen o GIF">
-        <button id="set-background"><i class="fas fa-check"></i> Aplicar</button>
-        <button id="reset-background"><i class="fas fa-undo"></i> Restablecer</button>
-  <div id="settings-popup" class="popup">
-    <div class="popup-header">
-      <span>Configuración</span>
-      <button class="close-popup">✖</button>
-    </div>
-    <div class="popup-body">
-      <h3>Tema</h3>
-      <div class="theme-options">
-        <button id="light-theme">🌞 Claro</button>
-        <button id="dark-theme">🌙 Oscuro</button>
-      </div>
-      <h3>Fondo Personalizado</h3>
-      <input type="text" id="background-url" placeholder="Pega un enlace de imagen o GIF..." />
-      <button id="set-background">Aplicar Fondo</button>
-      <button id="reset-background">Restablecer Fondo</button>
-    </div>
-  </div>
+  <!-- Firebase + FullCalendar + JS -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.js"></script>
+
+  <script src="app.js"></script>
+</body>
+</html>
