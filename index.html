@@ -5,94 +5,150 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Class Share & Calendar</title>
 
-  <link rel="stylesheet" href="styles.css" />
+  <!-- FullCalendar CSS -->
   <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.css" rel="stylesheet" />
+  <!-- Local styles -->
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div class="wallpaper" id="wallpaper">
-    <div class="anim live-stars" id="liveLayer"></div>
+  <!-- Wallpaper layer (updated dynamically) -->
+  <div id="wallpaper" class="wallpaper">
+    <div id="liveLayer" class="live-layer"></div>
   </div>
 
-  <div class="app" id="app" data-theme="dark">
-    <header>
+  <div id="app" class="app" data-theme="dark">
+    <header class="header">
       <div class="brand">
         <div class="logo">CS</div>
         <div>
-          <h1>Class Share</h1>
+          <h1 class="title">Class Share</h1>
           <div class="subtitle">Share presentations, docs & calendar — updates in real-time</div>
         </div>
       </div>
 
       <div class="controls">
-        <label class="btn" for="fileInput">Upload</label>
+        <label for="fileInput" class="btn">Upload</label>
         <input id="fileInput" type="file" />
-        <button class="btn" id="calendarBtn">Calendar</button>
+
+        <button id="calendarBtn" class="btn">Calendar</button>
 
         <div class="theme-picker">
-          <div class="theme-swatch" data-theme="dark"></div>
-          <div class="theme-swatch" data-theme="light"></div>
-          <div class="theme-swatch" data-theme="mint"></div>
+          <div class="theme-swatch" data-theme="dark" title="Dark"></div>
+          <div class="theme-swatch" data-theme="light" title="Light"></div>
+          <div class="theme-swatch" data-theme="mint" title="Mint"></div>
         </div>
       </div>
     </header>
 
-    <div class="grid">
-      <main class="card">
-        <h2>Shared files</h2>
-        <div class="uploader" id="userStatus"></div>
-        <div class="files-list" id="filesList"></div>
-      </main>
+    <main class="main-grid">
+      <section class="card files-card">
+        <div class="card-header">
+          <h2>Shared files</h2>
+          <div id="userStatus" class="uploader-status">Signing in...</div>
+        </div>
+        <div id="filesList" class="files-list"></div>
+      </section>
 
-      <aside class="card">
+      <aside class="card aside-card">
         <h3>Quick actions</h3>
-        <button class="btn" id="newEventBtn">Add Event</button>
-        <button class="btn" id="refreshBtn">Refresh</button>
 
-        <label>Live wallpaper</label>
-        <select id="liveSelect" class="btn">
-          <option value="stars">Animated Stars</option>
-          <option value="waves">Soft Waves</option>
-          <option value="none">None</option>
-        </select>
+        <div class="actions">
+          <button id="newEventBtn" class="btn">Add Event</button>
+          <button id="refreshBtn" class="btn">Refresh</button>
 
-        <label>Upload wallpaper image</label>
-        <input type="file" id="wallUpload" accept="image/*" />
+          <label class="label">Live wallpaper</label>
+          <select id="liveSelect" class="select">
+            <option value="stars">Animated Stars</option>
+            <option value="waves">Soft Waves</option>
+            <option value="none">None</option>
+          </select>
+
+          <label class="label">Upload wallpaper (GIF/JPG/PNG)</label>
+          <input id="wallUpload" type="file" accept="image/*" />
+        </div>
       </aside>
-    </div>
+    </main>
   </div>
 
-  <!-- Calendar Modal -->
-  <div class="modal" id="calendarModal">
+  <!-- Calendar modal -->
+  <div id="calendarModal" class="modal">
     <div class="sheet">
-      <h3>Class Calendar</h3>
-      <button class="btn" id="closeCal">Close</button>
-      <div id="calendar"></div>
+      <div class="sheet-header">
+        <h3>Class Calendar</h3>
+        <div class="legend">
+          <span class="legend-item"><span class="dot" style="background:#2563eb"></span> Lecture</span>
+          <span class="legend-item"><span class="dot" style="background:#ef4444"></span> Exam</span>
+          <span class="legend-item"><span class="dot" style="background:#f59e0b"></span> Deadline</span>
+          <span class="legend-item"><span class="dot" style="background:#10b981"></span> Other</span>
+        </div>
+        <button id="closeCal" class="btn">Close</button>
+      </div>
+      <div id="calendar" style="margin-top:12px"></div>
     </div>
   </div>
 
-  <!-- Event Modal -->
-  <div class="modal" id="eventModal">
+  <!-- Event modal -->
+  <div id="eventModal" class="modal">
     <div class="sheet small">
       <h3>New Event</h3>
-      <input id="evTitle" placeholder="Title" class="btn" />
-      <input id="evDate" type="date" class="btn" />
-      <input id="evTime" type="time" class="btn" />
-      <textarea id="evDesc" placeholder="Description" class="btn"></textarea>
+      <input id="evTitle" placeholder="Title" class="input" />
+      <input id="evDate" type="date" class="input" />
+      <input id="evTime" type="time" class="input" />
+      <select id="evCategory" class="input">
+        <option value="lecture">Lecture</option>
+        <option value="exam">Exam</option>
+        <option value="deadline">Deadline</option>
+        <option value="other">Other</option>
+      </select>
+      <textarea id="evDesc" placeholder="Description" class="input" rows="4"></textarea>
 
       <div class="modal-actions">
-        <button class="btn" id="cancelEvent">Cancel</button>
-        <button class="btn primary" id="saveEvent">Save</button>
+        <button id="cancelEvent" class="btn">Cancel</button>
+        <button id="saveEvent" class="btn primary">Save</button>
       </div>
     </div>
   </div>
 
-  <!-- Firebase + FullCalendar + JS -->
+  <!-- Settings panel + toggle button -->
+  <div id="settings-panel">
+    <h4>Settings</h4>
+    <label>Theme</label>
+    <select id="themeSelect" class="input">
+      <option value="dark">Dark</option>
+      <option value="light">Light</option>
+      <option value="mint">Mint</option>
+    </select>
+
+    <label>Allow uploads by</label>
+    <select id="authMode" class="input">
+      <option value="anonymous">Anonymous (default)</option>
+      <option value="disabled">Disabled (read-only)</option>
+    </select>
+
+    <label>Live wallpaper</label>
+    <select id="liveSelectSettings" class="input">
+      <option value="stars">Animated Stars</option>
+      <option value="waves">Soft Waves</option>
+      <option value="none">None</option>
+    </select>
+
+    <label>Upload wallpaper</label>
+    <input id="wallUploadSettings" type="file" accept="image/*" class="input" />
+
+    <div style="margin-top:12px; display:flex;gap:8px;justify-content:flex-end">
+      <button id="closeSettings" class="btn">Close</button>
+    </div>
+  </div>
+
+  <button id="settings-btn" title="Settings">⚙</button>
+
+  <!-- Firebase + FullCalendar + App JS -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.js"></script>
 
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
