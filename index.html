@@ -1,64 +1,153 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Class Share</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Class Share — Calendar & Files</title>
 
+  <!-- FullCalendar CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.css" rel="stylesheet" />
+
+  <!-- Local styles -->
+  <link rel="stylesheet" href="styles.css" />
+</head>
 <body>
 
-<header>
-    <h1>Class Share</h1>
-    <p>Class documents • Events • Share anything</p>
-</header>
+  <!-- Wallpaper and live layer -->
+  <div id="wallpaper" class="wallpaper"></div>
 
-<nav>
-    <button id="files-btn">Files</button>
-    <button id="calendar-btn">Calendar</button>
-    <button id="settings-btn">⚙</button>
-</nav>
+  <div class="app" id="appRoot" data-theme="dark">
+    <header class="topbar glass">
+      <div class="brand">
+        <div class="logo">CS</div>
+        <div>
+          <h1>Class Share</h1>
+          <div class="subtitle">Docs • Calendar • Shared wallpapers</div>
+        </div>
+      </div>
 
-<!-- FILES SECTION -->
-<section id="files-section">
-    <h2>Shared Files</h2>
-    <input type="file" id="file-upload">
-    <ul id="file-list"></ul>
-</section>
+      <div class="controls">
+        <label class="btn" for="fileUploadInput">Upload</label>
+        <input id="fileUploadInput" type="file" hidden>
 
-<!-- CALENDAR POPUP -->
-<div id="calendar-popup" class="popup">
-    <h2>Class Calendar</h2>
+        <button id="openCalendarBtn" class="btn">Calendar</button>
 
-    <div id="calendar-events"></div>
+        <div class="theme-swatch-row">
+          <button class="theme-swatch" data-theme="dark" title="Dark"></button>
+          <button class="theme-swatch" data-theme="light" title="Light"></button>
+          <button class="theme-swatch" data-theme="mint" title="Mint"></button>
+        </div>
+      </div>
+    </header>
 
-    <button id="add-event-btn" class="btn">Add event</button>
-    <button id="close-calendar" class="btn red">Close</button>
+    <main class="main-grid">
+      <section class="card glass">
+        <h2>Shared files</h2>
+        <div id="filesList" class="files-list">
+          <div class="placeholder">No files yet — use Upload to add files (local only).</div>
+        </div>
+      </section>
 
-    <div id="event-form">
-        <input id="event-title" placeholder="Event title">
-        <input id="event-date" type="date">
-        <textarea id="event-desc" placeholder="Description"></textarea>
+      <aside class="card glass">
+        <h3>Quick actions</h3>
+        <div class="aside-actions">
+          <button id="newEventBtn" class="btn">Add Event</button>
+          <button id="refreshBtn" class="btn">Refresh</button>
 
-        <button id="save-event" class="btn">Save</button>
-        <button id="cancel-event" class="btn red">Cancel</button>
+          <label class="smalllabel">Live wallpaper</label>
+          <select id="liveSelect" class="select">
+            <option value="none">None</option>
+            <option value="stars">Animated Stars</option>
+            <option value="waves">Soft Waves</option>
+          </select>
+
+          <label class="smalllabel">Upload wallpaper (GIF/JPG/PNG)</label>
+          <input id="wallUpload" type="file" accept="image/*">
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <!-- Calendar modal (FullCalendar inside) -->
+  <div id="calendarModal" class="modal">
+    <div class="sheet glass">
+      <div class="sheet-header">
+        <h3>Class Calendar</h3>
+        <div class="legend">
+          <span><span class="dot" style="background:#2563eb"></span> Lecture</span>
+          <span><span class="dot" style="background:#ef4444"></span> Exam</span>
+          <span><span class="dot" style="background:#f59e0b"></span> Deadline</span>
+          <span><span class="dot" style="background:#10b981"></span> Other</span>
+        </div>
+        <div class="sheet-actions">
+          <button id="closeCalendar" class="btn">Close</button>
+        </div>
+      </div>
+
+      <div id="calendar"></div>
     </div>
-</div>
+  </div>
 
-<!-- SETTINGS PANEL -->
-<div id="settings-panel" class="popup">
-    <h2>Settings</h2>
+  <!-- Event modal (for add/edit) -->
+  <div id="eventModal" class="modal">
+    <div class="sheet small glass">
+      <h3 id="eventModalTitle">New Event</h3>
 
-    <label>Theme Color</label>
-    <input type="color" id="theme-color">
+      <label>Title</label>
+      <input id="evtTitle" class="input" placeholder="Event title">
 
-    <label>Upload Wallpaper (GIF / JPG / PNG)</label>
-    <input type="file" id="wallpaper-upload">
+      <label>Date</label>
+      <input id="evtDate" type="date" class="input">
 
-    <button id="close-settings" class="btn red">Close</button>
-</div>
+      <label>Time (optional)</label>
+      <input id="evtTime" type="time" class="input">
 
-<script src="script.js"></script>
+      <label>Category</label>
+      <select id="evtCategory" class="input">
+        <option value="lecture">Lecture</option>
+        <option value="exam">Exam</option>
+        <option value="deadline">Deadline</option>
+        <option value="other">Other</option>
+      </select>
+
+      <label>Description</label>
+      <textarea id="evtDesc" class="input" rows="4" placeholder="Description"></textarea>
+
+      <div class="modal-actions">
+        <button id="deleteEventBtn" class="btn red" style="display:none">Delete</button>
+        <div style="flex:1"></div>
+        <button id="cancelEventBtn" class="btn">Cancel</button>
+        <button id="saveEventBtn" class="btn primary">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings panel -->
+  <div id="settingsPanel" class="settings-panel glass">
+    <h4>Settings</h4>
+
+    <label>Theme</label>
+    <select id="themeSelect" class="input">
+      <option value="dark">Dark</option>
+      <option value="light">Light</option>
+      <option value="mint">Mint</option>
+    </select>
+
+    <label>Theme color</label>
+    <input type="color" id="accentColor" class="input" value="#60a5fa">
+
+    <label>Upload wallpaper</label>
+    <input id="wallUploadSettings" type="file" accept="image/*" class="input">
+
+    <div style="display:flex;justify-content:flex-end;margin-top:10px">
+      <button id="closeSettingsBtn" class="btn">Close</button>
+    </div>
+  </div>
+
+  <button id="settingsToggle" class="fab">⚙</button>
+
+  <!-- FullCalendar & script -->
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
