@@ -11,74 +11,54 @@
 
 <header>
     <h1>Class Share</h1>
-    <p>Share presentations, docs & events</p>
+    <p>Class documents • Events • Share anything</p>
 </header>
 
 <nav>
-    <ul>
-        <li id="files-tab">Files</li>
-        <li id="calendar-btn">Calendar</li>
-        <li id="settings-btn">⚙</li>
-    </ul>
+    <button id="files-btn">Files</button>
+    <button id="calendar-btn">Calendar</button>
+    <button id="settings-btn">⚙</button>
 </nav>
 
-<!-- Shared Files Section -->
+<!-- FILES SECTION -->
 <section id="files-section">
     <h2>Shared Files</h2>
-
-    <div class="upload-box">
-        <label class="btn">Upload File
-            <input type="file" id="file-upload" hidden>
-        </label>
-    </div>
-
+    <input type="file" id="file-upload">
     <ul id="file-list"></ul>
 </section>
 
-<!-- Calendar Popup -->
-<div id="calendar-popup">
+<!-- CALENDAR POPUP -->
+<div id="calendar-popup" class="popup">
     <h2>Class Calendar</h2>
+
     <div id="calendar-events"></div>
 
-    <button id="add-event-btn" class="btn small">Add Event</button>
-    <button id="close-calendar" class="btn small red">Close</button>
+    <button id="add-event-btn" class="btn">Add event</button>
+    <button id="close-calendar" class="btn red">Close</button>
 
     <div id="event-form">
         <input id="event-title" placeholder="Event title">
         <input id="event-date" type="date">
-        <select id="event-type">
-            <option value="lecture">Lecture</option>
-            <option value="exam">Exam</option>
-            <option value="deadline">Deadline</option>
-            <option value="other">Other</option>
-        </select>
         <textarea id="event-desc" placeholder="Description"></textarea>
 
-        <button id="save-event" class="btn small">Save</button>
-        <button id="cancel-event" class="btn small red">Cancel</button>
+        <button id="save-event" class="btn">Save</button>
+        <button id="cancel-event" class="btn red">Cancel</button>
     </div>
 </div>
 
-<!-- Settings Panel -->
-<div id="settings-panel">
+<!-- SETTINGS PANEL -->
+<div id="settings-panel" class="popup">
     <h2>Settings</h2>
 
     <label>Theme Color</label>
-    <input type="color" id="theme-picker">
+    <input type="color" id="theme-color">
 
-    <label>Live Wallpaper</label>
-    <select id="live-wallpaper">
-        <option value="none">None</option>
-        <option value="stars">Animated Stars</option>
-        <option value="grid">Flow Grid</option>
-    </select>
+    <label>Upload Wallpaper (GIF / JPG / PNG)</label>
+    <input type="file" id="wallpaper-upload">
 
-    <label>Custom Wallpaper (GIF/PNG/JPG)</label>
-    <input type="file" id="custom-wallpaper">
-
-    <button id="close-settings" class="btn small red">Close</button>
+    <button id="close-settings" class="btn red">Close</button>
 </div>
 
-<script src="app.js"></script>
+<script src="script.js"></script>
 </body>
 </html>
